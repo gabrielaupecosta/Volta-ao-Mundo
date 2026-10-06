@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Volta ao Mundo - O Desafio dos 196 Países</title>
+  <title>Volta ao Mundo - O Desafio dos 198 Países</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -58,14 +58,93 @@
       fill: #ef4444 !important;
       stroke: #b91c1c !important;
     }
+    
+    /* Estilo Especial para Micropaíses (Pontos Visíveis) */
+    .map-marker {
+      fill: #334155; 
+      stroke: #64748b;
+      stroke-width: 1.5px;
+    }
+    .map-marker:hover {
+      fill: #60a5fa;
+      stroke: #ffffff;
+    }
+    .map-marker.guessed {
+      fill: #10b981 !important;
+      stroke: #ffffff !important;
+    }
+    .map-marker.missed {
+      fill: #ef4444 !important;
+      stroke: #ffffff !important;
+    }
+
     .ocean {
       fill: #090e17;
       stroke: #1e293b;
       stroke-width: 1px;
     }
+
+    /* EASTER EGG ANIMATIONS */
+    @keyframes floatUp {
+      0% { transform: translateY(110vh) rotate(0deg) scale(0.8); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-20vh) rotate(360deg) scale(1.2); opacity: 0; }
+    }
+    
+    .watermelon {
+      position: fixed;
+      font-size: 3.5rem;
+      z-index: 1000;
+      animation: floatUp linear forwards;
+      pointer-events: none;
+      filter: drop-shadow(0px 10px 10px rgba(0,0,0,0.5));
+    }
+
+    .easter-egg-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(6px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+    .easter-egg-overlay.active {
+      opacity: 1;
+    }
+    
+    .easter-egg-text {
+      font-size: 4vw;
+      font-weight: 800;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-align: center;
+      text-shadow: 0 0 20px rgba(16, 185, 129, 0.8), 0 0 40px rgba(239, 68, 68, 0.6);
+      transform: scale(0.5);
+      opacity: 0;
+      transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .easter-egg-overlay.active .easter-egg-text {
+      transform: scale(1);
+      opacity: 1;
+    }
+    @media (max-width: 768px) {
+      .easter-egg-text { font-size: 8vw; }
+    }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-emerald-500 selection:text-white">
+
+  <!-- EASTER EGG OVERLAY -->
+  <div id="palestineEasterEgg" class="easter-egg-overlay">
+    <div class="easter-egg-text">Palestina livre<br>do rio ao mar</div>
+  </div>
 
   <!-- HEADER -->
   <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-40">
@@ -79,7 +158,7 @@
         <div>
           <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
             Volta ao Mundo
-            <span class="text-xs px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-400 font-semibold border border-brand-500/30">196 Países</span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-400 font-semibold border border-brand-500/30">198 Países</span>
           </h1>
           <p class="text-xs text-slate-400 hidden sm:block">Adivinhe todas as nações do planeta antes do tempo acabar</p>
         </div>
@@ -118,7 +197,7 @@
           <span class="text-xs font-semibold text-slate-400 block uppercase tracking-wider">Acertos</span>
           <div class="text-2xl font-extrabold text-white mt-0.5">
             <span id="scoreDisplay" class="text-brand-400">0</span>
-            <span class="text-slate-500 text-lg">/ 196</span>
+            <span class="text-slate-500 text-lg">/ 198</span>
           </div>
         </div>
         <div class="w-10 h-10 rounded-lg bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-400">
@@ -165,11 +244,9 @@
     <!-- CAMPO DE DIGITAÇÃO -->
     <div class="relative w-full">
       <div class="relative flex items-center">
-        <!-- Ícone movido para a direita com left-6 -->
         <div class="absolute left-6 flex items-center pointer-events-none">
           <i data-lucide="search" class="w-5 h-5 text-slate-400"></i>
         </div>
-        <!-- Padding alterado para pl-16 para criar o espaço adequado -->
         <input 
           id="countryInput"
           type="text" 
@@ -210,19 +287,19 @@
     <!-- NAVEGAÇÃO DE CONTINENTES / ABAS -->
     <div class="flex items-center gap-2 overflow-x-auto pb-1 border-b border-slate-800" id="continentTabs">
       <button class="continent-tab px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-brand-600 text-white transition flex items-center gap-2" data-continent="all">
-        Todos <span class="text-xs bg-slate-900/50 px-1.5 py-0.5 rounded-full" id="count-all">0/196</span>
+        Todos <span class="text-xs bg-slate-900/50 px-1.5 py-0.5 rounded-full" id="count-all">0/198</span>
       </button>
       <button class="continent-tab px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-slate-900 text-slate-400 hover:text-white transition flex items-center gap-2" data-continent="Americas">
         Américas <span class="text-xs bg-slate-800 px-1.5 py-0.5 rounded-full" id="count-americas">0/35</span>
       </button>
       <button class="continent-tab px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-slate-900 text-slate-400 hover:text-white transition flex items-center gap-2" data-continent="Europa">
-        Europa <span class="text-xs bg-slate-800 px-1.5 py-0.5 rounded-full" id="count-europa">0/44</span>
+        Europa <span class="text-xs bg-slate-800 px-1.5 py-0.5 rounded-full" id="count-europa">0/45</span>
       </button>
       <button class="continent-tab px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-slate-900 text-slate-400 hover:text-white transition flex items-center gap-2" data-continent="Asia">
         Ásia <span class="text-xs bg-slate-800 px-1.5 py-0.5 rounded-full" id="count-asia">0/48</span>
       </button>
       <button class="continent-tab px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-slate-900 text-slate-400 hover:text-white transition flex items-center gap-2" data-continent="Africa">
-        África <span class="text-xs bg-slate-800 px-1.5 py-0.5 rounded-full" id="count-africa">0/54</span>
+        África <span class="text-xs bg-slate-800 px-1.5 py-0.5 rounded-full" id="count-africa">0/55</span>
       </button>
       <button class="continent-tab px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-slate-900 text-slate-400 hover:text-white transition flex items-center gap-2" data-continent="Oceania">
         Oceania <span class="text-xs bg-slate-800 px-1.5 py-0.5 rounded-full" id="count-oceania">0/14</span>
@@ -246,7 +323,7 @@
       <div class="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 grid grid-cols-2 gap-4 mb-6">
         <div>
           <span class="text-xs text-slate-400 uppercase font-semibold">Total Acertado</span>
-          <div class="text-2xl font-bold text-white mt-0.5"><span id="modalScore">0</span> / 196</div>
+          <div class="text-2xl font-bold text-white mt-0.5"><span id="modalScore">0</span> / 198</div>
         </div>
         <div>
           <span class="text-xs text-slate-400 uppercase font-semibold">Aproveitamento</span>
@@ -311,7 +388,7 @@
       { id: "858", name: "Uruguai", continent: "Americas", syn: ["uruguai", "uruguay"] },
       { id: "862", name: "Venezuela", continent: "Americas", syn: ["venezuela"] },
 
-      // EUROPA (44)
+      // EUROPA (45 agora com Kosovo)
       { id: "008", name: "Albânia", continent: "Europa", syn: ["albania"] },
       { id: "276", name: "Alemanha", continent: "Europa", syn: ["alemanha", "germany"] },
       { id: "020", name: "Andorra", continent: "Europa", syn: ["andorra"] },
@@ -334,7 +411,7 @@
       { id: "372", name: "Irlanda", continent: "Europa", syn: ["irlanda", "ireland"] },
       { id: "352", name: "Islândia", continent: "Europa", syn: ["islandia", "iceland"] },
       { id: "380", name: "Itália", continent: "Europa", syn: ["italia", "italy"] },
-      { id: "688", name: "Sérvia", continent: "Europa", syn: ["servia", "serbia", "kosovo"] },
+      { id: "383", name: "Kosovo", continent: "Europa", syn: ["kosovo", "cosovo"] }, // ADICIONADO
       { id: "428", name: "Letônia", continent: "Europa", syn: ["letonia", "latvia"] },
       { id: "438", name: "Liechtenstein", continent: "Europa", syn: ["liechtenstein"] },
       { id: "440", name: "Lituânia", continent: "Europa", syn: ["lituania", "lithuania"] },
@@ -353,6 +430,7 @@
       { id: "642", name: "Romênia", continent: "Europa", syn: ["romenia", "romania"] },
       { id: "643", name: "Rússia", continent: "Europa", syn: ["russia"] },
       { id: "674", name: "San Marino", continent: "Europa", syn: ["san marino"] },
+      { id: "688", name: "Sérvia", continent: "Europa", syn: ["servia", "serbia"] }, // Kosovo removido dos sinônimos
       { id: "752", name: "Suécia", continent: "Europa", syn: ["suecia", "sweden"] },
       { id: "756", name: "Suíça", continent: "Europa", syn: ["suica", "switzerland"] },
       { id: "804", name: "Ucrânia", continent: "Europa", syn: ["ucrania", "ukraine"] },
@@ -408,7 +486,7 @@
       { id: "860", name: "Uzbequistão", continent: "Asia", syn: ["uzbequistao", "uzbekistan"] },
       { id: "704", name: "Vietnã", continent: "Asia", syn: ["vietna", "vietnam"] },
 
-      // ÁFRICA (54)
+      // ÁFRICA (55)
       { id: "710", name: "África do Sul", continent: "Africa", syn: ["africa do sul"] },
       { id: "024", name: "Angola", continent: "Africa", syn: ["angola"] },
       { id: "012", name: "Argélia", continent: "Africa", syn: ["argelia", "algeria"] },
@@ -455,6 +533,7 @@
       { id: "690", name: "Seicheles", continent: "Africa", syn: ["seicheles", "seychelles"] },
       { id: "694", name: "Serra Leoa", continent: "Africa", syn: ["serra leoa"] },
       { id: "706", name: "Somália", continent: "Africa", syn: ["somalia"] },
+      { id: "999", name: "Somalilândia", continent: "Africa", syn: ["somalilandia", "somaliland"] },
       { id: "729", name: "Sudão", continent: "Africa", syn: ["sudao", "sudan"] },
       { id: "728", name: "Sudão do Sul", continent: "Africa", syn: ["sudao do sul"] },
       { id: "834", name: "Tanzânia", continent: "Africa", syn: ["tanzania"] },
@@ -481,7 +560,49 @@
       { id: "548", name: "Vanuatu", continent: "Oceania", syn: ["vanuatu"] }
     ];
 
-    // DICIONÁRIO DE TERRITÓRIOS
+    const TOTAL_COUNTRIES = 198;
+
+    // COORDENADAS PARA MICROPAÍSES QUE NÃO APARECEM NO MAPA BASE DE 110M
+    const MICRO_STATES_COORDS = [
+      { id: "336", coords: [12.4534, 41.9029] }, // Vaticano
+      { id: "492", coords: [7.4200, 43.7384] }, // Mônaco
+      { id: "674", coords: [12.4578, 43.9424] }, // San Marino
+      { id: "438", coords: [9.5209, 47.1410] }, // Liechtenstein
+      { id: "020", coords: [1.5218, 42.5063] }, // Andorra
+      { id: "470", coords: [14.3754, 35.9375] }, // Malta
+      { id: "462", coords: [73.2207, 3.2028] }, // Maldivas
+      { id: "702", coords: [103.8198, 1.3521] }, // Singapura
+      { id: "048", coords: [50.5577, 26.0667] }, // Bahrein
+      { id: "678", coords: [6.6131, 0.1864] }, // São Tomé
+      { id: "690", coords: [55.4920, -4.6796] }, // Seicheles
+      { id: "174", coords: [43.3333, -11.6455] }, // Comores
+      { id: "480", coords: [57.5522, -20.3484] }, // Maurícia
+      { id: "132", coords: [-23.6167, 16.5388] }, // Cabo Verde
+      { id: "028", coords: [-61.7964, 17.0608] }, // Antígua
+      { id: "052", coords: [-59.5432, 13.1939] }, // Barbados
+      { id: "212", coords: [-61.3710, 15.4150] }, // Dominica
+      { id: "308", coords: [-61.6790, 12.1165] }, // Granada
+      { id: "659", coords: [-62.7830, 17.3578] }, // São Cristóvão
+      { id: "662", coords: [-60.9789, 13.9094] }, // Santa Lúcia
+      { id: "670", coords: [-61.2872, 13.2528] }, // São Vicente
+      { id: "780", coords: [-61.2225, 10.6918] }, // Trinidad
+      { id: "044", coords: [-77.3963, 25.0343] }, // Bahamas
+      { id: "583", coords: [158.1499, 6.8874] }, // Micronésia
+      { id: "584", coords: [171.1845, 7.1315] }, // Marshall
+      { id: "520", coords: [166.9315, -0.5228] }, // Nauru
+      { id: "585", coords: [134.5825, 7.5149] }, // Palau
+      { id: "882", coords: [-172.1046, -13.7590] }, // Samoa
+      { id: "776", coords: [-175.1982, -21.1789] }, // Tonga
+      { id: "798", coords: [179.1940, -8.5146] }, // Tuvalu
+      { id: "296", coords: [173.0000, 1.4167] }, // Kiribati
+      { id: "548", coords: [166.9592, -15.3767] }, // Vanuatu
+      { id: "090", coords: [160.1562, -9.6457] }, // Salomão
+      { id: "242", coords: [178.0650, -17.7134] }, // Fiji
+      { id: "096", coords: [114.7277, 4.5353] }, // Brunei
+      { id: "383", coords: [20.9029, 42.6026] }, // Kosovo
+      { id: "275", coords: [35.2332, 31.9522] }, // Palestina
+    ];
+
     const TERRITORIES_DB = {
       "304": { owner: "208", name: "Groenlândia", ownerName: "Dinamarca" },
       "630": { owner: "840", name: "Porto Rico", ownerName: "Estados Unidos" },
@@ -501,9 +622,9 @@
     let timerInterval = null;
     let guessedCountries = new Set();
     let isMuted = false;
-    let countriesGeoGlobal = []; // Variável para armazenar dados dos países para rotação auto
+    let countriesGeoGlobal = []; 
 
-    // DOM Elements
+    // DOM
     const gameActionBtn = document.getElementById('gameActionBtn');
     const countryInput = document.getElementById('countryInput');
     const typingFeedback = document.getElementById('typingFeedback');
@@ -522,7 +643,7 @@
     const resetZoomBtn = document.getElementById('resetZoomBtn');
     const gameOverModal = document.getElementById('gameOverModal');
 
-    // Efeitos Sonoros
+    // Áudio
     let audioCtx = null;
     function playSound(type) {
       if (isMuted) return;
@@ -554,13 +675,30 @@
       return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "").trim();
     }
 
+    // Easter Egg
+    function showPalestineEasterEgg() {
+      const overlay = document.getElementById('palestineEasterEgg');
+      overlay.classList.add('active');
+      for(let i=0; i<35; i++) {
+        const wm = document.createElement('div');
+        wm.className = 'watermelon';
+        wm.innerText = '🍉';
+        wm.style.left = (Math.random() * 100) + 'vw';
+        wm.style.animationDuration = (2.5 + Math.random() * 2) + 's';
+        wm.style.animationDelay = (Math.random() * 0.5) + 's';
+        document.body.appendChild(wm);
+        setTimeout(() => wm.remove(), 5000);
+      }
+      setTimeout(() => overlay.classList.remove('active'), 3500);
+    }
+
     function renderContinentTables() {
       continentsContainer.innerHTML = '';
       const continentsConfig = [
         { key: 'Americas', title: 'Américas', total: 35 },
-        { key: 'Europa', title: 'Europa', total: 44 },
+        { key: 'Europa', title: 'Europa', total: 45 },
         { key: 'Asia', title: 'Ásia', total: 48 },
-        { key: 'Africa', title: 'África', total: 54 },
+        { key: 'Africa', title: 'África', total: 55 },
         { key: 'Oceania', title: 'Oceania', total: 14 }
       ];
 
@@ -596,7 +734,6 @@
       updateCounters();
     }
 
-    // MAPA 3D D3.js
     let svgContainer, mapGroup, projection, svgPath;
     const INITIAL_SCALE = 220;
 
@@ -610,14 +747,14 @@
         .clipAngle(90)
         .precision(0.1);
         
-      svgPath = d3.geoPath().projection(projection);
+      // O pointRadius é importante para os círculos dos microestados não estourarem no zoom
+      svgPath = d3.geoPath().projection(projection).pointRadius(4);
 
       const ocean = mapGroup.append("circle")
         .attr("cx", 480).attr("cy", 240)
         .attr("r", INITIAL_SCALE)
         .attr("class", "ocean");
 
-      // Girar (Drag)
       let rotate0, coords0;
       const dragBehavior = d3.drag()
         .on('start', (event) => {
@@ -638,7 +775,6 @@
 
       svgContainer.call(dragBehavior);
 
-      // Zoom (Scroll)
       svgContainer.on("wheel", (event) => {
         event.preventDefault();
         const zoomFactor = event.deltaY < 0 ? 1.1 : 0.9;
@@ -651,19 +787,31 @@
         checkResetButtonVisibility();
       });
 
-      // Carregar Países
       fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
         .then(res => res.json())
         .then(world => {
-          countriesGeoGlobal = topojson.feature(world, world.objects.countries).features
+          const topoFeatures = topojson.feature(world, world.objects.countries).features
             .filter(d => String(d.id).padStart(3, '0') !== '010');
+
+          // Criar features geográficas (pontos) para os microestados
+          const existingIds = new Set(topoFeatures.map(d => String(d.id).padStart(3, '0')));
+          const microFeatures = MICRO_STATES_COORDS
+            .filter(m => !existingIds.has(m.id)) // Garante que não duplique se já tiver na base D3
+            .map(m => ({
+              type: "Feature",
+              id: m.id,
+              geometry: { type: "Point", coordinates: m.coords }
+            }));
+
+          // Junta poligonos e pontos na mesma base de renderização global
+          countriesGeoGlobal = [...topoFeatures, ...microFeatures];
 
           mapGroup.selectAll(".map-country")
             .data(countriesGeoGlobal)
             .enter()
             .append("path")
+            .attr("class", d => d.geometry.type === 'Point' ? 'map-country map-marker' : 'map-country')
             .attr("d", svgPath)
-            .attr("class", "map-country")
             .attr("id", d => `map-${String(d.id).padStart(3, '0')}`)
             .attr("data-owner", d => {
                const code = String(d.id).padStart(3, '0');
@@ -697,7 +845,6 @@
         });
     }
 
-    // Girar e centralizar para um país especifíco (Usado no input)
     function autoRotateToCountry(countryCode) {
       if (countriesGeoGlobal.length === 0) return;
       const feature = countriesGeoGlobal.find(f => String(f.id).padStart(3, '0') === countryCode);
@@ -715,7 +862,6 @@
       }).on("end", checkResetButtonVisibility);
     }
 
-    // Zoom animado no clique
     function clickedCountryZoom(event, d) {
       event.stopPropagation();
       const centroid = d3.geoCentroid(d);
@@ -779,21 +925,21 @@
         counts[c.continent]++;
       });
 
-      document.getElementById('count-all').innerText = `${counts.all}/196`;
+      document.getElementById('count-all').innerText = `${counts.all}/${TOTAL_COUNTRIES}`;
       document.getElementById('count-americas').innerText = `${counts.Americas}/35`;
-      document.getElementById('count-europa').innerText = `${counts.Europa}/44`;
+      document.getElementById('count-europa').innerText = `${counts.Europa}/45`;
       document.getElementById('count-asia').innerText = `${counts.Asia}/48`;
-      document.getElementById('count-africa').innerText = `${counts.Africa}/54`;
+      document.getElementById('count-africa').innerText = `${counts.Africa}/55`;
       document.getElementById('count-oceania').innerText = `${counts.Oceania}/14`;
 
       const bA = document.getElementById('badge-Americas'); if (bA) bA.innerText = `${counts.Americas}/35`;
-      const bE = document.getElementById('badge-Europa'); if (bE) bE.innerText = `${counts.Europa}/44`;
+      const bE = document.getElementById('badge-Europa'); if (bE) bE.innerText = `${counts.Europa}/45`;
       const bAs = document.getElementById('badge-Asia'); if (bAs) bAs.innerText = `${counts.Asia}/48`;
-      const bAf = document.getElementById('badge-Africa'); if (bAf) bAf.innerText = `${counts.Africa}/54`;
+      const bAf = document.getElementById('badge-Africa'); if (bAf) bAf.innerText = `${counts.Africa}/55`;
       const bO = document.getElementById('badge-Oceania'); if (bO) bO.innerText = `${counts.Oceania}/14`;
 
       scoreDisplay.innerText = counts.all;
-      const pct = Math.round((counts.all / 196) * 100);
+      const pct = Math.round((counts.all / TOTAL_COUNTRIES) * 100);
       percentDisplay.innerText = `${pct}%`;
       progressBar.style.width = `${pct}%`;
     }
@@ -875,13 +1021,12 @@
       });
 
       document.getElementById('modalTitle').innerText = victory ? "Parabéns, Você Conquistou o Globo!" : reason;
-      document.getElementById('modalSubtitle').innerText = victory ? "Você acertou todos os 196 países do mundo!" : "Veja seu desempenho final na Volta ao Mundo:";
+      document.getElementById('modalSubtitle').innerText = victory ? `Você acertou todos os ${TOTAL_COUNTRIES} países do mundo!` : "Veja seu desempenho final na Volta ao Mundo:";
       document.getElementById('modalScore').innerText = guessedCountries.size;
-      document.getElementById('modalPercent').innerText = `${Math.round((guessedCountries.size / 196) * 100)}%`;
+      document.getElementById('modalPercent').innerText = `${Math.round((guessedCountries.size / TOTAL_COUNTRIES) * 100)}%`;
       gameOverModal.classList.remove('hidden');
     }
 
-    // Digitação e Auto-Rotação
     countryInput.addEventListener('input', (e) => {
       if (!isPlaying) return;
       const rawVal = e.target.value;
@@ -904,8 +1049,13 @@
         } else {
           guessedCountries.add(foundIndex);
           const country = COUNTRIES_DB[foundIndex];
-          const cell = document.getElementById(`cell-${foundIndex}`);
           
+          // EASTER EGG PALESTINA
+          if (normalize(country.name) === "palestina") {
+            showPalestineEasterEgg();
+          }
+
+          const cell = document.getElementById(`cell-${foundIndex}`);
           if (cell) {
             cell.classList.remove('bg-slate-950/60', 'border-slate-800/80');
             cell.classList.add('bg-emerald-950/30', 'border-emerald-600/50');
@@ -916,8 +1066,6 @@
           }
 
           updateMapCountry(foundIndex, 'guessed');
-          
-          // Gira o globo para o país acertado
           autoRotateToCountry(country.id);
 
           lastGuessedDisplay.innerText = country.name;
@@ -927,7 +1075,7 @@
           playSound('hit');
           updateCounters();
 
-          if (guessedCountries.size === 196) endGame(true, "Você Venceu!");
+          if (guessedCountries.size === TOTAL_COUNTRIES) endGame(true, "Você Venceu!");
         }
       }
     });
@@ -977,19 +1125,25 @@
       else if (confirm("Deseja realmente desistir e revelar todas as respostas no mapa e nas tabelas?")) endGame(false, "Desistência");
     });
 
-    // Compartilhar no WhatsApp
+    // Compartilhar no WhatsApp - Emojis a cada 10%
     document.getElementById('whatsappShareBtn').addEventListener('click', () => {
       const score = guessedCountries.size;
-      const pct = Math.round((score / 196) * 100);
+      const pct = Math.round((score / TOTAL_COUNTRIES) * 100);
       let emoji = "😭";
-      if (pct >= 20 && pct < 40) emoji = "🥲";
-      else if (pct >= 40 && pct < 60) emoji = "🙂";
-      else if (pct >= 60 && pct < 80) emoji = "🤩";
-      else if (pct >= 80 && pct < 100) emoji = "🤯";
+      
+      if (pct >= 10 && pct < 20) emoji = "😢";
+      else if (pct >= 20 && pct < 30) emoji = "🥲";
+      else if (pct >= 30 && pct < 40) emoji = "😕";
+      else if (pct >= 40 && pct < 50) emoji = "🙂";
+      else if (pct >= 50 && pct < 60) emoji = "😉";
+      else if (pct >= 60 && pct < 70) emoji = "😊";
+      else if (pct >= 70 && pct < 80) emoji = "😃";
+      else if (pct >= 80 && pct < 90) emoji = "🤩";
+      else if (pct >= 90 && pct < 100) emoji = "🤯";
       else if (pct === 100) emoji = "👑🌍";
       
-      const gameUrl = window.location.href; // Captura a URL atual do jogador (ex: GitHub Pages)
-      const text = `🌍 Joguei o Volta ao Mundo e acertei ${score}/196 países (${pct}%)! ${emoji}\n\nSerá que você consegue me vencer? Jogue em: ${gameUrl}`;
+      const gameUrl = window.location.href;
+      const text = `🌍 Joguei o Volta ao Mundo e acertei ${score}/${TOTAL_COUNTRIES} países (${pct}%)! ${emoji}\n\nSerá que você consegue me vencer? Jogue em: ${gameUrl}`;
       const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
       window.open(whatsappUrl, '_blank');
     });
