@@ -59,7 +59,7 @@
       stroke: #b91c1c !important;
     }
     
-    /* Estilo Especial para Micropaíses (Pontos Visíveis) */
+    /* Marcadores para Micropaíses */
     .map-marker {
       fill: #334155; 
       stroke: #64748b;
@@ -84,58 +84,65 @@
       stroke-width: 1px;
     }
 
-    /* EASTER EGG ANIMATIONS */
-    @keyframes floatUp {
-      0% { transform: translateY(110vh) rotate(0deg) scale(0.8); opacity: 0; }
-      10% { opacity: 1; }
-      90% { opacity: 1; }
-      100% { transform: translateY(-20vh) rotate(360deg) scale(1.2); opacity: 0; }
-    }
-    
-    .watermelon {
-      position: fixed;
-      font-size: 3.5rem;
-      z-index: 1000;
-      animation: floatUp linear forwards;
-      pointer-events: none;
-      filter: drop-shadow(0px 10px 10px rgba(0,0,0,0.5));
-    }
-
+    /* EASTER EGG PALESTINA */
     .easter-egg-overlay {
       position: fixed;
       inset: 0;
-      z-index: 999;
+      z-index: 9999;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(6px);
+      background: radial-gradient(circle at center, rgba(255,255,255,0.92) 0%, rgba(240,253,244,0.85) 100%);
+      backdrop-filter: blur(8px);
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.5s ease;
+      transition: opacity 0.8s ease;
     }
-    .easter-egg-overlay.active {
-      opacity: 1;
-    }
+    .easter-egg-overlay.active { opacity: 1; pointer-events: auto; }
     
-    .easter-egg-text {
-      font-size: 4vw;
-      font-weight: 800;
-      color: #fff;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      text-align: center;
-      text-shadow: 0 0 20px rgba(16, 185, 129, 0.8), 0 0 40px rgba(239, 68, 68, 0.6);
-      transform: scale(0.5);
+    .easter-egg-card {
+      background: white;
+      padding: 3rem 4rem;
+      border-radius: 2rem;
+      box-shadow: 0 25px 50px -12px rgba(16, 185, 129, 0.25), 0 0 0 1px rgba(16, 185, 129, 0.1);
+      transform: translateY(20px) scale(0.95);
       opacity: 0;
       transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+      border-top: 6px solid #10b981;
     }
-    .easter-egg-overlay.active .easter-egg-text {
-      transform: scale(1);
+    .easter-egg-overlay.active .easter-egg-card {
+      transform: translateY(0) scale(1);
       opacity: 1;
     }
-    @media (max-width: 768px) {
-      .easter-egg-text { font-size: 8vw; }
+
+    .easter-egg-title {
+      font-size: 2.5rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.025em;
+      line-height: 1.2;
+    }
+
+    @keyframes floatFriendly {
+      0% { transform: translateY(110vh) translateX(0) rotate(0deg) scale(0.5); opacity: 0; }
+      10% { opacity: 1; transform: scale(1.2); }
+      90% { opacity: 1; }
+      100% { transform: translateY(-20vh) translateX(30px) rotate(360deg) scale(1); opacity: 0; }
+    }
+    .friendly-icon {
+      position: fixed;
+      font-size: 3rem;
+      z-index: 10000;
+      animation: floatFriendly linear forwards;
+      pointer-events: none;
+      filter: drop-shadow(0px 8px 8px rgba(0,0,0,0.15));
     }
   </style>
 </head>
@@ -143,7 +150,11 @@
 
   <!-- EASTER EGG OVERLAY -->
   <div id="palestineEasterEgg" class="easter-egg-overlay">
-    <div class="easter-egg-text">Palestina livre<br>do rio ao mar</div>
+    <div class="easter-egg-card">
+      <div class="text-6xl drop-shadow-md">🕊️🍉</div>
+      <div class="easter-egg-title uppercase">Palestina livre<br>do rio ao mar</div>
+      <p class="text-emerald-700 font-semibold opacity-80">A paz, a vida e a esperança prevalecerão.</p>
+    </div>
   </div>
 
   <!-- HEADER -->
@@ -158,7 +169,7 @@
         <div>
           <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
             Volta ao Mundo
-            <span class="text-xs px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-400 font-semibold border border-brand-500/30">198 Países</span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-400 font-semibold border border-brand-500/30" id="headerCount">198 Países</span>
           </h1>
           <p class="text-xs text-slate-400 hidden sm:block">Adivinhe todas as nações do planeta antes do tempo acabar</p>
         </div>
@@ -197,7 +208,7 @@
           <span class="text-xs font-semibold text-slate-400 block uppercase tracking-wider">Acertos</span>
           <div class="text-2xl font-extrabold text-white mt-0.5">
             <span id="scoreDisplay" class="text-brand-400">0</span>
-            <span class="text-slate-500 text-lg">/ 198</span>
+            <span class="text-slate-500 text-lg" id="totalScoreText">/ 198</span>
           </div>
         </div>
         <div class="w-10 h-10 rounded-lg bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-400">
@@ -299,7 +310,7 @@
         Ásia <span class="text-xs bg-slate-800 px-1.5 py-0.5 rounded-full" id="count-asia">0/48</span>
       </button>
       <button class="continent-tab px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-slate-900 text-slate-400 hover:text-white transition flex items-center gap-2" data-continent="Africa">
-        África <span class="text-xs bg-slate-800 px-1.5 py-0.5 rounded-full" id="count-africa">0/55</span>
+        África <span class="text-xs bg-slate-800 px-1.5 py-0.5 rounded-full" id="count-africa">0/54</span>
       </button>
       <button class="continent-tab px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-slate-900 text-slate-400 hover:text-white transition flex items-center gap-2" data-continent="Oceania">
         Oceania <span class="text-xs bg-slate-800 px-1.5 py-0.5 rounded-full" id="count-oceania">0/14</span>
@@ -323,7 +334,7 @@
       <div class="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 grid grid-cols-2 gap-4 mb-6">
         <div>
           <span class="text-xs text-slate-400 uppercase font-semibold">Total Acertado</span>
-          <div class="text-2xl font-bold text-white mt-0.5"><span id="modalScore">0</span> / 198</div>
+          <div class="text-2xl font-bold text-white mt-0.5"><span id="modalScore">0</span> <span id="modalScoreTotal" class="text-slate-500 text-lg">/ 198</span></div>
         </div>
         <div>
           <span class="text-xs text-slate-400 uppercase font-semibold">Aproveitamento</span>
@@ -352,813 +363,83 @@
   <script>
     const COUNTRIES_DB = [
       // AMÉRICAS (35)
-      { id: "028", name: "Antígua e Barbuda", continent: "Americas", syn: ["antigua e barbuda", "antigua barbuda", "antigua"] },
-      { id: "032", name: "Argentina", continent: "Americas", syn: ["argentina"] },
-      { id: "044", name: "Bahamas", continent: "Americas", syn: ["bahamas"] },
-      { id: "052", name: "Barbados", continent: "Americas", syn: ["barbados"] },
-      { id: "084", name: "Belize", continent: "Americas", syn: ["belize"] },
-      { id: "068", name: "Bolívia", continent: "Americas", syn: ["bolivia"] },
-      { id: "076", name: "Brasil", continent: "Americas", syn: ["brasil", "brazil"] },
-      { id: "124", name: "Canadá", continent: "Americas", syn: ["canada"] },
-      { id: "152", name: "Chile", continent: "Americas", syn: ["chile"] },
-      { id: "170", name: "Colômbia", continent: "Americas", syn: ["colombia"] },
-      { id: "188", name: "Costa Rica", continent: "Americas", syn: ["costa rica"] },
-      { id: "192", name: "Cuba", continent: "Americas", syn: ["cuba"] },
-      { id: "212", name: "Dominica", continent: "Americas", syn: ["dominica"] },
-      { id: "222", name: "El Salvador", continent: "Americas", syn: ["el salvador", "salvador"] },
-      { id: "218", name: "Equador", continent: "Americas", syn: ["equador", "ecuador"] },
-      { id: "840", name: "Estados Unidos", continent: "Americas", syn: ["estados unidos", "eua", "usa"] },
-      { id: "308", name: "Granada", continent: "Americas", syn: ["granada"] },
-      { id: "320", name: "Guatemala", continent: "Americas", syn: ["guatemala"] },
-      { id: "328", name: "Guiana", continent: "Americas", syn: ["guiana", "guyana"] },
-      { id: "332", name: "Haiti", continent: "Americas", syn: ["haiti"] },
-      { id: "340", name: "Honduras", continent: "Americas", syn: ["honduras"] },
-      { id: "388", name: "Jamaica", continent: "Americas", syn: ["jamaica"] },
-      { id: "484", name: "México", continent: "Americas", syn: ["mexico"] },
-      { id: "558", name: "Nicarágua", continent: "Americas", syn: ["nicaragua"] },
-      { id: "591", name: "Panamá", continent: "Americas", syn: ["panama"] },
-      { id: "600", name: "Paraguai", continent: "Americas", syn: ["paraguai", "paraguay"] },
-      { id: "604", name: "Peru", continent: "Americas", syn: ["peru"] },
-      { id: "214", name: "República Dominicana", continent: "Americas", syn: ["republica dominicana", "rep dominicana"] },
-      { id: "662", name: "Santa Lúcia", continent: "Americas", syn: ["santa lucia"] },
-      { id: "659", name: "São Cristóvão e Névis", continent: "Americas", syn: ["sao cristovao e nevis", "sao cristovao", "st kitts"] },
-      { id: "670", name: "São Vicente e Granadinas", continent: "Americas", syn: ["sao vicente e granadinas", "sao vicente"] },
-      { id: "740", name: "Suriname", continent: "Americas", syn: ["suriname"] },
-      { id: "780", name: "Trinidad e Tobago", continent: "Americas", syn: ["trinidad e tobago", "trinidad"] },
-      { id: "858", name: "Uruguai", continent: "Americas", syn: ["uruguai", "uruguay"] },
-      { id: "862", name: "Venezuela", continent: "Americas", syn: ["venezuela"] },
-
-      // EUROPA (45 agora com Kosovo)
-      { id: "008", name: "Albânia", continent: "Europa", syn: ["albania"] },
-      { id: "276", name: "Alemanha", continent: "Europa", syn: ["alemanha", "germany"] },
-      { id: "020", name: "Andorra", continent: "Europa", syn: ["andorra"] },
-      { id: "040", name: "Áustria", continent: "Europa", syn: ["austria"] },
-      { id: "056", name: "Bélgica", continent: "Europa", syn: ["belgica", "belgium"] },
-      { id: "112", name: "Bielorrússia", continent: "Europa", syn: ["bielorrussia", "bielorussia", "belarus"] },
-      { id: "070", name: "Bósnia e Herzegovina", continent: "Europa", syn: ["bosnia e herzegovina", "bosnia"] },
-      { id: "100", name: "Bulgária", continent: "Europa", syn: ["bulgaria"] },
-      { id: "196", name: "Chipre", continent: "Europa", syn: ["chipre", "cyprus"] },
-      { id: "191", name: "Croácia", continent: "Europa", syn: ["croacia", "croatia"] },
-      { id: "208", name: "Dinamarca", continent: "Europa", syn: ["dinamarca", "denmark"] },
-      { id: "703", name: "Eslováquia", continent: "Europa", syn: ["eslovaquia", "slovakia"] },
-      { id: "705", name: "Eslovênia", continent: "Europa", syn: ["eslovenia", "slovenia"] },
-      { id: "724", name: "Espanha", continent: "Europa", syn: ["espanha", "spain"] },
-      { id: "233", name: "Estônia", continent: "Europa", syn: ["estonia"] },
-      { id: "246", name: "Finlândia", continent: "Europa", syn: ["finlandia", "finland"] },
-      { id: "250", name: "França", continent: "Europa", syn: ["franca", "france"] },
-      { id: "300", name: "Grécia", continent: "Europa", syn: ["grecia", "greece"] },
-      { id: "348", name: "Hungria", continent: "Europa", syn: ["hungria", "hungary"] },
-      { id: "372", name: "Irlanda", continent: "Europa", syn: ["irlanda", "ireland"] },
-      { id: "352", name: "Islândia", continent: "Europa", syn: ["islandia", "iceland"] },
-      { id: "380", name: "Itália", continent: "Europa", syn: ["italia", "italy"] },
-      { id: "383", name: "Kosovo", continent: "Europa", syn: ["kosovo", "cosovo"] }, // ADICIONADO
-      { id: "428", name: "Letônia", continent: "Europa", syn: ["letonia", "latvia"] },
-      { id: "438", name: "Liechtenstein", continent: "Europa", syn: ["liechtenstein"] },
-      { id: "440", name: "Lituânia", continent: "Europa", syn: ["lituania", "lithuania"] },
-      { id: "442", name: "Luxemburgo", continent: "Europa", syn: ["luxemburgo", "luxembourg"] },
-      { id: "807", name: "Macedônia do Norte", continent: "Europa", syn: ["macedonia do norte", "macedonia"] },
-      { id: "470", name: "Malta", continent: "Europa", syn: ["malta"] },
-      { id: "498", name: "Moldávia", continent: "Europa", syn: ["moldavia", "moldova"] },
-      { id: "492", name: "Mônaco", continent: "Europa", syn: ["monaco"] },
-      { id: "499", name: "Montenegro", continent: "Europa", syn: ["montenegro"] },
-      { id: "578", name: "Noruega", continent: "Europa", syn: ["noruega", "norway"] },
-      { id: "528", name: "Países Baixos", continent: "Europa", syn: ["paises baixos", "holanda", "netherlands"] },
-      { id: "616", name: "Polônia", continent: "Europa", syn: ["polonia", "poland"] },
-      { id: "620", name: "Portugal", continent: "Europa", syn: ["portugal"] },
-      { id: "826", name: "Reino Unido", continent: "Europa", syn: ["reino unido", "inglaterra", "uk", "gra bretanha"] },
-      { id: "203", name: "República Tcheca", continent: "Europa", syn: ["republica tcheca", "tchequia", "chequia"] },
-      { id: "642", name: "Romênia", continent: "Europa", syn: ["romenia", "romania"] },
-      { id: "643", name: "Rússia", continent: "Europa", syn: ["russia"] },
-      { id: "674", name: "San Marino", continent: "Europa", syn: ["san marino"] },
-      { id: "688", name: "Sérvia", continent: "Europa", syn: ["servia", "serbia"] }, // Kosovo removido dos sinônimos
-      { id: "752", name: "Suécia", continent: "Europa", syn: ["suecia", "sweden"] },
-      { id: "756", name: "Suíça", continent: "Europa", syn: ["suica", "switzerland"] },
-      { id: "804", name: "Ucrânia", continent: "Europa", syn: ["ucrania", "ukraine"] },
-      { id: "336", name: "Vaticano", continent: "Europa", syn: ["vaticano", "santa se"] },
-
-      // ÁSIA (48)
-      { id: "004", name: "Afeganistão", continent: "Asia", syn: ["afeganistao", "afghanistan"] },
-      { id: "682", name: "Arábia Saudita", continent: "Asia", syn: ["arabia saudita", "arabia"] },
-      { id: "051", name: "Armênia", continent: "Asia", syn: ["armenia"] },
-      { id: "031", name: "Azerbaijão", continent: "Asia", syn: ["azerbaijao", "azerbaijan"] },
-      { id: "048", name: "Bahrein", continent: "Asia", syn: ["bahrein", "bahrain"] },
-      { id: "050", name: "Bangladesh", continent: "Asia", syn: ["bangladesh"] },
-      { id: "096", name: "Brunei", continent: "Asia", syn: ["brunei"] },
-      { id: "064", name: "Butão", continent: "Asia", syn: ["butao", "bhutan"] },
-      { id: "116", name: "Camboja", continent: "Asia", syn: ["camboja", "cambodia"] },
-      { id: "634", name: "Catar", continent: "Asia", syn: ["catar", "qatar"] },
-      { id: "398", name: "Cazaquistão", continent: "Asia", syn: ["cazaquistao", "kazakhstan"] },
-      { id: "156", name: "China", continent: "Asia", syn: ["china"] },
-      { id: "408", name: "Coreia do Norte", continent: "Asia", syn: ["coreia do norte"] },
-      { id: "410", name: "Coreia do Sul", continent: "Asia", syn: ["coreia do sul", "coreia"] },
-      { id: "784", name: "Emirados Árabes Unidos", continent: "Asia", syn: ["emirados arabes unidos", "eau", "emirados arabes", "emirados"] },
-      { id: "608", name: "Filipinas", continent: "Asia", syn: ["filipinas", "philippines"] },
-      { id: "268", name: "Geórgia", continent: "Asia", syn: ["georgia"] },
-      { id: "887", name: "Iêmen", continent: "Asia", syn: ["iemen", "yemen"] },
-      { id: "356", name: "Índia", continent: "Asia", syn: ["india"] },
-      { id: "360", name: "Indonésia", continent: "Asia", syn: ["indonesia"] },
-      { id: "364", name: "Irã", continent: "Asia", syn: ["ira", "iran"] },
-      { id: "368", name: "Iraque", continent: "Asia", syn: ["iraque", "iraq"] },
-      { id: "376", name: "Israel", continent: "Asia", syn: ["israel"] },
-      { id: "392", name: "Japão", continent: "Asia", syn: ["japao", "japan"] },
-      { id: "400", name: "Jordânia", continent: "Asia", syn: ["jordania", "jordan"] },
-      { id: "414", name: "Kuwait", continent: "Asia", syn: ["kuwait"] },
-      { id: "418", name: "Laos", continent: "Asia", syn: ["laos"] },
-      { id: "422", name: "Líbano", continent: "Asia", syn: ["libano", "lebanon"] },
-      { id: "458", name: "Malásia", continent: "Asia", syn: ["malasia", "malaysia"] },
-      { id: "462", name: "Maldivas", continent: "Asia", syn: ["maldivas"] },
-      { id: "104", name: "Mianmar", continent: "Asia", syn: ["mianmar", "birmania", "myanmar"] },
-      { id: "496", name: "Mongólia", continent: "Asia", syn: ["mongolia"] },
-      { id: "524", name: "Nepal", continent: "Asia", syn: ["nepal"] },
-      { id: "512", name: "Omã", continent: "Asia", syn: ["oma", "oman"] },
-      { id: "275", name: "Palestina", continent: "Asia", syn: ["palestina"] },
-      { id: "586", name: "Paquistão", continent: "Asia", syn: ["paquistao", "pakistan"] },
-      { id: "417", name: "Quirguistão", continent: "Asia", syn: ["quirguistao", "kyrgyzstan"] },
-      { id: "702", name: "Singapura", continent: "Asia", syn: ["singapura", "singapore"] },
-      { id: "760", name: "Síria", continent: "Asia", syn: ["siria", "syria"] },
-      { id: "144", name: "Sri Lanka", continent: "Asia", syn: ["sri lanka"] },
-      { id: "762", name: "Tadjiquistão", continent: "Asia", syn: ["tadjiquistao", "tajikistan"] },
-      { id: "764", name: "Tailândia", continent: "Asia", syn: ["tailandia", "thailand"] },
-      { id: "158", name: "Taiwan", continent: "Asia", syn: ["taiwan"] },
-      { id: "626", name: "Timor-Leste", continent: "Asia", syn: ["timor-leste", "timor leste", "timor"] },
-      { id: "795", name: "Turquemenistão", continent: "Asia", syn: ["turquemenistao", "turkmenistan"] },
-      { id: "792", name: "Turquia", continent: "Asia", syn: ["turquia", "turkey"] },
-      { id: "860", name: "Uzbequistão", continent: "Asia", syn: ["uzbequistao", "uzbekistan"] },
-      { id: "704", name: "Vietnã", continent: "Asia", syn: ["vietna", "vietnam"] },
-
-      // ÁFRICA (55)
-      { id: "710", name: "África do Sul", continent: "Africa", syn: ["africa do sul"] },
-      { id: "024", name: "Angola", continent: "Africa", syn: ["angola"] },
-      { id: "012", name: "Argélia", continent: "Africa", syn: ["argelia", "algeria"] },
-      { id: "204", name: "Benin", continent: "Africa", syn: ["benin", "benim"] },
-      { id: "072", name: "Botsuana", continent: "Africa", syn: ["botsuana", "botswana"] },
-      { id: "854", name: "Burquina Faso", continent: "Africa", syn: ["burquina faso", "burkina faso", "burkina"] },
-      { id: "108", name: "Burundi", continent: "Africa", syn: ["burundi"] },
-      { id: "132", name: "Cabo Verde", continent: "Africa", syn: ["cabo verde"] },
-      { id: "120", name: "Camarões", continent: "Africa", syn: ["camaroes", "cameroon"] },
-      { id: "148", name: "Chade", continent: "Africa", syn: ["chade", "chad"] },
-      { id: "174", name: "Comores", continent: "Africa", syn: ["comores"] },
-      { id: "178", name: "Congo-Brazzaville", continent: "Africa", syn: ["congo-brazzaville", "congo", "republica do congo"] },
-      { id: "384", name: "Costa do Marfim", continent: "Africa", syn: ["costa do marfim"] },
-      { id: "262", name: "Djibuti", continent: "Africa", syn: ["djibuti", "djibouti"] },
-      { id: "818", name: "Egito", continent: "Africa", syn: ["egito", "egypt"] },
-      { id: "232", name: "Eritreia", continent: "Africa", syn: ["eritreia", "eritrea"] },
-      { id: "748", name: "Essuatíni", continent: "Africa", syn: ["essuatini", "suazilandia", "eswatini"] },
-      { id: "231", name: "Etiópia", continent: "Africa", syn: ["etiopia", "ethiopia"] },
-      { id: "266", name: "Gabão", continent: "Africa", syn: ["gabao", "gabon"] },
-      { id: "270", name: "Gâmbia", continent: "Africa", syn: ["gambia"] },
-      { id: "288", name: "Gana", continent: "Africa", syn: ["gana", "ghana"] },
-      { id: "324", name: "Guiné", continent: "Africa", syn: ["guine", "guinea"] },
-      { id: "624", name: "Guiné-Bissau", continent: "Africa", syn: ["guine-bissau", "guine bissau"] },
-      { id: "226", name: "Guiné Equatorial", continent: "Africa", syn: ["guine equatorial"] },
-      { id: "426", name: "Lesoto", continent: "Africa", syn: ["lesoto", "lesotho"] },
-      { id: "430", name: "Libéria", continent: "Africa", syn: ["liberia"] },
-      { id: "434", name: "Líbia", continent: "Africa", syn: ["libia", "libya"] },
-      { id: "450", name: "Madagascar", continent: "Africa", syn: ["madagascar"] },
-      { id: "454", name: "Malaui", continent: "Africa", syn: ["malaui", "malawi"] },
-      { id: "466", name: "Mali", continent: "Africa", syn: ["mali"] },
-      { id: "504", name: "Marrocos", continent: "Africa", syn: ["marrocos", "morocco"] },
-      { id: "480", name: "Maurícia", continent: "Africa", syn: ["mauricia", "mauricio"] },
-      { id: "478", name: "Mauritânia", continent: "Africa", syn: ["mauritania"] },
-      { id: "508", name: "Moçambique", continent: "Africa", syn: ["mocambique", "mozambique"] },
-      { id: "516", name: "Namíbia", continent: "Africa", syn: ["namibia"] },
-      { id: "562", name: "Níger", continent: "Africa", syn: ["niger"] },
-      { id: "566", name: "Nigéria", continent: "Africa", syn: ["nigeria"] },
-      { id: "404", name: "Quênia", continent: "Africa", syn: ["quenia", "kenya"] },
-      { id: "140", name: "República Centro-Africana", continent: "Africa", syn: ["republica centro-africana", "rca"] },
-      { id: "180", name: "República Democrática do Congo", continent: "Africa", syn: ["republica democratica do congo", "rd congo", "rdc", "congo-kinshasa", "zaire"] },
-      { id: "646", name: "Ruanda", continent: "Africa", syn: ["ruanda", "rwanda"] },
-      { id: "678", name: "São Tomé e Príncipe", continent: "Africa", syn: ["sao tome e principe", "sao tome"] },
-      { id: "686", name: "Senegal", continent: "Africa", syn: ["senegal"] },
-      { id: "690", name: "Seicheles", continent: "Africa", syn: ["seicheles", "seychelles"] },
-      { id: "694", name: "Serra Leoa", continent: "Africa", syn: ["serra leoa"] },
-      { id: "706", name: "Somália", continent: "Africa", syn: ["somalia"] },
-      { id: "999", name: "Somalilândia", continent: "Africa", syn: ["somalilandia", "somaliland"] },
-      { id: "729", name: "Sudão", continent: "Africa", syn: ["sudao", "sudan"] },
-      { id: "728", name: "Sudão do Sul", continent: "Africa", syn: ["sudao do sul"] },
-      { id: "834", name: "Tanzânia", continent: "Africa", syn: ["tanzania"] },
-      { id: "768", name: "Togo", continent: "Africa", syn: ["togo"] },
-      { id: "788", name: "Tunísia", continent: "Africa", syn: ["tunisia"] },
-      { id: "800", name: "Uganda", continent: "Africa", syn: ["uganda"] },
-      { id: "894", name: "Zâmbia", continent: "Africa", syn: ["zambia"] },
-      { id: "716", name: "Zimbábue", continent: "Africa", syn: ["zimbabue", "zimbabwe"] },
-
-      // OCEANIA (14)
-      { id: "036", name: "Austrália", continent: "Oceania", syn: ["australia"] },
-      { id: "242", name: "Fiji", continent: "Oceania", syn: ["fiji"] },
-      { id: "584", name: "Ilhas Marshall", continent: "Oceania", syn: ["ilhas marshall", "marshall"] },
-      { id: "090", name: "Ilhas Salomão", continent: "Oceania", syn: ["ilhas salomao", "salomao"] },
-      { id: "296", name: "Kiribati", continent: "Oceania", syn: ["kiribati"] },
-      { id: "583", name: "Micronésia", continent: "Oceania", syn: ["micronesia"] },
-      { id: "520", name: "Nauru", continent: "Oceania", syn: ["nauru"] },
-      { id: "554", name: "Nova Zelândia", continent: "Oceania", syn: ["nova zelandia", "new zealand"] },
-      { id: "585", name: "Palau", continent: "Oceania", syn: ["palau"] },
-      { id: "598", name: "Papua Nova Guiné", continent: "Oceania", syn: ["papua nova guine", "papua"] },
-      { id: "882", name: "Samoa", continent: "Oceania", syn: ["samoa"] },
-      { id: "776", name: "Tonga", continent: "Oceania", syn: ["tonga"] },
-      { id: "798", name: "Tuvalu", continent: "Oceania", syn: ["tuvalu"] },
-      { id: "548", name: "Vanuatu", continent: "Oceania", syn: ["vanuatu"] }
-    ];
-
-    const TOTAL_COUNTRIES = 198;
-
-    // COORDENADAS PARA MICROPAÍSES QUE NÃO APARECEM NO MAPA BASE DE 110M
-    const MICRO_STATES_COORDS = [
-      { id: "336", coords: [12.4534, 41.9029] }, // Vaticano
-      { id: "492", coords: [7.4200, 43.7384] }, // Mônaco
-      { id: "674", coords: [12.4578, 43.9424] }, // San Marino
-      { id: "438", coords: [9.5209, 47.1410] }, // Liechtenstein
-      { id: "020", coords: [1.5218, 42.5063] }, // Andorra
-      { id: "470", coords: [14.3754, 35.9375] }, // Malta
-      { id: "462", coords: [73.2207, 3.2028] }, // Maldivas
-      { id: "702", coords: [103.8198, 1.3521] }, // Singapura
-      { id: "048", coords: [50.5577, 26.0667] }, // Bahrein
-      { id: "678", coords: [6.6131, 0.1864] }, // São Tomé
-      { id: "690", coords: [55.4920, -4.6796] }, // Seicheles
-      { id: "174", coords: [43.3333, -11.6455] }, // Comores
-      { id: "480", coords: [57.5522, -20.3484] }, // Maurícia
-      { id: "132", coords: [-23.6167, 16.5388] }, // Cabo Verde
-      { id: "028", coords: [-61.7964, 17.0608] }, // Antígua
-      { id: "052", coords: [-59.5432, 13.1939] }, // Barbados
-      { id: "212", coords: [-61.3710, 15.4150] }, // Dominica
-      { id: "308", coords: [-61.6790, 12.1165] }, // Granada
-      { id: "659", coords: [-62.7830, 17.3578] }, // São Cristóvão
-      { id: "662", coords: [-60.9789, 13.9094] }, // Santa Lúcia
-      { id: "670", coords: [-61.2872, 13.2528] }, // São Vicente
-      { id: "780", coords: [-61.2225, 10.6918] }, // Trinidad
-      { id: "044", coords: [-77.3963, 25.0343] }, // Bahamas
-      { id: "583", coords: [158.1499, 6.8874] }, // Micronésia
-      { id: "584", coords: [171.1845, 7.1315] }, // Marshall
-      { id: "520", coords: [166.9315, -0.5228] }, // Nauru
-      { id: "585", coords: [134.5825, 7.5149] }, // Palau
-      { id: "882", coords: [-172.1046, -13.7590] }, // Samoa
-      { id: "776", coords: [-175.1982, -21.1789] }, // Tonga
-      { id: "798", coords: [179.1940, -8.5146] }, // Tuvalu
-      { id: "296", coords: [173.0000, 1.4167] }, // Kiribati
-      { id: "548", coords: [166.9592, -15.3767] }, // Vanuatu
-      { id: "090", coords: [160.1562, -9.6457] }, // Salomão
-      { id: "242", coords: [178.0650, -17.7134] }, // Fiji
-      { id: "096", coords: [114.7277, 4.5353] }, // Brunei
-      { id: "383", coords: [20.9029, 42.6026] }, // Kosovo
-      { id: "275", coords: [35.2332, 31.9522] }, // Palestina
-    ];
-
-    const TERRITORIES_DB = {
-      "304": { owner: "208", name: "Groenlândia", ownerName: "Dinamarca" },
-      "630": { owner: "840", name: "Porto Rico", ownerName: "Estados Unidos" },
-      "238": { owner: "826", name: "Ilhas Malvinas", ownerName: "Reino Unido" },
-      "540": { owner: "250", name: "Nova Caledônia", ownerName: "França" },
-      "260": { owner: "250", name: "Terras Antárticas Francesas", ownerName: "França" },
-      "258": { owner: "250", name: "Polinésia Francesa", ownerName: "França" },
-      "254": { owner: "250", name: "Guiana Francesa", ownerName: "França" },
-      "732": { owner: "504", name: "Saara Ocidental", ownerName: "Marrocos" },
-      "744": { owner: "578", name: "Svalbard e Jan Mayen", ownerName: "Noruega" },
-    };
-
-    let isPlaying = false;
-    let isGameOver = false;
-    let selectedDurationMinutes = 15;
-    let timeRemaining = 15 * 60;
-    let timerInterval = null;
-    let guessedCountries = new Set();
-    let isMuted = false;
-    let countriesGeoGlobal = []; 
-
-    // DOM
-    const gameActionBtn = document.getElementById('gameActionBtn');
-    const countryInput = document.getElementById('countryInput');
-    const typingFeedback = document.getElementById('typingFeedback');
-    const scoreDisplay = document.getElementById('scoreDisplay');
-    const percentDisplay = document.getElementById('percentDisplay');
-    const timerDisplay = document.getElementById('timerDisplay');
-    const timerLabel = document.getElementById('timerLabel');
-    const progressBar = document.getElementById('progressBar');
-    const lastGuessedDisplay = document.getElementById('lastGuessedDisplay');
-    const toggleAudioBtn = document.getElementById('toggleAudioBtn');
-    const audioIcon = document.getElementById('audioIcon');
-    const timeButtons = document.querySelectorAll('.time-btn');
-    const continentTabs = document.querySelectorAll('.continent-tab');
-    const continentsContainer = document.getElementById('continentsContainer');
-    const mapTooltip = document.getElementById('mapTooltip');
-    const resetZoomBtn = document.getElementById('resetZoomBtn');
-    const gameOverModal = document.getElementById('gameOverModal');
-
-    // Áudio
-    let audioCtx = null;
-    function playSound(type) {
-      if (isMuted) return;
-      try {
-        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        if (type === 'hit') {
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(659.25, audioCtx.currentTime + 0.1);
-          gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
-          osc.start(); osc.stop(audioCtx.currentTime + 0.2);
-        } else if (type === 'duplicate') {
-          osc.type = 'sine';
-          osc.frequency.setValueAtTime(220, audioCtx.currentTime);
-          gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
-          osc.start(); osc.stop(audioCtx.currentTime + 0.12);
-        }
-      } catch (e) {}
-    }
-
-    function normalize(text) {
-      return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "").trim();
-    }
-
-    // Easter Egg
-    function showPalestineEasterEgg() {
-      const overlay = document.getElementById('palestineEasterEgg');
-      overlay.classList.add('active');
-      for(let i=0; i<35; i++) {
-        const wm = document.createElement('div');
-        wm.className = 'watermelon';
-        wm.innerText = '🍉';
-        wm.style.left = (Math.random() * 100) + 'vw';
-        wm.style.animationDuration = (2.5 + Math.random() * 2) + 's';
-        wm.style.animationDelay = (Math.random() * 0.5) + 's';
-        document.body.appendChild(wm);
-        setTimeout(() => wm.remove(), 5000);
-      }
-      setTimeout(() => overlay.classList.remove('active'), 3500);
-    }
-
-    function renderContinentTables() {
-      continentsContainer.innerHTML = '';
-      const continentsConfig = [
-        { key: 'Americas', title: 'Américas', total: 35 },
-        { key: 'Europa', title: 'Europa', total: 45 },
-        { key: 'Asia', title: 'Ásia', total: 48 },
-        { key: 'Africa', title: 'África', total: 55 },
-        { key: 'Oceania', title: 'Oceania', total: 14 }
-      ];
-
-      continentsConfig.forEach(conf => {
-        const list = COUNTRIES_DB
-          .map((c, originalIndex) => ({ ...c, originalIndex }))
-          .filter(c => c.continent === conf.key)
-          .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
-
-        const section = document.createElement('section');
-        section.dataset.continent = conf.key;
-        section.className = "bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm";
-
-        section.innerHTML = `
-          <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
-            <h3 class="text-base font-bold text-white flex items-center gap-2">
-              <span>${conf.title}</span>
-              <span class="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-semibold border border-slate-700/60" id="badge-${conf.key}">
-                0/${conf.total}
-              </span>
-            </h3>
-          </div>
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
-            ${list.map(item => `
-              <div id="cell-${item.originalIndex}" class="p-2.5 rounded-xl border border-slate-800/80 bg-slate-950/60 flex items-center justify-between min-h-[46px] transition-all">
-                <span class="country-label text-xs font-semibold text-slate-500 uppercase tracking-wider select-none">• • •</span>
-              </div>
-            `).join('')}
-          </div>
-        `;
-        continentsContainer.appendChild(section);
-      });
-      updateCounters();
-    }
-
-    let svgContainer, mapGroup, projection, svgPath;
-    const INITIAL_SCALE = 220;
-
-    function initWorldMap() {
-      svgContainer = d3.select("#worldMapSvg");
-      mapGroup = svgContainer.append("g");
-
-      projection = d3.geoOrthographic()
-        .scale(INITIAL_SCALE)
-        .translate([480, 240])
-        .clipAngle(90)
-        .precision(0.1);
-        
-      // O pointRadius é importante para os círculos dos microestados não estourarem no zoom
-      svgPath = d3.geoPath().projection(projection).pointRadius(4);
-
-      const ocean = mapGroup.append("circle")
-        .attr("cx", 480).attr("cy", 240)
-        .attr("r", INITIAL_SCALE)
-        .attr("class", "ocean");
-
-      let rotate0, coords0;
-      const dragBehavior = d3.drag()
-        .on('start', (event) => {
-           rotate0 = projection.rotate();
-           coords0 = [event.x, event.y];
-        })
-        .on('drag', (event) => {
-           const k = 90 / projection.scale();
-           const rotate = [
-               rotate0[0] + (event.x - coords0[0]) * k,
-               rotate0[1] - (event.y - coords0[1]) * k
-           ];
-           rotate[1] = Math.max(-90, Math.min(90, rotate[1]));
-           projection.rotate(rotate);
-           mapGroup.selectAll("path.map-country").attr("d", svgPath);
-           checkResetButtonVisibility();
-        });
-
-      svgContainer.call(dragBehavior);
-
-      svgContainer.on("wheel", (event) => {
-        event.preventDefault();
-        const zoomFactor = event.deltaY < 0 ? 1.1 : 0.9;
-        const currentScale = projection.scale();
-        const newScale = Math.max(INITIAL_SCALE, Math.min(INITIAL_SCALE * 6, currentScale * zoomFactor));
-        
-        projection.scale(newScale);
-        ocean.attr("r", newScale);
-        mapGroup.selectAll("path.map-country").attr("d", svgPath);
-        checkResetButtonVisibility();
-      });
-
-      fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
-        .then(res => res.json())
-        .then(world => {
-          const topoFeatures = topojson.feature(world, world.objects.countries).features
-            .filter(d => String(d.id).padStart(3, '0') !== '010');
-
-          // Criar features geográficas (pontos) para os microestados
-          const existingIds = new Set(topoFeatures.map(d => String(d.id).padStart(3, '0')));
-          const microFeatures = MICRO_STATES_COORDS
-            .filter(m => !existingIds.has(m.id)) // Garante que não duplique se já tiver na base D3
-            .map(m => ({
-              type: "Feature",
-              id: m.id,
-              geometry: { type: "Point", coordinates: m.coords }
-            }));
-
-          // Junta poligonos e pontos na mesma base de renderização global
-          countriesGeoGlobal = [...topoFeatures, ...microFeatures];
-
-          mapGroup.selectAll(".map-country")
-            .data(countriesGeoGlobal)
-            .enter()
-            .append("path")
-            .attr("class", d => d.geometry.type === 'Point' ? 'map-country map-marker' : 'map-country')
-            .attr("d", svgPath)
-            .attr("id", d => `map-${String(d.id).padStart(3, '0')}`)
-            .attr("data-owner", d => {
-               const code = String(d.id).padStart(3, '0');
-               return TERRITORIES_DB[code] ? TERRITORIES_DB[code].owner : "";
-            })
-            .on("mouseover", (event, d) => {
-              const code = String(d.id).padStart(3, '0');
-              const foundCountry = COUNTRIES_DB.find(c => c.id === code);
-              const foundTerritory = TERRITORIES_DB[code];
-
-              if (foundCountry) {
-                const countryIdx = COUNTRIES_DB.indexOf(foundCountry);
-                if (guessedCountries.has(countryIdx) || isGameOver) mapTooltip.innerText = foundCountry.name;
-                else mapTooltip.innerText = "???";
-              } else if (foundTerritory) {
-                const ownerCountry = COUNTRIES_DB.find(c => c.id === foundTerritory.owner);
-                const ownerIdx = ownerCountry ? COUNTRIES_DB.indexOf(ownerCountry) : -1;
-                if ((ownerIdx !== -1 && guessedCountries.has(ownerIdx)) || isGameOver) {
-                  mapTooltip.innerText = `${foundTerritory.name} (${foundTerritory.ownerName})`;
-                } else {
-                  mapTooltip.innerText = "???";
-                }
-              } else {
-                mapTooltip.innerText = "???";
-              }
-            })
-            .on("mouseout", () => {
-              mapTooltip.innerText = "Arraste para girar / Clique para aproximar";
-            })
-            .on("click", (event, d) => clickedCountryZoom(event, d));
-        });
-    }
-
-    function autoRotateToCountry(countryCode) {
-      if (countriesGeoGlobal.length === 0) return;
-      const feature = countriesGeoGlobal.find(f => String(f.id).padStart(3, '0') === countryCode);
-      if (!feature) return;
-
-      const centroid = d3.geoCentroid(feature);
-      const targetRotate = [-centroid[0], -centroid[1]];
-
-      d3.transition().duration(800).tween("rotate", () => {
-        const r = d3.interpolate(projection.rotate(), targetRotate);
-        return (t) => {
-          projection.rotate(r(t));
-          mapGroup.selectAll("path.map-country").attr("d", svgPath);
-        };
-      }).on("end", checkResetButtonVisibility);
-    }
-
-    function clickedCountryZoom(event, d) {
-      event.stopPropagation();
-      const centroid = d3.geoCentroid(d);
-      const targetRotate = [-centroid[0], -centroid[1]];
-      
-      d3.transition().duration(800).tween("rotateAndZoom", () => {
-        const r = d3.interpolate(projection.rotate(), targetRotate);
-        const s = d3.interpolate(projection.scale(), INITIAL_SCALE * 3.5);
-        return (t) => {
-          projection.rotate(r(t)).scale(s(t));
-          mapGroup.select(".ocean").attr("r", s(t));
-          mapGroup.selectAll("path.map-country").attr("d", svgPath);
-        };
-      }).on("end", checkResetButtonVisibility);
-    }
-
-    function resetGlobeVision() {
-      d3.transition().duration(800).tween("reset", () => {
-        const r = d3.interpolate(projection.rotate(), [0, 0]);
-        const s = d3.interpolate(projection.scale(), INITIAL_SCALE);
-        return (t) => {
-          projection.rotate(r(t)).scale(s(t));
-          mapGroup.select(".ocean").attr("r", s(t));
-          mapGroup.selectAll("path.map-country").attr("d", svgPath);
-        };
-      }).on("end", checkResetButtonVisibility);
-    }
-    resetZoomBtn.addEventListener('click', resetGlobeVision);
-
-    function checkResetButtonVisibility() {
-       if (projection.scale() > INITIAL_SCALE + 5 || Math.abs(projection.rotate()[0]) > 5 || Math.abs(projection.rotate()[1]) > 5) {
-         resetZoomBtn.classList.remove('opacity-0', 'pointer-events-none');
-       } else {
-         resetZoomBtn.classList.add('opacity-0', 'pointer-events-none');
-       }
-    }
-
-    function updateMapCountry(countryIndex, status) {
-      const country = COUNTRIES_DB[countryIndex];
-      if (!country || !country.id) return;
-      
-      const updateClass = (el) => {
-        if (el) {
-          el.classList.remove('guessed', 'missed');
-          if (status === 'guessed') el.classList.add('guessed');
-          if (status === 'missed') el.classList.add('missed');
-        }
-      };
-
-      updateClass(document.getElementById(`map-${country.id}`));
-      document.querySelectorAll(`.map-country[data-owner="${country.id}"]`).forEach(tEl => {
-        updateClass(tEl);
-      });
-    }
-
-    function updateCounters() {
-      const counts = { all: 0, Americas: 0, Europa: 0, Asia: 0, Africa: 0, Oceania: 0 };
-      guessedCountries.forEach(idx => {
-        const c = COUNTRIES_DB[idx];
-        counts.all++;
-        counts[c.continent]++;
-      });
-
-      document.getElementById('count-all').innerText = `${counts.all}/${TOTAL_COUNTRIES}`;
-      document.getElementById('count-americas').innerText = `${counts.Americas}/35`;
-      document.getElementById('count-europa').innerText = `${counts.Europa}/45`;
-      document.getElementById('count-asia').innerText = `${counts.Asia}/48`;
-      document.getElementById('count-africa').innerText = `${counts.Africa}/55`;
-      document.getElementById('count-oceania').innerText = `${counts.Oceania}/14`;
-
-      const bA = document.getElementById('badge-Americas'); if (bA) bA.innerText = `${counts.Americas}/35`;
-      const bE = document.getElementById('badge-Europa'); if (bE) bE.innerText = `${counts.Europa}/45`;
-      const bAs = document.getElementById('badge-Asia'); if (bAs) bAs.innerText = `${counts.Asia}/48`;
-      const bAf = document.getElementById('badge-Africa'); if (bAf) bAf.innerText = `${counts.Africa}/55`;
-      const bO = document.getElementById('badge-Oceania'); if (bO) bO.innerText = `${counts.Oceania}/14`;
-
-      scoreDisplay.innerText = counts.all;
-      const pct = Math.round((counts.all / TOTAL_COUNTRIES) * 100);
-      percentDisplay.innerText = `${pct}%`;
-      progressBar.style.width = `${pct}%`;
-    }
-
-    function formatTime(seconds) {
-      const m = Math.floor(seconds / 60);
-      const s = seconds % 60;
-      return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-    }
-
-    function startGame() {
-      isPlaying = true;
-      isGameOver = false;
-      guessedCountries.clear();
-      renderContinentTables();
-      resetGlobeVision();
-      
-      document.querySelectorAll('.map-country').forEach(el => el.classList.remove('guessed', 'missed'));
-
-      countryInput.disabled = false;
-      countryInput.value = '';
-      countryInput.placeholder = 'Digite o nome de um país...';
-      countryInput.focus();
-      typingFeedback.innerText = 'Digite';
-      typingFeedback.className = 'absolute right-4 text-xs font-bold px-2 py-1 rounded bg-slate-800 text-slate-400';
-
-      gameActionBtn.innerHTML = `<i data-lucide="flag" class="w-4 h-4 fill-white"></i> <span>Desistir</span>`;
-      gameActionBtn.className = "px-4 py-2 rounded-lg font-bold text-sm bg-rose-600 hover:bg-rose-500 text-white shadow-md transition flex items-center gap-1.5";
-      lucide.createIcons();
-
-      clearInterval(timerInterval);
-      if (selectedDurationMinutes > 0) {
-        timeRemaining = selectedDurationMinutes * 60;
-        timerLabel.innerText = "Tempo Restante";
-        timerDisplay.innerText = formatTime(timeRemaining);
-        timerInterval = setInterval(() => {
-          timeRemaining--;
-          timerDisplay.innerText = formatTime(timeRemaining);
-          if (timeRemaining <= 0) endGame(false, "Tempo Esgotado!");
-        }, 1000);
-      } else {
-        timeRemaining = 0;
-        timerLabel.innerText = "Tempo Decorrido";
-        timerDisplay.innerText = formatTime(timeRemaining);
-        timerInterval = setInterval(() => {
-          timeRemaining++;
-          timerDisplay.innerText = formatTime(timeRemaining);
-        }, 1000);
-      }
-    }
-
-    function endGame(victory = false, reason = "Viagem Finalizada") {
-      isPlaying = false;
-      isGameOver = true;
-      clearInterval(timerInterval);
-      countryInput.disabled = true;
-      countryInput.value = '';
-      countryInput.placeholder = 'Jogo finalizado!';
-      
-      gameActionBtn.innerHTML = `<i data-lucide="play" class="w-4 h-4 fill-white"></i> <span>Novo Jogo</span>`;
-      gameActionBtn.className = "px-4 py-2 rounded-lg font-bold text-sm bg-emerald-600 hover:bg-emerald-500 text-white shadow-md transition flex items-center gap-1.5";
-      lucide.createIcons();
-
-      COUNTRIES_DB.forEach((c, idx) => {
-        const cell = document.getElementById(`cell-${idx}`);
-        if (!guessedCountries.has(idx)) {
-          if (cell) {
-            cell.classList.remove('bg-slate-950/60', 'border-slate-800/80');
-            cell.classList.add('bg-rose-950/30', 'border-rose-800/50');
-            const lbl = cell.querySelector('.country-label');
-            lbl.innerText = c.name;
-            lbl.classList.remove('text-slate-500');
-            lbl.classList.add('text-rose-400');
-          }
-          updateMapCountry(idx, 'missed');
-        } else {
-          updateMapCountry(idx, 'guessed');
-        }
-      });
-
-      document.getElementById('modalTitle').innerText = victory ? "Parabéns, Você Conquistou o Globo!" : reason;
-      document.getElementById('modalSubtitle').innerText = victory ? `Você acertou todos os ${TOTAL_COUNTRIES} países do mundo!` : "Veja seu desempenho final na Volta ao Mundo:";
-      document.getElementById('modalScore').innerText = guessedCountries.size;
-      document.getElementById('modalPercent').innerText = `${Math.round((guessedCountries.size / TOTAL_COUNTRIES) * 100)}%`;
-      gameOverModal.classList.remove('hidden');
-    }
-
-    countryInput.addEventListener('input', (e) => {
-      if (!isPlaying) return;
-      const rawVal = e.target.value;
-      const val = normalize(rawVal);
-      if (!val) return;
-
-      let foundIndex = -1;
-      for (let i = 0; i < COUNTRIES_DB.length; i++) {
-        const c = COUNTRIES_DB[i];
-        if (normalize(c.name) === val || c.syn.some(s => normalize(s) === val)) {
-          foundIndex = i; break;
-        }
-      }
-
-      if (foundIndex !== -1) {
-        if (guessedCountries.has(foundIndex)) {
-          typingFeedback.innerText = 'Já digitado!';
-          typingFeedback.className = 'absolute right-4 text-xs font-bold px-2 py-1 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30';
-          playSound('duplicate');
-        } else {
-          guessedCountries.add(foundIndex);
-          const country = COUNTRIES_DB[foundIndex];
-          
-          // EASTER EGG PALESTINA
-          if (normalize(country.name) === "palestina") {
-            showPalestineEasterEgg();
-          }
-
-          const cell = document.getElementById(`cell-${foundIndex}`);
-          if (cell) {
-            cell.classList.remove('bg-slate-950/60', 'border-slate-800/80');
-            cell.classList.add('bg-emerald-950/30', 'border-emerald-600/50');
-            const lbl = cell.querySelector('.country-label');
-            lbl.innerText = country.name;
-            lbl.classList.remove('text-slate-500');
-            lbl.classList.add('text-emerald-400', 'font-bold');
-          }
-
-          updateMapCountry(foundIndex, 'guessed');
-          autoRotateToCountry(country.id);
-
-          lastGuessedDisplay.innerText = country.name;
-          countryInput.value = '';
-          typingFeedback.innerText = '+1 Acerto!';
-          typingFeedback.className = 'absolute right-4 text-xs font-bold px-2 py-1 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
-          playSound('hit');
-          updateCounters();
-
-          if (guessedCountries.size === TOTAL_COUNTRIES) endGame(true, "Você Venceu!");
-        }
-      }
-    });
-
-    timeButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        if (isPlaying) return;
-        timeButtons.forEach(b => b.className = "time-btn px-2.5 py-1.5 rounded-md font-semibold text-slate-400 hover:text-white transition");
-        btn.className = "time-btn px-2.5 py-1.5 rounded-md font-semibold text-white bg-brand-600 transition";
-
-        selectedDurationMinutes = parseInt(btn.dataset.time, 10);
-        if (selectedDurationMinutes > 0) {
-          timerLabel.innerText = "Tempo";
-          timerDisplay.innerText = formatTime(selectedDurationMinutes * 60);
-        } else {
-          timerLabel.innerText = "Tempo";
-          timerDisplay.innerText = "00:00";
-        }
-      });
-    });
-
-    continentTabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        continentTabs.forEach(t => {
-          t.classList.remove('bg-brand-600', 'text-white');
-          t.classList.add('bg-slate-900', 'text-slate-400');
-        });
-        tab.classList.add('bg-brand-600', 'text-white');
-        tab.classList.remove('bg-slate-900', 'text-slate-400');
-
-        const continent = tab.dataset.continent;
-        document.querySelectorAll('#continentsContainer > section').forEach(sec => {
-          sec.style.display = (continent === 'all' || sec.dataset.continent === continent) ? 'block' : 'none';
-        });
-      });
-    });
-
-    toggleAudioBtn.addEventListener('click', () => {
-      isMuted = !isMuted;
-      audioIcon.setAttribute('data-lucide', isMuted ? 'volume-x' : 'volume-2');
-      toggleAudioBtn.classList.toggle('text-rose-400', isMuted);
-      lucide.createIcons();
-    });
-
-    gameActionBtn.addEventListener('click', () => {
-      if (!isPlaying) startGame();
-      else if (confirm("Deseja realmente desistir e revelar todas as respostas no mapa e nas tabelas?")) endGame(false, "Desistência");
-    });
-
-    // Compartilhar no WhatsApp - Emojis a cada 10%
-    document.getElementById('whatsappShareBtn').addEventListener('click', () => {
-      const score = guessedCountries.size;
-      const pct = Math.round((score / TOTAL_COUNTRIES) * 100);
-      let emoji = "😭";
-      
-      if (pct >= 10 && pct < 20) emoji = "😢";
-      else if (pct >= 20 && pct < 30) emoji = "🥲";
-      else if (pct >= 30 && pct < 40) emoji = "😕";
-      else if (pct >= 40 && pct < 50) emoji = "🙂";
-      else if (pct >= 50 && pct < 60) emoji = "😉";
-      else if (pct >= 60 && pct < 70) emoji = "😊";
-      else if (pct >= 70 && pct < 80) emoji = "😃";
-      else if (pct >= 80 && pct < 90) emoji = "🤩";
-      else if (pct >= 90 && pct < 100) emoji = "🤯";
-      else if (pct === 100) emoji = "👑🌍";
-      
-      const gameUrl = window.location.href;
-      const text = `🌍 Joguei o Volta ao Mundo e acertei ${score}/${TOTAL_COUNTRIES} países (${pct}%)! ${emoji}\n\nSerá que você consegue me vencer? Jogue em: ${gameUrl}`;
-      const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
-      window.open(whatsappUrl, '_blank');
-    });
-
-    document.getElementById('modalReviewBtn').addEventListener('click', () => gameOverModal.classList.add('hidden'));
-    document.getElementById('modalRestartBtn').addEventListener('click', () => {
-      gameOverModal.classList.add('hidden');
-      startGame();
-    });
-
-    window.addEventListener('DOMContentLoaded', () => {
-      renderContinentTables();
-      initWorldMap();
-      lucide.createIcons();
-    });
-  </script>
-</body>
-</html>
+      { id: "028", name: "Antígua e Barbuda", continent: "Americas", flag: "🇦🇬", syn: ["antigua e barbuda", "antigua barbuda", "antigua"] },
+      { id: "032", name: "Argentina", continent: "Americas", flag: "🇦🇷", syn: ["argentina"] },
+      { id: "044", name: "Bahamas", continent: "Americas", flag: "🇧🇸", syn: ["bahamas"] },
+      { id: "052", name: "Barbados", continent: "Americas", flag: "🇧🇧", syn: ["barbados"] },
+      { id: "084", name: "Belize", continent: "Americas", flag: "🇧🇿", syn: ["belize"] },
+      { id: "068", name: "Bolívia", continent: "Americas", flag: "🇧🇴", syn: ["bolivia"] },
+      { id: "076", name: "Brasil", continent: "Americas", flag: "🇧🇷", syn: ["brasil", "brazil"] },
+      { id: "124", name: "Canadá", continent: "Americas", flag: "🇨🇦", syn: ["canada"] },
+      { id: "152", name: "Chile", continent: "Americas", flag: "🇨🇱", syn: ["chile"] },
+      { id: "170", name: "Colômbia", continent: "Americas", flag: "🇨🇴", syn: ["colombia"] },
+      { id: "188", name: "Costa Rica", continent: "Americas", flag: "🇨🇷", syn: ["costa rica"] },
+      { id: "192", name: "Cuba", continent: "Americas", flag: "🇨🇺", syn: ["cuba"] },
+      { id: "212", name: "Dominica", continent: "Americas", flag: "🇩🇲", syn: ["dominica"] },
+      { id: "222", name: "El Salvador", continent: "Americas", flag: "🇸🇻", syn: ["el salvador", "salvador"] },
+      { id: "218", name: "Equador", continent: "Americas", flag: "🇪🇨", syn: ["equador", "ecuador"] },
+      { id: "840", name: "Estados Unidos", continent: "Americas", flag: "🇺🇸", syn: ["estados unidos", "eua", "usa"] },
+      { id: "308", name: "Granada", continent: "Americas", flag: "🇬🇩", syn: ["granada"] },
+      { id: "320", name: "Guatemala", continent: "Americas", flag: "🇬🇹", syn: ["guatemala"] },
+      { id: "328", name: "Guiana", continent: "Americas", flag: "🇬🇾", syn: ["guiana", "guyana"] },
+      { id: "332", name: "Haiti", continent: "Americas", flag: "🇭🇹", syn: ["haiti"] },
+      { id: "340", name: "Honduras", continent: "Americas", flag: "🇭🇳", syn: ["honduras"] },
+      { id: "388", name: "Jamaica", continent: "Americas", flag: "🇯🇲", syn: ["jamaica"] },
+      { id: "484", name: "México", continent: "Americas", flag: "🇲🇽", syn: ["mexico"] },
+      { id: "558", name: "Nicarágua", continent: "Americas", flag: "🇳🇮", syn: ["nicaragua"] },
+      { id: "591", name: "Panamá", continent: "Americas", flag: "🇵🇦", syn: ["panama"] },
+      { id: "600", name: "Paraguai", continent: "Americas", flag: "🇵🇾", syn: ["paraguai", "paraguay"] },
+      { id: "604", name: "Peru", continent: "Americas", flag: "🇵🇪", syn: ["peru"] },
+      { id: "214", name: "República Dominicana", continent: "Americas", flag: "🇩🇴", syn: ["republica dominicana", "rep dominicana"] },
+      { id: "662", name: "Santa Lúcia", continent: "Americas", flag: "🇱🇨", syn: ["santa lucia"] },
+      { id: "659", name: "São Cristóvão e Névis", continent: "Americas", flag: "🇰🇳", syn: ["sao cristovao e nevis", "sao cristovao", "st kitts"] },
+      { id: "670", name: "São Vicente e Granadinas", continent: "Americas", flag: "🇻🇨", syn: ["sao vicente e granadinas", "sao vicente"] },
+      { id: "740", name: "Suriname", continent: "Americas", flag: "🇸🇷", syn: ["suriname"] },
+      { id: "780", name: "Trinidad e Tobago", continent: "Americas", flag: "🇹🇹", syn: ["trinidad e tobago", "trinidad"] },
+      { id: "858", name: "Uruguai", continent: "Americas", flag: "🇺🇾", syn: ["uruguai", "uruguay"] },
+      { id: "862", name: "Venezuela", continent: "Americas", flag: "🇻🇪", syn: ["venezuela"] },
+
+      // EUROPA (45 - Kosovo mantido)
+      { id: "008", name: "Albânia", continent: "Europa", flag: "🇦🇱", syn: ["albania"] },
+      { id: "276", name: "Alemanha", continent: "Europa", flag: "🇩🇪", syn: ["alemanha", "germany"] },
+      { id: "020", name: "Andorra", continent: "Europa", flag: "🇦🇩", syn: ["andorra"] },
+      { id: "040", name: "Áustria", continent: "Europa", flag: "🇦🇹", syn: ["austria"] },
+      { id: "056", name: "Bélgica", continent: "Europa", flag: "🇧🇪", syn: ["belgica", "belgium"] },
+      { id: "112", name: "Bielorrússia", continent: "Europa", flag: "🇧🇾", syn: ["bielorrussia", "bielorussia", "belarus"] },
+      { id: "070", name: "Bósnia e Herzegovina", continent: "Europa", flag: "🇧🇦", syn: ["bosnia e herzegovina", "bosnia"] },
+      { id: "100", name: "Bulgária", continent: "Europa", flag: "🇧🇬", syn: ["bulgaria"] },
+      { id: "196", name: "Chipre", continent: "Europa", flag: "🇨🇾", syn: ["chipre", "cyprus"] },
+      { id: "191", name: "Croácia", continent: "Europa", flag: "🇭🇷", syn: ["croacia", "croatia"] },
+      { id: "208", name: "Dinamarca", continent: "Europa", flag: "🇩🇰", syn: ["dinamarca", "denmark"] },
+      { id: "703", name: "Eslováquia", continent: "Europa", flag: "🇸🇰", syn: ["eslovaquia", "slovakia"] },
+      { id: "705", name: "Eslovênia", continent: "Europa", flag: "🇸🇮", syn: ["eslovenia", "slovenia"] },
+      { id: "724", name: "Espanha", continent: "Europa", flag: "🇪🇸", syn: ["espanha", "spain"] },
+      { id: "233", name: "Estônia", continent: "Europa", flag: "🇪🇪", syn: ["estonia"] },
+      { id: "246", name: "Finlândia", continent: "Europa", flag: "🇫🇮", syn: ["finlandia", "finland"] },
+      { id: "250", name: "França", continent: "Europa", flag: "🇫🇷", syn: ["franca", "france"] },
+      { id: "300", name: "Grécia", continent: "Europa", flag: "🇬🇷", syn: ["grecia", "greece"] },
+      { id: "348", name: "Hungria", continent: "Europa", flag: "🇭🇺", syn: ["hungria", "hungary"] },
+      { id: "372", name: "Irlanda", continent: "Europa", flag: "🇮🇪", syn: ["irlanda", "ireland"] },
+      { id: "352", name: "Islândia", continent: "Europa", flag: "🇮🇸", syn: ["islandia", "iceland"] },
+      { id: "380", name: "Itália", continent: "Europa", flag: "🇮🇹", syn: ["italia", "italy"] },
+      { id: "383", name: "Kosovo", continent: "Europa", flag: "🇽🇰", syn: ["kosovo", "cosovo"] }, 
+      { id: "428", name: "Letônia", continent: "Europa", flag: "🇱🇻", syn: ["letonia", "latvia"] },
+      { id: "438", name: "Liechtenstein", continent: "Europa", flag: "🇱🇮", syn: ["liechtenstein"] },
+      { id: "440", name: "Lituânia", continent: "Europa", flag: "🇱🇹", syn: ["lituania", "lithuania"] },
+      { id: "442", name: "Luxemburgo", continent: "Europa", flag: "🇱🇺", syn: ["luxemburgo", "luxembourg"] },
+      { id: "807", name: "Macedônia do Norte", continent: "Europa", flag: "🇲🇰", syn: ["macedonia do norte", "macedonia"] },
+      { id: "470", name: "Malta", continent: "Europa", flag: "🇲🇹", syn: ["malta"] },
+      { id: "498", name: "Moldávia", continent: "Europa", flag: "🇲🇩", syn: ["moldavia", "moldova"] },
+      { id: "492", name: "Mônaco", continent: "Europa", flag: "🇲🇨", syn: ["monaco"] },
+      { id: "499", name: "Montenegro", continent: "Europa", flag: "🇲🇪", syn: ["montenegro"] },
+      { id: "578", name: "Noruega", continent: "Europa", flag: "🇳🇴", syn: ["noruega", "norway"] },
+      { id: "528", name: "Países Baixos", continent: "Europa", flag: "🇳🇱", syn: ["paises baixos", "holanda", "netherlands"] },
+      { id: "616", name: "Polônia", continent: "Europa", flag: "🇵🇱", syn: ["polonia", "poland"] },
+      { id: "620", name: "Portugal", continent: "Europa", flag: "🇵🇹", syn: ["portugal"] },
+      { id: "826", name: "Reino Unido", continent: "Europa", flag: "🇬🇧", syn: ["reino unido", "inglaterra", "uk", "gra bretanha"] },
+      { id: "203", name: "República Tcheca", continent: "Europa", flag: "🇨🇿", syn: ["republica tcheca", "tchequia", "chequia"] },
+      { id: "642", name: "Romênia", continent: "Europa", flag: "🇷🇴", syn: ["romenia", "romania"] },
+      { id: "643", name: "Rússia", continent: "Europa", flag: "🇷🇺", syn: ["russia"] },
+      { id: "674", name: "San Marino", continent: "Europa", flag: "🇸🇲", syn: ["san marino"] },
+      { id: "688", name: "Sérvia", continent: "Europa", flag: "🇷🇸", syn: ["servia", "serbia"] }, 
+      { id: "752",
