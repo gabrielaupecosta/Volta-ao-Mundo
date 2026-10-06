@@ -84,6 +84,13 @@
       stroke-width: 1px;
     }
 
+    /* Bandeiras animadas */
+    .country-flag {
+      transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      border-radius: 2px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
     /* EASTER EGG PALESTINA */
     .easter-egg-overlay {
       position: fixed;
@@ -361,218 +368,219 @@
 
   <!-- SCRIPT DO JOGO -->
   <script>
+    // BASE DE DADOS COM ISO CODES (Bandeiras SVG via CDN)
     const COUNTRIES_DB = [
       // AMÉRICAS (35)
-      { id: "028", name: "Antígua e Barbuda", continent: "Americas", flag: "🇦🇬", syn: ["antigua e barbuda", "antigua barbuda", "antigua"] },
-      { id: "032", name: "Argentina", continent: "Americas", flag: "🇦🇷", syn: ["argentina"] },
-      { id: "044", name: "Bahamas", continent: "Americas", flag: "🇧🇸", syn: ["bahamas"] },
-      { id: "052", name: "Barbados", continent: "Americas", flag: "🇧🇧", syn: ["barbados"] },
-      { id: "084", name: "Belize", continent: "Americas", flag: "🇧🇿", syn: ["belize"] },
-      { id: "068", name: "Bolívia", continent: "Americas", flag: "🇧🇴", syn: ["bolivia"] },
-      { id: "076", name: "Brasil", continent: "Americas", flag: "🇧🇷", syn: ["brasil", "brazil"] },
-      { id: "124", name: "Canadá", continent: "Americas", flag: "🇨🇦", syn: ["canada"] },
-      { id: "152", name: "Chile", continent: "Americas", flag: "🇨🇱", syn: ["chile"] },
-      { id: "170", name: "Colômbia", continent: "Americas", flag: "🇨🇴", syn: ["colombia"] },
-      { id: "188", name: "Costa Rica", continent: "Americas", flag: "🇨🇷", syn: ["costa rica"] },
-      { id: "192", name: "Cuba", continent: "Americas", flag: "🇨🇺", syn: ["cuba"] },
-      { id: "212", name: "Dominica", continent: "Americas", flag: "🇩🇲", syn: ["dominica"] },
-      { id: "222", name: "El Salvador", continent: "Americas", flag: "🇸🇻", syn: ["el salvador", "salvador"] },
-      { id: "218", name: "Equador", continent: "Americas", flag: "🇪🇨", syn: ["equador", "ecuador"] },
-      { id: "840", name: "Estados Unidos", continent: "Americas", flag: "🇺🇸", syn: ["estados unidos", "eua", "usa"] },
-      { id: "308", name: "Granada", continent: "Americas", flag: "🇬🇩", syn: ["granada"] },
-      { id: "320", name: "Guatemala", continent: "Americas", flag: "🇬🇹", syn: ["guatemala"] },
-      { id: "328", name: "Guiana", continent: "Americas", flag: "🇬🇾", syn: ["guiana", "guyana"] },
-      { id: "332", name: "Haiti", continent: "Americas", flag: "🇭🇹", syn: ["haiti"] },
-      { id: "340", name: "Honduras", continent: "Americas", flag: "🇭🇳", syn: ["honduras"] },
-      { id: "388", name: "Jamaica", continent: "Americas", flag: "🇯🇲", syn: ["jamaica"] },
-      { id: "484", name: "México", continent: "Americas", flag: "🇲🇽", syn: ["mexico"] },
-      { id: "558", name: "Nicarágua", continent: "Americas", flag: "🇳🇮", syn: ["nicaragua"] },
-      { id: "591", name: "Panamá", continent: "Americas", flag: "🇵🇦", syn: ["panama"] },
-      { id: "600", name: "Paraguai", continent: "Americas", flag: "🇵🇾", syn: ["paraguai", "paraguay"] },
-      { id: "604", name: "Peru", continent: "Americas", flag: "🇵🇪", syn: ["peru"] },
-      { id: "214", name: "República Dominicana", continent: "Americas", flag: "🇩🇴", syn: ["republica dominicana", "rep dominicana"] },
-      { id: "662", name: "Santa Lúcia", continent: "Americas", flag: "🇱🇨", syn: ["santa lucia"] },
-      { id: "659", name: "São Cristóvão e Névis", continent: "Americas", flag: "🇰🇳", syn: ["sao cristovao e nevis", "sao cristovao", "st kitts"] },
-      { id: "670", name: "São Vicente e Granadinas", continent: "Americas", flag: "🇻🇨", syn: ["sao vicente e granadinas", "sao vicente"] },
-      { id: "740", name: "Suriname", continent: "Americas", flag: "🇸🇷", syn: ["suriname"] },
-      { id: "780", name: "Trinidad e Tobago", continent: "Americas", flag: "🇹🇹", syn: ["trinidad e tobago", "trinidad"] },
-      { id: "858", name: "Uruguai", continent: "Americas", flag: "🇺🇾", syn: ["uruguai", "uruguay"] },
-      { id: "862", name: "Venezuela", continent: "Americas", flag: "🇻🇪", syn: ["venezuela"] },
+      { id: "028", name: "Antígua e Barbuda", continent: "Americas", flag: "ag", syn: ["antigua e barbuda", "antigua barbuda", "antigua"] },
+      { id: "032", name: "Argentina", continent: "Americas", flag: "ar", syn: ["argentina"] },
+      { id: "044", name: "Bahamas", continent: "Americas", flag: "bs", syn: ["bahamas"] },
+      { id: "052", name: "Barbados", continent: "Americas", flag: "bb", syn: ["barbados"] },
+      { id: "084", name: "Belize", continent: "Americas", flag: "bz", syn: ["belize"] },
+      { id: "068", name: "Bolívia", continent: "Americas", flag: "bo", syn: ["bolivia"] },
+      { id: "076", name: "Brasil", continent: "Americas", flag: "br", syn: ["brasil", "brazil"] },
+      { id: "124", name: "Canadá", continent: "Americas", flag: "ca", syn: ["canada"] },
+      { id: "152", name: "Chile", continent: "Americas", flag: "cl", syn: ["chile"] },
+      { id: "170", name: "Colômbia", continent: "Americas", flag: "co", syn: ["colombia"] },
+      { id: "188", name: "Costa Rica", continent: "Americas", flag: "cr", syn: ["costa rica"] },
+      { id: "192", name: "Cuba", continent: "Americas", flag: "cu", syn: ["cuba"] },
+      { id: "212", name: "Dominica", continent: "Americas", flag: "dm", syn: ["dominica"] },
+      { id: "222", name: "El Salvador", continent: "Americas", flag: "sv", syn: ["el salvador", "salvador"] },
+      { id: "218", name: "Equador", continent: "Americas", flag: "ec", syn: ["equador", "ecuador"] },
+      { id: "840", name: "Estados Unidos", continent: "Americas", flag: "us", syn: ["estados unidos", "eua", "usa"] },
+      { id: "308", name: "Granada", continent: "Americas", flag: "gd", syn: ["granada"] },
+      { id: "320", name: "Guatemala", continent: "Americas", flag: "gt", syn: ["guatemala"] },
+      { id: "328", name: "Guiana", continent: "Americas", flag: "gy", syn: ["guiana", "guyana"] },
+      { id: "332", name: "Haiti", continent: "Americas", flag: "ht", syn: ["haiti"] },
+      { id: "340", name: "Honduras", continent: "Americas", flag: "hn", syn: ["honduras"] },
+      { id: "388", name: "Jamaica", continent: "Americas", flag: "jm", syn: ["jamaica"] },
+      { id: "484", name: "México", continent: "Americas", flag: "mx", syn: ["mexico"] },
+      { id: "558", name: "Nicarágua", continent: "Americas", flag: "ni", syn: ["nicaragua"] },
+      { id: "591", name: "Panamá", continent: "Americas", flag: "pa", syn: ["panama"] },
+      { id: "600", name: "Paraguai", continent: "Americas", flag: "py", syn: ["paraguai", "paraguay"] },
+      { id: "604", name: "Peru", continent: "Americas", flag: "pe", syn: ["peru"] },
+      { id: "214", name: "República Dominicana", continent: "Americas", flag: "do", syn: ["republica dominicana", "rep dominicana"] },
+      { id: "662", name: "Santa Lúcia", continent: "Americas", flag: "lc", syn: ["santa lucia"] },
+      { id: "659", name: "São Cristóvão e Névis", continent: "Americas", flag: "kn", syn: ["sao cristovao e nevis", "sao cristovao", "st kitts"] },
+      { id: "670", name: "São Vicente e Granadinas", continent: "Americas", flag: "vc", syn: ["sao vicente e granadinas", "sao vicente"] },
+      { id: "740", name: "Suriname", continent: "Americas", flag: "sr", syn: ["suriname"] },
+      { id: "780", name: "Trinidad e Tobago", continent: "Americas", flag: "tt", syn: ["trinidad e tobago", "trinidad"] },
+      { id: "858", name: "Uruguai", continent: "Americas", flag: "uy", syn: ["uruguai", "uruguay"] },
+      { id: "862", name: "Venezuela", continent: "Americas", flag: "ve", syn: ["venezuela"] },
 
-      // EUROPA (45 - Kosovo mantido)
-      { id: "008", name: "Albânia", continent: "Europa", flag: "🇦🇱", syn: ["albania"] },
-      { id: "276", name: "Alemanha", continent: "Europa", flag: "🇩🇪", syn: ["alemanha", "germany"] },
-      { id: "020", name: "Andorra", continent: "Europa", flag: "🇦🇩", syn: ["andorra"] },
-      { id: "040", name: "Áustria", continent: "Europa", flag: "🇦🇹", syn: ["austria"] },
-      { id: "056", name: "Bélgica", continent: "Europa", flag: "🇧🇪", syn: ["belgica", "belgium"] },
-      { id: "112", name: "Bielorrússia", continent: "Europa", flag: "🇧🇾", syn: ["bielorrussia", "bielorussia", "belarus"] },
-      { id: "070", name: "Bósnia e Herzegovina", continent: "Europa", flag: "🇧🇦", syn: ["bosnia e herzegovina", "bosnia"] },
-      { id: "100", name: "Bulgária", continent: "Europa", flag: "🇧🇬", syn: ["bulgaria"] },
-      { id: "196", name: "Chipre", continent: "Europa", flag: "🇨🇾", syn: ["chipre", "cyprus"] },
-      { id: "191", name: "Croácia", continent: "Europa", flag: "🇭🇷", syn: ["croacia", "croatia"] },
-      { id: "208", name: "Dinamarca", continent: "Europa", flag: "🇩🇰", syn: ["dinamarca", "denmark"] },
-      { id: "703", name: "Eslováquia", continent: "Europa", flag: "🇸🇰", syn: ["eslovaquia", "slovakia"] },
-      { id: "705", name: "Eslovênia", continent: "Europa", flag: "🇸🇮", syn: ["eslovenia", "slovenia"] },
-      { id: "724", name: "Espanha", continent: "Europa", flag: "🇪🇸", syn: ["espanha", "spain"] },
-      { id: "233", name: "Estônia", continent: "Europa", flag: "🇪🇪", syn: ["estonia"] },
-      { id: "246", name: "Finlândia", continent: "Europa", flag: "🇫🇮", syn: ["finlandia", "finland"] },
-      { id: "250", name: "França", continent: "Europa", flag: "🇫🇷", syn: ["franca", "france"] },
-      { id: "300", name: "Grécia", continent: "Europa", flag: "🇬🇷", syn: ["grecia", "greece"] },
-      { id: "348", name: "Hungria", continent: "Europa", flag: "🇭🇺", syn: ["hungria", "hungary"] },
-      { id: "372", name: "Irlanda", continent: "Europa", flag: "🇮🇪", syn: ["irlanda", "ireland"] },
-      { id: "352", name: "Islândia", continent: "Europa", flag: "🇮🇸", syn: ["islandia", "iceland"] },
-      { id: "380", name: "Itália", continent: "Europa", flag: "🇮🇹", syn: ["italia", "italy"] },
-      { id: "383", name: "Kosovo", continent: "Europa", flag: "🇽🇰", syn: ["kosovo", "cosovo"] }, 
-      { id: "428", name: "Letônia", continent: "Europa", flag: "🇱🇻", syn: ["letonia", "latvia"] },
-      { id: "438", name: "Liechtenstein", continent: "Europa", flag: "🇱🇮", syn: ["liechtenstein"] },
-      { id: "440", name: "Lituânia", continent: "Europa", flag: "🇱🇹", syn: ["lituania", "lithuania"] },
-      { id: "442", name: "Luxemburgo", continent: "Europa", flag: "🇱🇺", syn: ["luxemburgo", "luxembourg"] },
-      { id: "807", name: "Macedônia do Norte", continent: "Europa", flag: "🇲🇰", syn: ["macedonia do norte", "macedonia"] },
-      { id: "470", name: "Malta", continent: "Europa", flag: "🇲🇹", syn: ["malta"] },
-      { id: "498", name: "Moldávia", continent: "Europa", flag: "🇲🇩", syn: ["moldavia", "moldova"] },
-      { id: "492", name: "Mônaco", continent: "Europa", flag: "🇲🇨", syn: ["monaco"] },
-      { id: "499", name: "Montenegro", continent: "Europa", flag: "🇲🇪", syn: ["montenegro"] },
-      { id: "578", name: "Noruega", continent: "Europa", flag: "🇳🇴", syn: ["noruega", "norway"] },
-      { id: "528", name: "Países Baixos", continent: "Europa", flag: "🇳🇱", syn: ["paises baixos", "holanda", "netherlands"] },
-      { id: "616", name: "Polônia", continent: "Europa", flag: "🇵🇱", syn: ["polonia", "poland"] },
-      { id: "620", name: "Portugal", continent: "Europa", flag: "🇵🇹", syn: ["portugal"] },
-      { id: "826", name: "Reino Unido", continent: "Europa", flag: "🇬🇧", syn: ["reino unido", "inglaterra", "uk", "gra bretanha"] },
-      { id: "203", name: "República Tcheca", continent: "Europa", flag: "🇨🇿", syn: ["republica tcheca", "tchequia", "chequia"] },
-      { id: "642", name: "Romênia", continent: "Europa", flag: "🇷🇴", syn: ["romenia", "romania"] },
-      { id: "643", name: "Rússia", continent: "Europa", flag: "🇷🇺", syn: ["russia"] },
-      { id: "674", name: "San Marino", continent: "Europa", flag: "🇸🇲", syn: ["san marino"] },
-      { id: "688", name: "Sérvia", continent: "Europa", flag: "🇷🇸", syn: ["servia", "serbia"] }, 
-      { id: "752", name: "Suécia", continent: "Europa", flag: "🇸🇪", syn: ["suecia", "sweden"] },
-      { id: "756", name: "Suíça", continent: "Europa", flag: "🇨🇭", syn: ["suica", "switzerland"] },
-      { id: "804", name: "Ucrânia", continent: "Europa", flag: "🇺🇦", syn: ["ucrania", "ukraine"] },
-      { id: "336", name: "Vaticano", continent: "Europa", flag: "🇻🇦", syn: ["vaticano", "santa se"] },
+      // EUROPA (45)
+      { id: "008", name: "Albânia", continent: "Europa", flag: "al", syn: ["albania"] },
+      { id: "276", name: "Alemanha", continent: "Europa", flag: "de", syn: ["alemanha", "germany"] },
+      { id: "020", name: "Andorra", continent: "Europa", flag: "ad", syn: ["andorra"] },
+      { id: "040", name: "Áustria", continent: "Europa", flag: "at", syn: ["austria"] },
+      { id: "056", name: "Bélgica", continent: "Europa", flag: "be", syn: ["belgica", "belgium"] },
+      { id: "112", name: "Bielorrússia", continent: "Europa", flag: "by", syn: ["bielorrussia", "bielorussia", "belarus"] },
+      { id: "070", name: "Bósnia e Herzegovina", continent: "Europa", flag: "ba", syn: ["bosnia e herzegovina", "bosnia"] },
+      { id: "100", name: "Bulgária", continent: "Europa", flag: "bg", syn: ["bulgaria"] },
+      { id: "196", name: "Chipre", continent: "Europa", flag: "cy", syn: ["chipre", "cyprus"] },
+      { id: "191", name: "Croácia", continent: "Europa", flag: "hr", syn: ["croacia", "croatia"] },
+      { id: "208", name: "Dinamarca", continent: "Europa", flag: "dk", syn: ["dinamarca", "denmark"] },
+      { id: "703", name: "Eslováquia", continent: "Europa", flag: "sk", syn: ["eslovaquia", "slovakia"] },
+      { id: "705", name: "Eslovênia", continent: "Europa", flag: "si", syn: ["eslovenia", "slovenia"] },
+      { id: "724", name: "Espanha", continent: "Europa", flag: "es", syn: ["espanha", "spain"] },
+      { id: "233", name: "Estônia", continent: "Europa", flag: "ee", syn: ["estonia"] },
+      { id: "246", name: "Finlândia", continent: "Europa", flag: "fi", syn: ["finlandia", "finland"] },
+      { id: "250", name: "França", continent: "Europa", flag: "fr", syn: ["franca", "france"] },
+      { id: "300", name: "Grécia", continent: "Europa", flag: "gr", syn: ["grecia", "greece"] },
+      { id: "348", name: "Hungria", continent: "Europa", flag: "hu", syn: ["hungria", "hungary"] },
+      { id: "372", name: "Irlanda", continent: "Europa", flag: "ie", syn: ["irlanda", "ireland"] },
+      { id: "352", name: "Islândia", continent: "Europa", flag: "is", syn: ["islandia", "iceland"] },
+      { id: "380", name: "Itália", continent: "Europa", flag: "it", syn: ["italia", "italy"] },
+      { id: "383", name: "Kosovo", continent: "Europa", flag: "xk", syn: ["kosovo", "cosovo"] }, 
+      { id: "428", name: "Letônia", continent: "Europa", flag: "lv", syn: ["letonia", "latvia"] },
+      { id: "438", name: "Liechtenstein", continent: "Europa", flag: "li", syn: ["liechtenstein"] },
+      { id: "440", name: "Lituânia", continent: "Europa", flag: "lt", syn: ["lituania", "lithuania"] },
+      { id: "442", name: "Luxemburgo", continent: "Europa", flag: "lu", syn: ["luxemburgo", "luxembourg"] },
+      { id: "807", name: "Macedônia do Norte", continent: "Europa", flag: "mk", syn: ["macedonia do norte", "macedonia"] },
+      { id: "470", name: "Malta", continent: "Europa", flag: "mt", syn: ["malta"] },
+      { id: "498", name: "Moldávia", continent: "Europa", flag: "md", syn: ["moldavia", "moldova"] },
+      { id: "492", name: "Mônaco", continent: "Europa", flag: "mc", syn: ["monaco"] },
+      { id: "499", name: "Montenegro", continent: "Europa", flag: "me", syn: ["montenegro"] },
+      { id: "578", name: "Noruega", continent: "Europa", flag: "no", syn: ["noruega", "norway"] },
+      { id: "528", name: "Países Baixos", continent: "Europa", flag: "nl", syn: ["paises baixos", "holanda", "netherlands"] },
+      { id: "616", name: "Polônia", continent: "Europa", flag: "pl", syn: ["polonia", "poland"] },
+      { id: "620", name: "Portugal", continent: "Europa", flag: "pt", syn: ["portugal"] },
+      { id: "826", name: "Reino Unido", continent: "Europa", flag: "gb", syn: ["reino unido", "inglaterra", "uk", "gra bretanha"] },
+      { id: "203", name: "República Tcheca", continent: "Europa", flag: "cz", syn: ["republica tcheca", "tchequia", "chequia"] },
+      { id: "642", name: "Romênia", continent: "Europa", flag: "ro", syn: ["romenia", "romania"] },
+      { id: "643", name: "Rússia", continent: "Europa", flag: "ru", syn: ["russia"] },
+      { id: "674", name: "San Marino", continent: "Europa", flag: "sm", syn: ["san marino"] },
+      { id: "688", name: "Sérvia", continent: "Europa", flag: "rs", syn: ["servia", "serbia"] }, 
+      { id: "752", name: "Suécia", continent: "Europa", flag: "se", syn: ["suecia", "sweden"] },
+      { id: "756", name: "Suíça", continent: "Europa", flag: "ch", syn: ["suica", "switzerland"] },
+      { id: "804", name: "Ucrânia", continent: "Europa", flag: "ua", syn: ["ucrania", "ukraine"] },
+      { id: "336", name: "Vaticano", continent: "Europa", flag: "va", syn: ["vaticano", "santa se"] },
 
       // ÁSIA (48)
-      { id: "004", name: "Afeganistão", continent: "Asia", flag: "🇦🇫", syn: ["afeganistao", "afghanistan"] },
-      { id: "682", name: "Arábia Saudita", continent: "Asia", flag: "🇸🇦", syn: ["arabia saudita", "arabia"] },
-      { id: "051", name: "Armênia", continent: "Asia", flag: "🇦🇲", syn: ["armenia"] },
-      { id: "031", name: "Azerbaijão", continent: "Asia", flag: "🇦🇿", syn: ["azerbaijao", "azerbaijan"] },
-      { id: "048", name: "Bahrein", continent: "Asia", flag: "🇧🇭", syn: ["bahrein", "bahrain"] },
-      { id: "050", name: "Bangladesh", continent: "Asia", flag: "🇧🇩", syn: ["bangladesh"] },
-      { id: "096", name: "Brunei", continent: "Asia", flag: "🇧🇳", syn: ["brunei"] },
-      { id: "064", name: "Butão", continent: "Asia", flag: "🇧🇹", syn: ["butao", "bhutan"] },
-      { id: "116", name: "Camboja", continent: "Asia", flag: "🇰🇭", syn: ["camboja", "cambodia"] },
-      { id: "634", name: "Catar", continent: "Asia", flag: "🇶🇦", syn: ["catar", "qatar"] },
-      { id: "398", name: "Cazaquistão", continent: "Asia", flag: "🇰🇿", syn: ["cazaquistao", "kazakhstan"] },
-      { id: "156", name: "China", continent: "Asia", flag: "🇨🇳", syn: ["china"] },
-      { id: "408", name: "Coreia do Norte", continent: "Asia", flag: "🇰🇵", syn: ["coreia do norte"] },
-      { id: "410", name: "Coreia do Sul", continent: "Asia", flag: "🇰🇷", syn: ["coreia do sul", "coreia"] },
-      { id: "784", name: "Emirados Árabes Unidos", continent: "Asia", flag: "🇦🇪", syn: ["emirados arabes unidos", "eau", "emirados arabes", "emirados"] },
-      { id: "608", name: "Filipinas", continent: "Asia", flag: "🇵🇭", syn: ["filipinas", "philippines"] },
-      { id: "268", name: "Geórgia", continent: "Asia", flag: "🇬🇪", syn: ["georgia"] },
-      { id: "887", name: "Iêmen", continent: "Asia", flag: "🇾🇪", syn: ["iemen", "yemen"] },
-      { id: "356", name: "Índia", continent: "Asia", flag: "🇮🇳", syn: ["india"] },
-      { id: "360", name: "Indonésia", continent: "Asia", flag: "🇮🇩", syn: ["indonesia"] },
-      { id: "364", name: "Irã", continent: "Asia", flag: "🇮🇷", syn: ["ira", "iran"] },
-      { id: "368", name: "Iraque", continent: "Asia", flag: "🇮🇶", syn: ["iraque", "iraq"] },
-      { id: "376", name: "Israel", continent: "Asia", flag: "🇮🇱", syn: ["israel"] },
-      { id: "392", name: "Japão", continent: "Asia", flag: "🇯🇵", syn: ["japao", "japan"] },
-      { id: "400", name: "Jordânia", continent: "Asia", flag: "🇯🇴", syn: ["jordania", "jordan"] },
-      { id: "414", name: "Kuwait", continent: "Asia", flag: "🇰🇼", syn: ["kuwait"] },
-      { id: "418", name: "Laos", continent: "Asia", flag: "🇱🇦", syn: ["laos"] },
-      { id: "422", name: "Líbano", continent: "Asia", flag: "🇱🇧", syn: ["libano", "lebanon"] },
-      { id: "458", name: "Malásia", continent: "Asia", flag: "🇲🇾", syn: ["malasia", "malaysia"] },
-      { id: "462", name: "Maldivas", continent: "Asia", flag: "🇲🇻", syn: ["maldivas"] },
-      { id: "104", name: "Mianmar", continent: "Asia", flag: "🇲🇲", syn: ["mianmar", "birmania", "myanmar"] },
-      { id: "496", name: "Mongólia", continent: "Asia", flag: "🇲🇳", syn: ["mongolia"] },
-      { id: "524", name: "Nepal", continent: "Asia", flag: "🇳🇵", syn: ["nepal"] },
-      { id: "512", name: "Omã", continent: "Asia", flag: "🇴🇲", syn: ["oma", "oman"] },
-      { id: "275", name: "Palestina", continent: "Asia", flag: "🇵🇸", syn: ["palestina"] },
-      { id: "586", name: "Paquistão", continent: "Asia", flag: "🇵🇰", syn: ["paquistao", "pakistan"] },
-      { id: "417", name: "Quirguistão", continent: "Asia", flag: "🇰🇬", syn: ["quirguistao", "kyrgyzstan"] },
-      { id: "702", name: "Singapura", continent: "Asia", flag: "🇸🇬", syn: ["singapura", "singapore"] },
-      { id: "760", name: "Síria", continent: "Asia", flag: "🇸🇾", syn: ["siria", "syria"] },
-      { id: "144", name: "Sri Lanka", continent: "Asia", flag: "🇱🇰", syn: ["sri lanka"] },
-      { id: "762", name: "Tadjiquistão", continent: "Asia", flag: "🇹🇯", syn: ["tadjiquistao", "tajikistan"] },
-      { id: "764", name: "Tailândia", continent: "Asia", flag: "🇹🇭", syn: ["tailandia", "thailand"] },
-      { id: "158", name: "Taiwan", continent: "Asia", flag: "🇹🇼", syn: ["taiwan"] },
-      { id: "626", name: "Timor-Leste", continent: "Asia", flag: "🇹🇱", syn: ["timor-leste", "timor leste", "timor"] },
-      { id: "795", name: "Turquemenistão", continent: "Asia", flag: "🇹🇲", syn: ["turquemenistao", "turkmenistan"] },
-      { id: "792", name: "Turquia", continent: "Asia", flag: "🇹🇷", syn: ["turquia", "turkey"] },
-      { id: "860", name: "Uzbequistão", continent: "Asia", flag: "🇺🇿", syn: ["uzbequistao", "uzbekistan"] },
-      { id: "704", name: "Vietnã", continent: "Asia", flag: "🇻🇳", syn: ["vietna", "vietnam"] },
+      { id: "004", name: "Afeganistão", continent: "Asia", flag: "af", syn: ["afeganistao", "afghanistan"] },
+      { id: "682", name: "Arábia Saudita", continent: "Asia", flag: "sa", syn: ["arabia saudita", "arabia"] },
+      { id: "051", name: "Armênia", continent: "Asia", flag: "am", syn: ["armenia"] },
+      { id: "031", name: "Azerbaijão", continent: "Asia", flag: "az", syn: ["azerbaijao", "azerbaijan"] },
+      { id: "048", name: "Bahrein", continent: "Asia", flag: "bh", syn: ["bahrein", "bahrain"] },
+      { id: "050", name: "Bangladesh", continent: "Asia", flag: "bd", syn: ["bangladesh"] },
+      { id: "096", name: "Brunei", continent: "Asia", flag: "bn", syn: ["brunei"] },
+      { id: "064", name: "Butão", continent: "Asia", flag: "bt", syn: ["butao", "bhutan"] },
+      { id: "116", name: "Camboja", continent: "Asia", flag: "kh", syn: ["camboja", "cambodia"] },
+      { id: "634", name: "Catar", continent: "Asia", flag: "qa", syn: ["catar", "qatar"] },
+      { id: "398", name: "Cazaquistão", continent: "Asia", flag: "kz", syn: ["cazaquistao", "kazakhstan"] },
+      { id: "156", name: "China", continent: "Asia", flag: "cn", syn: ["china"] },
+      { id: "408", name: "Coreia do Norte", continent: "Asia", flag: "kp", syn: ["coreia do norte"] },
+      { id: "410", name: "Coreia do Sul", continent: "Asia", flag: "kr", syn: ["coreia do sul", "coreia"] },
+      { id: "784", name: "Emirados Árabes Unidos", continent: "Asia", flag: "ae", syn: ["emirados arabes unidos", "eau", "emirados arabes", "emirados"] },
+      { id: "608", name: "Filipinas", continent: "Asia", flag: "ph", syn: ["filipinas", "philippines"] },
+      { id: "268", name: "Geórgia", continent: "Asia", flag: "ge", syn: ["georgia"] },
+      { id: "887", name: "Iêmen", continent: "Asia", flag: "ye", syn: ["iemen", "yemen"] },
+      { id: "356", name: "Índia", continent: "Asia", flag: "in", syn: ["india"] },
+      { id: "360", name: "Indonésia", continent: "Asia", flag: "id", syn: ["indonesia"] },
+      { id: "364", name: "Irã", continent: "Asia", flag: "ir", syn: ["ira", "iran"] },
+      { id: "368", name: "Iraque", continent: "Asia", flag: "iq", syn: ["iraque", "iraq"] },
+      { id: "376", name: "Israel", continent: "Asia", flag: "il", syn: ["israel"] },
+      { id: "392", name: "Japão", continent: "Asia", flag: "jp", syn: ["japao", "japan"] },
+      { id: "400", name: "Jordânia", continent: "Asia", flag: "jo", syn: ["jordania", "jordan"] },
+      { id: "414", name: "Kuwait", continent: "Asia", flag: "kw", syn: ["kuwait"] },
+      { id: "418", name: "Laos", continent: "Asia", flag: "la", syn: ["laos"] },
+      { id: "422", name: "Líbano", continent: "Asia", flag: "lb", syn: ["libano", "lebanon"] },
+      { id: "458", name: "Malásia", continent: "Asia", flag: "my", syn: ["malasia", "malaysia"] },
+      { id: "462", name: "Maldivas", continent: "Asia", flag: "mv", syn: ["maldivas"] },
+      { id: "104", name: "Mianmar", continent: "Asia", flag: "mm", syn: ["mianmar", "birmania", "myanmar"] },
+      { id: "496", name: "Mongólia", continent: "Asia", flag: "mn", syn: ["mongolia"] },
+      { id: "524", name: "Nepal", continent: "Asia", flag: "np", syn: ["nepal"] },
+      { id: "512", name: "Omã", continent: "Asia", flag: "om", syn: ["oma", "oman"] },
+      { id: "275", name: "Palestina", continent: "Asia", flag: "ps", syn: ["palestina"] },
+      { id: "586", name: "Paquistão", continent: "Asia", flag: "pk", syn: ["paquistao", "pakistan"] },
+      { id: "417", name: "Quirguistão", continent: "Asia", flag: "kg", syn: ["quirguistao", "kyrgyzstan"] },
+      { id: "702", name: "Singapura", continent: "Asia", flag: "sg", syn: ["singapura", "singapore"] },
+      { id: "760", name: "Síria", continent: "Asia", flag: "sy", syn: ["siria", "syria"] },
+      { id: "144", name: "Sri Lanka", continent: "Asia", flag: "lk", syn: ["sri lanka"] },
+      { id: "762", name: "Tadjiquistão", continent: "Asia", flag: "tj", syn: ["tadjiquistao", "tajikistan"] },
+      { id: "764", name: "Tailândia", continent: "Asia", flag: "th", syn: ["tailandia", "thailand"] },
+      { id: "158", name: "Taiwan", continent: "Asia", flag: "tw", syn: ["taiwan"] },
+      { id: "626", name: "Timor-Leste", continent: "Asia", flag: "tl", syn: ["timor-leste", "timor leste", "timor"] },
+      { id: "795", name: "Turquemenistão", continent: "Asia", flag: "tm", syn: ["turquemenistao", "turkmenistan"] },
+      { id: "792", name: "Turquia", continent: "Asia", flag: "tr", syn: ["turquia", "turkey"] },
+      { id: "860", name: "Uzbequistão", continent: "Asia", flag: "uz", syn: ["uzbequistao", "uzbekistan"] },
+      { id: "704", name: "Vietnã", continent: "Asia", flag: "vn", syn: ["vietna", "vietnam"] },
 
-      // ÁFRICA (54 - Somalilândia removida)
-      { id: "710", name: "África do Sul", continent: "Africa", flag: "🇿🇦", syn: ["africa do sul"] },
-      { id: "024", name: "Angola", continent: "Africa", flag: "🇦🇴", syn: ["angola"] },
-      { id: "012", name: "Argélia", continent: "Africa", flag: "🇩🇿", syn: ["argelia", "algeria"] },
-      { id: "204", name: "Benin", continent: "Africa", flag: "🇧🇯", syn: ["benin", "benim"] },
-      { id: "072", name: "Botsuana", continent: "Africa", flag: "🇧🇼", syn: ["botsuana", "botswana"] },
-      { id: "854", name: "Burquina Faso", continent: "Africa", flag: "🇧🇫", syn: ["burquina faso", "burkina faso", "burkina"] },
-      { id: "108", name: "Burundi", continent: "Africa", flag: "🇧🇮", syn: ["burundi"] },
-      { id: "132", name: "Cabo Verde", continent: "Africa", flag: "🇨🇻", syn: ["cabo verde"] },
-      { id: "120", name: "Camarões", continent: "Africa", flag: "🇨🇲", syn: ["camaroes", "cameroon"] },
-      { id: "148", name: "Chade", continent: "Africa", flag: "🇹🇩", syn: ["chade", "chad"] },
-      { id: "174", name: "Comores", continent: "Africa", flag: "🇰🇲", syn: ["comores"] },
-      { id: "178", name: "Congo-Brazzaville", continent: "Africa", flag: "🇨🇬", syn: ["congo-brazzaville", "congo", "republica do congo"] },
-      { id: "384", name: "Costa do Marfim", continent: "Africa", flag: "🇨🇮", syn: ["costa do marfim"] },
-      { id: "262", name: "Djibuti", continent: "Africa", flag: "🇩🇯", syn: ["djibuti", "djibouti"] },
-      { id: "818", name: "Egito", continent: "Africa", flag: "🇪🇬", syn: ["egito", "egypt"] },
-      { id: "232", name: "Eritreia", continent: "Africa", flag: "🇪🇷", syn: ["eritreia", "eritrea"] },
-      { id: "748", name: "Essuatíni", continent: "Africa", flag: "🇸🇿", syn: ["essuatini", "suazilandia", "eswatini"] },
-      { id: "231", name: "Etiópia", continent: "Africa", flag: "🇪🇹", syn: ["etiopia", "ethiopia"] },
-      { id: "266", name: "Gabão", continent: "Africa", flag: "🇬🇦", syn: ["gabao", "gabon"] },
-      { id: "270", name: "Gâmbia", continent: "Africa", flag: "🇬🇲", syn: ["gambia"] },
-      { id: "288", name: "Gana", continent: "Africa", flag: "🇬🇭", syn: ["gana", "ghana"] },
-      { id: "324", name: "Guiné", continent: "Africa", flag: "🇬🇳", syn: ["guine", "guinea"] },
-      { id: "624", name: "Guiné-Bissau", continent: "Africa", flag: "🇬🇼", syn: ["guine-bissau", "guine bissau"] },
-      { id: "226", name: "Guiné Equatorial", continent: "Africa", flag: "🇬🇶", syn: ["guine equatorial"] },
-      { id: "426", name: "Lesoto", continent: "Africa", flag: "🇱🇸", syn: ["lesoto", "lesotho"] },
-      { id: "430", name: "Libéria", continent: "Africa", flag: "🇱🇷", syn: ["liberia"] },
-      { id: "434", name: "Líbia", continent: "Africa", flag: "🇱🇾", syn: ["libia", "libya"] },
-      { id: "450", name: "Madagascar", continent: "Africa", flag: "🇲🇬", syn: ["madagascar"] },
-      { id: "454", name: "Malaui", continent: "Africa", flag: "🇲🇼", syn: ["malaui", "malawi"] },
-      { id: "466", name: "Mali", continent: "Africa", flag: "🇲🇱", syn: ["mali"] },
-      { id: "504", name: "Marrocos", continent: "Africa", flag: "🇲🇦", syn: ["marrocos", "morocco"] },
-      { id: "480", name: "Maurícia", continent: "Africa", flag: "🇲🇺", syn: ["mauricia", "mauricio"] },
-      { id: "478", name: "Mauritânia", continent: "Africa", flag: "🇲🇷", syn: ["mauritania"] },
-      { id: "508", name: "Moçambique", continent: "Africa", flag: "🇲🇿", syn: ["mocambique", "mozambique"] },
-      { id: "516", name: "Namíbia", continent: "Africa", flag: "🇳🇦", syn: ["namibia"] },
-      { id: "562", name: "Níger", continent: "Africa", flag: "🇳🇪", syn: ["niger"] },
-      { id: "566", name: "Nigéria", continent: "Africa", flag: "🇳🇬", syn: ["nigeria"] },
-      { id: "404", name: "Quênia", continent: "Africa", flag: "🇰🇪", syn: ["quenia", "kenya"] },
-      { id: "140", name: "República Centro-Africana", continent: "Africa", flag: "🇨🇫", syn: ["republica centro-africana", "rca"] },
-      { id: "180", name: "República Democrática do Congo", continent: "Africa", flag: "🇨🇩", syn: ["republica democratica do congo", "rd congo", "rdc", "congo-kinshasa", "zaire"] },
-      { id: "646", name: "Ruanda", continent: "Africa", flag: "🇷🇼", syn: ["ruanda", "rwanda"] },
-      { id: "678", name: "São Tomé e Príncipe", continent: "Africa", flag: "🇸🇹", syn: ["sao tome e principe", "sao tome"] },
-      { id: "686", name: "Senegal", continent: "Africa", flag: "🇸🇳", syn: ["senegal"] },
-      { id: "690", name: "Seicheles", continent: "Africa", flag: "🇸🇨", syn: ["seicheles", "seychelles"] },
-      { id: "694", name: "Serra Leoa", continent: "Africa", flag: "🇸🇱", syn: ["serra leoa"] },
-      { id: "706", name: "Somália", continent: "Africa", flag: "🇸🇴", syn: ["somalia"] },
-      { id: "729", name: "Sudão", continent: "Africa", flag: "🇸🇩", syn: ["sudao", "sudan"] },
-      { id: "728", name: "Sudão do Sul", continent: "Africa", flag: "🇸🇸", syn: ["sudao do sul"] },
-      { id: "834", name: "Tanzânia", continent: "Africa", flag: "🇹🇿", syn: ["tanzania"] },
-      { id: "768", name: "Togo", continent: "Africa", flag: "🇹🇬", syn: ["togo"] },
-      { id: "788", name: "Tunísia", continent: "Africa", flag: "🇹🇳", syn: ["tunisia"] },
-      { id: "800", name: "Uganda", continent: "Africa", flag: "🇺🇬", syn: ["uganda"] },
-      { id: "894", name: "Zâmbia", continent: "Africa", flag: "🇿🇲", syn: ["zambia"] },
-      { id: "716", name: "Zimbábue", continent: "Africa", flag: "🇿🇼", syn: ["zimbabue", "zimbabwe"] },
+      // ÁFRICA (54)
+      { id: "710", name: "África do Sul", continent: "Africa", flag: "za", syn: ["africa do sul"] },
+      { id: "024", name: "Angola", continent: "Africa", flag: "ao", syn: ["angola"] },
+      { id: "012", name: "Argélia", continent: "Africa", flag: "dz", syn: ["argelia", "algeria"] },
+      { id: "204", name: "Benin", continent: "Africa", flag: "bj", syn: ["benin", "benim"] },
+      { id: "072", name: "Botsuana", continent: "Africa", flag: "bw", syn: ["botsuana", "botswana"] },
+      { id: "854", name: "Burquina Faso", continent: "Africa", flag: "bf", syn: ["burquina faso", "burkina faso", "burkina"] },
+      { id: "108", name: "Burundi", continent: "Africa", flag: "bi", syn: ["burundi"] },
+      { id: "132", name: "Cabo Verde", continent: "Africa", flag: "cv", syn: ["cabo verde"] },
+      { id: "120", name: "Camarões", continent: "Africa", flag: "cm", syn: ["camaroes", "cameroon"] },
+      { id: "148", name: "Chade", continent: "Africa", flag: "td", syn: ["chade", "chad"] },
+      { id: "174", name: "Comores", continent: "Africa", flag: "km", syn: ["comores"] },
+      { id: "178", name: "Congo-Brazzaville", continent: "Africa", flag: "cg", syn: ["congo-brazzaville", "congo", "republica do congo"] },
+      { id: "384", name: "Costa do Marfim", continent: "Africa", flag: "ci", syn: ["costa do marfim"] },
+      { id: "262", name: "Djibuti", continent: "Africa", flag: "dj", syn: ["djibuti", "djibouti"] },
+      { id: "818", name: "Egito", continent: "Africa", flag: "eg", syn: ["egito", "egypt"] },
+      { id: "232", name: "Eritreia", continent: "Africa", flag: "er", syn: ["eritreia", "eritrea"] },
+      { id: "748", name: "Essuatíni", continent: "Africa", flag: "sz", syn: ["essuatini", "suazilandia", "eswatini"] },
+      { id: "231", name: "Etiópia", continent: "Africa", flag: "et", syn: ["etiopia", "ethiopia"] },
+      { id: "266", name: "Gabão", continent: "Africa", flag: "ga", syn: ["gabao", "gabon"] },
+      { id: "270", name: "Gâmbia", continent: "Africa", flag: "gm", syn: ["gambia"] },
+      { id: "288", name: "Gana", continent: "Africa", flag: "gh", syn: ["gana", "ghana"] },
+      { id: "324", name: "Guiné", continent: "Africa", flag: "gn", syn: ["guine", "guinea"] },
+      { id: "624", name: "Guiné-Bissau", continent: "Africa", flag: "gw", syn: ["guine-bissau", "guine bissau"] },
+      { id: "226", name: "Guiné Equatorial", continent: "Africa", flag: "gq", syn: ["guine equatorial"] },
+      { id: "426", name: "Lesoto", continent: "Africa", flag: "ls", syn: ["lesoto", "lesotho"] },
+      { id: "430", name: "Libéria", continent: "Africa", flag: "lr", syn: ["liberia"] },
+      { id: "434", name: "Líbia", continent: "Africa", flag: "ly", syn: ["libia", "libya"] },
+      { id: "450", name: "Madagascar", continent: "Africa", flag: "mg", syn: ["madagascar"] },
+      { id: "454", name: "Malaui", continent: "Africa", flag: "mw", syn: ["malaui", "malawi"] },
+      { id: "466", name: "Mali", continent: "Africa", flag: "ml", syn: ["mali"] },
+      { id: "504", name: "Marrocos", continent: "Africa", flag: "ma", syn: ["marrocos", "morocco"] },
+      { id: "480", name: "Maurícia", continent: "Africa", flag: "mu", syn: ["mauricia", "mauricio"] },
+      { id: "478", name: "Mauritânia", continent: "Africa", flag: "mr", syn: ["mauritania"] },
+      { id: "508", name: "Moçambique", continent: "Africa", flag: "mz", syn: ["mocambique", "mozambique"] },
+      { id: "516", name: "Namíbia", continent: "Africa", flag: "na", syn: ["namibia"] },
+      { id: "562", name: "Níger", continent: "Africa", flag: "ne", syn: ["niger"] },
+      { id: "566", name: "Nigéria", continent: "Africa", flag: "ng", syn: ["nigeria"] },
+      { id: "404", name: "Quênia", continent: "Africa", flag: "ke", syn: ["quenia", "kenya"] },
+      { id: "140", name: "República Centro-Africana", continent: "Africa", flag: "cf", syn: ["republica centro-africana", "rca"] },
+      { id: "180", name: "República Democrática do Congo", continent: "Africa", flag: "cd", syn: ["republica democratica do congo", "rd congo", "rdc", "congo-kinshasa", "zaire"] },
+      { id: "646", name: "Ruanda", continent: "Africa", flag: "rw", syn: ["ruanda", "rwanda"] },
+      { id: "678", name: "São Tomé e Príncipe", continent: "Africa", flag: "st", syn: ["sao tome e principe", "sao tome"] },
+      { id: "686", name: "Senegal", continent: "Africa", flag: "sn", syn: ["senegal"] },
+      { id: "690", name: "Seicheles", continent: "Africa", flag: "sc", syn: ["seicheles", "seychelles"] },
+      { id: "694", name: "Serra Leoa", continent: "Africa", flag: "sl", syn: ["serra leoa"] },
+      { id: "706", name: "Somália", continent: "Africa", flag: "so", syn: ["somalia"] },
+      { id: "729", name: "Sudão", continent: "Africa", flag: "sd", syn: ["sudao", "sudan"] },
+      { id: "728", name: "Sudão do Sul", continent: "Africa", flag: "ss", syn: ["sudao do sul"] },
+      { id: "834", name: "Tanzânia", continent: "Africa", flag: "tz", syn: ["tanzania"] },
+      { id: "768", name: "Togo", continent: "Africa", flag: "tg", syn: ["togo"] },
+      { id: "788", name: "Tunísia", continent: "Africa", flag: "tn", syn: ["tunisia"] },
+      { id: "800", name: "Uganda", continent: "Africa", flag: "ug", syn: ["uganda"] },
+      { id: "894", name: "Zâmbia", continent: "Africa", flag: "zm", syn: ["zambia"] },
+      { id: "716", name: "Zimbábue", continent: "Africa", flag: "zw", syn: ["zimbabue", "zimbabwe"] },
 
       // OCEANIA (14)
-      { id: "036", name: "Austrália", continent: "Oceania", flag: "🇦🇺", syn: ["australia"] },
-      { id: "242", name: "Fiji", continent: "Oceania", flag: "🇫🇯", syn: ["fiji"] },
-      { id: "584", name: "Ilhas Marshall", continent: "Oceania", flag: "🇲🇭", syn: ["ilhas marshall", "marshall"] },
-      { id: "090", name: "Ilhas Salomão", continent: "Oceania", flag: "🇸🇧", syn: ["ilhas salomao", "salomao"] },
-      { id: "296", name: "Kiribati", continent: "Oceania", flag: "🇰🇮", syn: ["kiribati"] },
-      { id: "583", name: "Micronésia", continent: "Oceania", flag: "🇫🇲", syn: ["micronesia"] },
-      { id: "520", name: "Nauru", continent: "Oceania", flag: "🇳🇷", syn: ["nauru"] },
-      { id: "554", name: "Nova Zelândia", continent: "Oceania", flag: "🇳🇿", syn: ["nova zelandia", "new zealand"] },
-      { id: "585", name: "Palau", continent: "Oceania", flag: "🇵🇼", syn: ["palau"] },
-      { id: "598", name: "Papua Nova Guiné", continent: "Oceania", flag: "🇵🇬", syn: ["papua nova guine", "papua"] },
-      { id: "882", name: "Samoa", continent: "Oceania", flag: "🇼🇸", syn: ["samoa"] },
-      { id: "776", name: "Tonga", continent: "Oceania", flag: "🇹🇴", syn: ["tonga"] },
-      { id: "798", name: "Tuvalu", continent: "Oceania", flag: "🇹🇻", syn: ["tuvalu"] },
-      { id: "548", name: "Vanuatu", continent: "Oceania", flag: "🇻🇺", syn: ["vanuatu"] }
+      { id: "036", name: "Austrália", continent: "Oceania", flag: "au", syn: ["australia"] },
+      { id: "242", name: "Fiji", continent: "Oceania", flag: "fj", syn: ["fiji"] },
+      { id: "584", name: "Ilhas Marshall", continent: "Oceania", flag: "mh", syn: ["ilhas marshall", "marshall"] },
+      { id: "090", name: "Ilhas Salomão", continent: "Oceania", flag: "sb", syn: ["ilhas salomao", "salomao"] },
+      { id: "296", name: "Kiribati", continent: "Oceania", flag: "ki", syn: ["kiribati"] },
+      { id: "583", name: "Micronésia", continent: "Oceania", flag: "fm", syn: ["micronesia"] },
+      { id: "520", name: "Nauru", continent: "Oceania", flag: "nr", syn: ["nauru"] },
+      { id: "554", name: "Nova Zelândia", continent: "Oceania", flag: "nz", syn: ["nova zelandia", "new zealand"] },
+      { id: "585", name: "Palau", continent: "Oceania", flag: "pw", syn: ["palau"] },
+      { id: "598", name: "Papua Nova Guiné", continent: "Oceania", flag: "pg", syn: ["papua nova guine", "papua"] },
+      { id: "882", name: "Samoa", continent: "Oceania", flag: "ws", syn: ["samoa"] },
+      { id: "776", name: "Tonga", continent: "Oceania", flag: "to", syn: ["tonga"] },
+      { id: "798", name: "Tuvalu", continent: "Oceania", flag: "tv", syn: ["tuvalu"] },
+      { id: "548", name: "Vanuatu", continent: "Oceania", flag: "vu", syn: ["vanuatu"] }
     ];
 
     const TOTAL_COUNTRIES = 198;
 
-    // Coordenadas para pontos dos microestados (usadas para o marcador visual e para centralizar)
+    // Coordenadas para pontos dos microestados
     const MICRO_STATES_COORDS = [
       { id: "336", coords: [12.4534, 41.9029] }, // Vaticano
       { id: "492", coords: [7.4200, 43.7384] },  // Mônaco
@@ -609,11 +617,10 @@
       { id: "090", coords: [160.1562, -9.6457] }, // Salomão
       { id: "242", coords: [178.0650, -17.7134] }, // Fiji
       { id: "096", coords: [114.7277, 4.5353] }, // Brunei
-      { id: "383", coords: [20.9029, 42.6026] }, // Kosovo (usado como ponto se falhar no polígono)
-      { id: "275", coords: [35.2332, 31.9522] }, // Palestina (usado como ponto se falhar no polígono)
+      { id: "383", coords: [20.9029, 42.6026] }, // Kosovo
+      { id: "275", coords: [35.2332, 31.9522] }, // Palestina
     ];
 
-    // Obras / Territórios que serão pintados com os donos
     const TERRITORIES_DB = {
       "304": { owner: "208", name: "Groenlândia", ownerName: "Dinamarca" },
       "630": { owner: "840", name: "Porto Rico", ownerName: "Estados Unidos" },
@@ -740,7 +747,7 @@
             ${list.map(item => `
               <div id="cell-${item.originalIndex}" class="p-3 rounded-xl border border-slate-800/80 bg-slate-950/60 flex items-center justify-between min-h-[52px] transition-all">
                 <span class="country-label text-xs font-semibold text-slate-500 uppercase tracking-wider select-none truncate mr-2 flex-1">• • •</span>
-                <span class="text-xl opacity-30 grayscale transition-all duration-500 country-flag select-none" title="Bandeira">${item.flag}</span>
+                <img src="https://flagcdn.com/w40/${item.flag}.png" class="country-flag w-0 opacity-0 scale-50 transition-all duration-500 origin-right rounded-sm shadow-sm" alt="Bandeira">
               </div>
             `).join('')}
           </div>
@@ -808,7 +815,6 @@
           const topoFeatures = topojson.feature(world, world.objects.countries).features
             .filter(d => String(d.id).padStart(3, '0') !== '010');
 
-          // Renomeando IDs problemáticos baseados no "name" do TopoJSON
           topoFeatures.forEach(d => {
              if (d.properties && d.properties.name) {
                  if (d.properties.name === "Kosovo") d.id = "383";
@@ -818,7 +824,6 @@
              }
           });
 
-          // Puxando microestados para forçar sua renderização como pontos
           const existingIds = new Set(topoFeatures.map(d => String(d.id).padStart(3, '0')));
           const microFeatures = MICRO_STATES_COORDS
             .filter(m => !existingIds.has(m.id))
@@ -982,6 +987,11 @@
       resetGlobeVision();
       
       document.querySelectorAll('.map-country').forEach(el => el.classList.remove('guessed', 'missed'));
+      
+      // Oculta todas as bandeiras no início
+      document.querySelectorAll('.country-flag').forEach(flag => {
+        flag.className = "country-flag w-0 opacity-0 scale-50 transition-all duration-500 origin-right rounded-sm shadow-sm";
+      });
 
       countryInput.disabled = false;
       countryInput.value = '';
@@ -1040,8 +1050,8 @@
             lbl.classList.add('text-rose-400');
 
             const flag = cell.querySelector('.country-flag');
-            flag.classList.remove('opacity-30', 'grayscale');
-            flag.classList.add('opacity-60'); 
+            flag.classList.remove('w-0', 'opacity-0', 'scale-50');
+            flag.classList.add('w-6', 'opacity-50', 'scale-100', 'grayscale'); // Revela opaca nas perdas
           }
           updateMapCountry(idx, 'missed');
         } else {
@@ -1094,8 +1104,8 @@
             lbl.classList.add('text-emerald-400', 'font-bold');
 
             const flag = cell.querySelector('.country-flag');
-            flag.classList.remove('opacity-30', 'grayscale');
-            flag.classList.add('opacity-100'); 
+            flag.classList.remove('w-0', 'opacity-0', 'scale-50');
+            flag.classList.add('w-6', 'opacity-100', 'scale-100'); // Acende a bandeira!
           }
 
           updateMapCountry(foundIndex, 'guessed');
@@ -1158,6 +1168,7 @@
       else if (confirm("Deseja realmente desistir e revelar todas as respostas no mapa e nas tabelas?")) endGame(false, "Desistência");
     });
 
+    // Compartilhar no WhatsApp
     document.getElementById('whatsappShareBtn').addEventListener('click', () => {
       const score = guessedCountries.size;
       const pct = Math.round((score / TOTAL_COUNTRIES) * 100);
