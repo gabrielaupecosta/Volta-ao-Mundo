@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Volta ao Mundo - O Desafio dos 197 Países</title>
+  <title>Volta ao Mundo - O Desafio dos 198 Países</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -89,10 +89,12 @@
       box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
 
-    /* EASTER EGG: AVIÃO COM FAIXA */
+    /* EASTER EGG: AVIÃO COM FAIXA ONDULANTE */
     @keyframes flyPlane {
-      0% { transform: translateX(-30vw) translateY(0); }
-      50% { transform: translateX(50vw) translateY(-10px); }
+      0% { transform: translateX(-50vw) translateY(0); }
+      25% { transform: translateX(-10vw) translateY(-15px); }
+      50% { transform: translateX(30vw) translateY(5px); }
+      75% { transform: translateX(70vw) translateY(-10px); }
       100% { transform: translateX(120vw) translateY(0); }
     }
     .airplane-wrapper {
@@ -102,26 +104,39 @@
       z-index: 9999;
       display: flex;
       align-items: center;
-      animation: flyPlane 8s linear forwards;
+      animation: flyPlane 14s ease-in-out forwards; /* Muito mais lento e suave */
       pointer-events: none;
-      filter: drop-shadow(0px 8px 12px rgba(0,0,0,0.15));
+      filter: drop-shadow(0px 8px 12px rgba(0,0,0,0.2));
+    }
+    
+    /* Animação do balanço natural da faixa no vento */
+    @keyframes waveBanner {
+      0%, 100% { transform: rotate(0deg) skewY(0deg) translateY(0); }
+      25% { transform: rotate(-3deg) skewY(-2deg) translateY(-2px); }
+      75% { transform: rotate(3deg) skewY(2deg) translateY(2px); }
+    }
+    .airplane-banner-container {
+      transform-origin: center right; /* Eixo de torção preso no avião */
+      animation: waveBanner 2s ease-in-out infinite;
+      display: flex;
+      align-items: center;
     }
     .airplane-banner {
       background: white;
       color: #064e3b;
-      padding: 6px 20px;
-      font-weight: 800;
+      padding: 8px 24px;
+      font-weight: 900;
       text-transform: uppercase;
       letter-spacing: 2px;
-      font-size: 0.9rem;
-      border-right: 2px dashed #cbd5e1;
+      font-size: 1rem;
+      border-right: 3px dashed #cbd5e1;
       border-radius: 4px 0 0 4px;
-      box-shadow: inset 0 0 10px rgba(0,0,0,0.02);
+      box-shadow: inset 0 0 15px rgba(0,0,0,0.03);
     }
     .airplane-icon {
       background: white;
-      padding: 6px 8px;
-      border-radius: 0 8px 8px 0;
+      padding: 8px 12px;
+      border-radius: 0 12px 12px 0;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -159,7 +174,7 @@
         <div>
           <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
             Volta ao Mundo
-            <span class="text-xs px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-400 font-semibold border border-brand-500/30">197 Países</span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-400 font-semibold border border-brand-500/30">198 Países</span>
           </h1>
           <p class="text-xs text-slate-400 hidden sm:block">Adivinhe todas as nações do planeta antes do tempo acabar</p>
         </div>
@@ -198,7 +213,7 @@
           <span class="text-xs font-semibold text-slate-400 block uppercase tracking-wider">Acertos</span>
           <div class="text-2xl font-extrabold text-white mt-0.5">
             <span id="scoreDisplay" class="text-brand-400">0</span>
-            <span class="text-slate-500 text-lg">/ 197</span>
+            <span class="text-slate-500 text-lg">/ 198</span>
           </div>
         </div>
         <div class="w-10 h-10 rounded-lg bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-400">
@@ -288,7 +303,7 @@
     <!-- NAVEGAÇÃO DE CONTINENTES / ABAS -->
     <div class="flex items-center gap-2 overflow-x-auto pb-1 border-b border-slate-800" id="continentTabs">
       <button class="continent-tab px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-brand-600 text-white transition flex items-center gap-2" data-continent="all">
-        Todos <span class="text-xs bg-slate-900/50 px-1.5 py-0.5 rounded-full" id="count-all">0/197</span>
+        Todos <span class="text-xs bg-slate-900/50 px-1.5 py-0.5 rounded-full" id="count-all">0/198</span>
       </button>
       <button class="continent-tab px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-slate-900 text-slate-400 hover:text-white transition flex items-center gap-2" data-continent="Americas">
         Américas <span class="text-xs bg-slate-800 px-1.5 py-0.5 rounded-full" id="count-americas">0/35</span>
@@ -324,7 +339,7 @@
       <div class="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 grid grid-cols-2 gap-4 mb-6">
         <div>
           <span class="text-xs text-slate-400 uppercase font-semibold">Total Acertado</span>
-          <div class="text-2xl font-bold text-white mt-0.5"><span id="modalScore">0</span> <span class="text-slate-500 text-lg">/ 197</span></div>
+          <div class="text-2xl font-bold text-white mt-0.5"><span id="modalScore">0</span> <span id="modalScoreTotal" class="text-slate-500 text-lg">/ 198</span></div>
         </div>
         <div>
           <span class="text-xs text-slate-400 uppercase font-semibold">Aproveitamento</span>
@@ -560,7 +575,7 @@
       { id: "548", name: "Vanuatu", continent: "Oceania", flag: "vu", syn: ["vanuatu"] }
     ];
 
-    const TOTAL_COUNTRIES = 197;
+    const TOTAL_COUNTRIES = 198;
 
     const MICRO_STATES_COORDS = [
       { id: "336", coords: [12.4534, 41.9029] },
@@ -676,28 +691,33 @@
       return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "").trim();
     }
 
-    // Easter Egg - Palestina Animada
+    // Easter Egg Animado e Suave
     function showPalestineEasterEgg() {
-      // Cria o avião e a faixa
+      // 1. Avião com faixa animada
       const planeWrapper = document.createElement('div');
       planeWrapper.className = 'airplane-wrapper';
       planeWrapper.innerHTML = `
-        <div class="airplane-banner">Palestina Livre</div>
+        <div class="airplane-banner-container">
+          <div class="airplane-banner">Palestina Livre</div>
+          <div style="width: 15px; height: 2px; background: #cbd5e1; margin-top: 4px;"></div>
+        </div>
         <div class="airplane-icon">
-          <svg xmlns="http://www.w3.org/200w/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform: rotate(45deg);"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.2-1.1.6L2.5 8l6.4 3.9L7 15l-3.5-.5L2 16l4.6 2.4L9 23l1.5-1.5-.5-3.5 3.1-1.9 3.9 6.4 1.2-1.2c.4-.2.7-.6.6-1.1Z"/></svg>
+          <svg viewBox="0 0 24 24" width="30" height="30" fill="#0f172a">
+            <path d="M21.94 10.55l-8.49-3.77-3.6-5.4a1 1 0 0 0-.83-.44H6.55a.5.5 0 0 0-.46.7l2.84 6.64H5.34l-1.8-2.4a1 1 0 0 0-.8-.4H1.5a.5.5 0 0 0-.5.5v2l1.6 1.6-1.6 1.6v2a.5.5 0 0 0 .5.5h1.24a1 1 0 0 0 .8-.4l1.8-2.4h3.6l-2.84 6.64a.5.5 0 0 0 .46.7h2.47a1 1 0 0 0 .83-.44l3.6-5.4 8.49-3.77a2.5 2.5 0 0 0 .01-4.56z"/>
+          </svg>
         </div>
       `;
       document.body.appendChild(planeWrapper);
-      setTimeout(() => planeWrapper.remove(), 8000);
+      setTimeout(() => planeWrapper.remove(), 15000); // 15s
 
-      // Cria a chuva de melancias baseada nos acertos atuais
-      const amount = Math.min(guessedCountries.size, 197); // Segurança limite
+      // 2. Chuva de Melancias Dinâmica
+      const amount = Math.min(guessedCountries.size, 198); // Vinculado aos acertos
       for(let i=0; i<amount; i++) {
         const wm = document.createElement('div');
         wm.className = 'watermelon-rain';
         wm.innerText = '🍉';
         wm.style.left = (Math.random() * 96) + 'vw';
-        wm.style.animationDuration = (3 + Math.random() * 3) + 's';
+        wm.style.animationDuration = (3 + Math.random() * 4) + 's';
         wm.style.animationDelay = (Math.random() * 2) + 's';
         document.body.appendChild(wm);
         setTimeout(() => wm.remove(), 8000);
@@ -978,7 +998,6 @@
       
       document.querySelectorAll('.map-country').forEach(el => el.classList.remove('guessed', 'missed'));
       
-      // Oculta todas as bandeiras no início
       document.querySelectorAll('.country-flag').forEach(flag => {
         flag.className = "country-flag w-0 opacity-0 scale-50 transition-all duration-500 origin-right rounded-sm shadow-sm";
       });
@@ -1041,7 +1060,7 @@
 
             const flag = cell.querySelector('.country-flag');
             flag.classList.remove('w-0', 'opacity-0', 'scale-50');
-            flag.classList.add('w-6', 'opacity-50', 'scale-100', 'grayscale'); // Revela opaca nas perdas
+            flag.classList.add('w-6', 'opacity-50', 'scale-100', 'grayscale'); 
           }
           updateMapCountry(idx, 'missed');
         } else {
@@ -1095,7 +1114,7 @@
 
             const flag = cell.querySelector('.country-flag');
             flag.classList.remove('w-0', 'opacity-0', 'scale-50');
-            flag.classList.add('w-6', 'opacity-100', 'scale-100'); // Acende a bandeira!
+            flag.classList.add('w-6', 'opacity-100', 'scale-100'); 
           }
 
           updateMapCountry(foundIndex, 'guessed');
@@ -1158,11 +1177,10 @@
       else if (confirm("Deseja realmente desistir e revelar todas as respostas no mapa e nas tabelas?")) endGame(false, "Desistência");
     });
 
-    // Compartilhar no WhatsApp - Animado e Divertido
     document.getElementById('whatsappShareBtn').addEventListener('click', () => {
       const score = guessedCountries.size;
       const pctVal = (score / TOTAL_COUNTRIES) * 100;
-      const pctStr = pctVal.toFixed(2).replace('.', ','); // Formata para XX,XX%
+      const pctStr = pctVal.toFixed(2).replace('.', ',');
       
       let emoji = "😭";
       if (pctVal >= 10 && pctVal < 20) emoji = "😢";
