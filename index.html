@@ -442,4 +442,755 @@
       { id: "643", name: "Rússia", continent: "Europa", flag: "🇷🇺", syn: ["russia"] },
       { id: "674", name: "San Marino", continent: "Europa", flag: "🇸🇲", syn: ["san marino"] },
       { id: "688", name: "Sérvia", continent: "Europa", flag: "🇷🇸", syn: ["servia", "serbia"] }, 
-      { id: "752",
+      { id: "752", name: "Suécia", continent: "Europa", flag: "🇸🇪", syn: ["suecia", "sweden"] },
+      { id: "756", name: "Suíça", continent: "Europa", flag: "🇨🇭", syn: ["suica", "switzerland"] },
+      { id: "804", name: "Ucrânia", continent: "Europa", flag: "🇺🇦", syn: ["ucrania", "ukraine"] },
+      { id: "336", name: "Vaticano", continent: "Europa", flag: "🇻🇦", syn: ["vaticano", "santa se"] },
+
+      // ÁSIA (48)
+      { id: "004", name: "Afeganistão", continent: "Asia", flag: "🇦🇫", syn: ["afeganistao", "afghanistan"] },
+      { id: "682", name: "Arábia Saudita", continent: "Asia", flag: "🇸🇦", syn: ["arabia saudita", "arabia"] },
+      { id: "051", name: "Armênia", continent: "Asia", flag: "🇦🇲", syn: ["armenia"] },
+      { id: "031", name: "Azerbaijão", continent: "Asia", flag: "🇦🇿", syn: ["azerbaijao", "azerbaijan"] },
+      { id: "048", name: "Bahrein", continent: "Asia", flag: "🇧🇭", syn: ["bahrein", "bahrain"] },
+      { id: "050", name: "Bangladesh", continent: "Asia", flag: "🇧🇩", syn: ["bangladesh"] },
+      { id: "096", name: "Brunei", continent: "Asia", flag: "🇧🇳", syn: ["brunei"] },
+      { id: "064", name: "Butão", continent: "Asia", flag: "🇧🇹", syn: ["butao", "bhutan"] },
+      { id: "116", name: "Camboja", continent: "Asia", flag: "🇰🇭", syn: ["camboja", "cambodia"] },
+      { id: "634", name: "Catar", continent: "Asia", flag: "🇶🇦", syn: ["catar", "qatar"] },
+      { id: "398", name: "Cazaquistão", continent: "Asia", flag: "🇰🇿", syn: ["cazaquistao", "kazakhstan"] },
+      { id: "156", name: "China", continent: "Asia", flag: "🇨🇳", syn: ["china"] },
+      { id: "408", name: "Coreia do Norte", continent: "Asia", flag: "🇰🇵", syn: ["coreia do norte"] },
+      { id: "410", name: "Coreia do Sul", continent: "Asia", flag: "🇰🇷", syn: ["coreia do sul", "coreia"] },
+      { id: "784", name: "Emirados Árabes Unidos", continent: "Asia", flag: "🇦🇪", syn: ["emirados arabes unidos", "eau", "emirados arabes", "emirados"] },
+      { id: "608", name: "Filipinas", continent: "Asia", flag: "🇵🇭", syn: ["filipinas", "philippines"] },
+      { id: "268", name: "Geórgia", continent: "Asia", flag: "🇬🇪", syn: ["georgia"] },
+      { id: "887", name: "Iêmen", continent: "Asia", flag: "🇾🇪", syn: ["iemen", "yemen"] },
+      { id: "356", name: "Índia", continent: "Asia", flag: "🇮🇳", syn: ["india"] },
+      { id: "360", name: "Indonésia", continent: "Asia", flag: "🇮🇩", syn: ["indonesia"] },
+      { id: "364", name: "Irã", continent: "Asia", flag: "🇮🇷", syn: ["ira", "iran"] },
+      { id: "368", name: "Iraque", continent: "Asia", flag: "🇮🇶", syn: ["iraque", "iraq"] },
+      { id: "376", name: "Israel", continent: "Asia", flag: "🇮🇱", syn: ["israel"] },
+      { id: "392", name: "Japão", continent: "Asia", flag: "🇯🇵", syn: ["japao", "japan"] },
+      { id: "400", name: "Jordânia", continent: "Asia", flag: "🇯🇴", syn: ["jordania", "jordan"] },
+      { id: "414", name: "Kuwait", continent: "Asia", flag: "🇰🇼", syn: ["kuwait"] },
+      { id: "418", name: "Laos", continent: "Asia", flag: "🇱🇦", syn: ["laos"] },
+      { id: "422", name: "Líbano", continent: "Asia", flag: "🇱🇧", syn: ["libano", "lebanon"] },
+      { id: "458", name: "Malásia", continent: "Asia", flag: "🇲🇾", syn: ["malasia", "malaysia"] },
+      { id: "462", name: "Maldivas", continent: "Asia", flag: "🇲🇻", syn: ["maldivas"] },
+      { id: "104", name: "Mianmar", continent: "Asia", flag: "🇲🇲", syn: ["mianmar", "birmania", "myanmar"] },
+      { id: "496", name: "Mongólia", continent: "Asia", flag: "🇲🇳", syn: ["mongolia"] },
+      { id: "524", name: "Nepal", continent: "Asia", flag: "🇳🇵", syn: ["nepal"] },
+      { id: "512", name: "Omã", continent: "Asia", flag: "🇴🇲", syn: ["oma", "oman"] },
+      { id: "275", name: "Palestina", continent: "Asia", flag: "🇵🇸", syn: ["palestina"] },
+      { id: "586", name: "Paquistão", continent: "Asia", flag: "🇵🇰", syn: ["paquistao", "pakistan"] },
+      { id: "417", name: "Quirguistão", continent: "Asia", flag: "🇰🇬", syn: ["quirguistao", "kyrgyzstan"] },
+      { id: "702", name: "Singapura", continent: "Asia", flag: "🇸🇬", syn: ["singapura", "singapore"] },
+      { id: "760", name: "Síria", continent: "Asia", flag: "🇸🇾", syn: ["siria", "syria"] },
+      { id: "144", name: "Sri Lanka", continent: "Asia", flag: "🇱🇰", syn: ["sri lanka"] },
+      { id: "762", name: "Tadjiquistão", continent: "Asia", flag: "🇹🇯", syn: ["tadjiquistao", "tajikistan"] },
+      { id: "764", name: "Tailândia", continent: "Asia", flag: "🇹🇭", syn: ["tailandia", "thailand"] },
+      { id: "158", name: "Taiwan", continent: "Asia", flag: "🇹🇼", syn: ["taiwan"] },
+      { id: "626", name: "Timor-Leste", continent: "Asia", flag: "🇹🇱", syn: ["timor-leste", "timor leste", "timor"] },
+      { id: "795", name: "Turquemenistão", continent: "Asia", flag: "🇹🇲", syn: ["turquemenistao", "turkmenistan"] },
+      { id: "792", name: "Turquia", continent: "Asia", flag: "🇹🇷", syn: ["turquia", "turkey"] },
+      { id: "860", name: "Uzbequistão", continent: "Asia", flag: "🇺🇿", syn: ["uzbequistao", "uzbekistan"] },
+      { id: "704", name: "Vietnã", continent: "Asia", flag: "🇻🇳", syn: ["vietna", "vietnam"] },
+
+      // ÁFRICA (54 - Somalilândia removida)
+      { id: "710", name: "África do Sul", continent: "Africa", flag: "🇿🇦", syn: ["africa do sul"] },
+      { id: "024", name: "Angola", continent: "Africa", flag: "🇦🇴", syn: ["angola"] },
+      { id: "012", name: "Argélia", continent: "Africa", flag: "🇩🇿", syn: ["argelia", "algeria"] },
+      { id: "204", name: "Benin", continent: "Africa", flag: "🇧🇯", syn: ["benin", "benim"] },
+      { id: "072", name: "Botsuana", continent: "Africa", flag: "🇧🇼", syn: ["botsuana", "botswana"] },
+      { id: "854", name: "Burquina Faso", continent: "Africa", flag: "🇧🇫", syn: ["burquina faso", "burkina faso", "burkina"] },
+      { id: "108", name: "Burundi", continent: "Africa", flag: "🇧🇮", syn: ["burundi"] },
+      { id: "132", name: "Cabo Verde", continent: "Africa", flag: "🇨🇻", syn: ["cabo verde"] },
+      { id: "120", name: "Camarões", continent: "Africa", flag: "🇨🇲", syn: ["camaroes", "cameroon"] },
+      { id: "148", name: "Chade", continent: "Africa", flag: "🇹🇩", syn: ["chade", "chad"] },
+      { id: "174", name: "Comores", continent: "Africa", flag: "🇰🇲", syn: ["comores"] },
+      { id: "178", name: "Congo-Brazzaville", continent: "Africa", flag: "🇨🇬", syn: ["congo-brazzaville", "congo", "republica do congo"] },
+      { id: "384", name: "Costa do Marfim", continent: "Africa", flag: "🇨🇮", syn: ["costa do marfim"] },
+      { id: "262", name: "Djibuti", continent: "Africa", flag: "🇩🇯", syn: ["djibuti", "djibouti"] },
+      { id: "818", name: "Egito", continent: "Africa", flag: "🇪🇬", syn: ["egito", "egypt"] },
+      { id: "232", name: "Eritreia", continent: "Africa", flag: "🇪🇷", syn: ["eritreia", "eritrea"] },
+      { id: "748", name: "Essuatíni", continent: "Africa", flag: "🇸🇿", syn: ["essuatini", "suazilandia", "eswatini"] },
+      { id: "231", name: "Etiópia", continent: "Africa", flag: "🇪🇹", syn: ["etiopia", "ethiopia"] },
+      { id: "266", name: "Gabão", continent: "Africa", flag: "🇬🇦", syn: ["gabao", "gabon"] },
+      { id: "270", name: "Gâmbia", continent: "Africa", flag: "🇬🇲", syn: ["gambia"] },
+      { id: "288", name: "Gana", continent: "Africa", flag: "🇬🇭", syn: ["gana", "ghana"] },
+      { id: "324", name: "Guiné", continent: "Africa", flag: "🇬🇳", syn: ["guine", "guinea"] },
+      { id: "624", name: "Guiné-Bissau", continent: "Africa", flag: "🇬🇼", syn: ["guine-bissau", "guine bissau"] },
+      { id: "226", name: "Guiné Equatorial", continent: "Africa", flag: "🇬🇶", syn: ["guine equatorial"] },
+      { id: "426", name: "Lesoto", continent: "Africa", flag: "🇱🇸", syn: ["lesoto", "lesotho"] },
+      { id: "430", name: "Libéria", continent: "Africa", flag: "🇱🇷", syn: ["liberia"] },
+      { id: "434", name: "Líbia", continent: "Africa", flag: "🇱🇾", syn: ["libia", "libya"] },
+      { id: "450", name: "Madagascar", continent: "Africa", flag: "🇲🇬", syn: ["madagascar"] },
+      { id: "454", name: "Malaui", continent: "Africa", flag: "🇲🇼", syn: ["malaui", "malawi"] },
+      { id: "466", name: "Mali", continent: "Africa", flag: "🇲🇱", syn: ["mali"] },
+      { id: "504", name: "Marrocos", continent: "Africa", flag: "🇲🇦", syn: ["marrocos", "morocco"] },
+      { id: "480", name: "Maurícia", continent: "Africa", flag: "🇲🇺", syn: ["mauricia", "mauricio"] },
+      { id: "478", name: "Mauritânia", continent: "Africa", flag: "🇲🇷", syn: ["mauritania"] },
+      { id: "508", name: "Moçambique", continent: "Africa", flag: "🇲🇿", syn: ["mocambique", "mozambique"] },
+      { id: "516", name: "Namíbia", continent: "Africa", flag: "🇳🇦", syn: ["namibia"] },
+      { id: "562", name: "Níger", continent: "Africa", flag: "🇳🇪", syn: ["niger"] },
+      { id: "566", name: "Nigéria", continent: "Africa", flag: "🇳🇬", syn: ["nigeria"] },
+      { id: "404", name: "Quênia", continent: "Africa", flag: "🇰🇪", syn: ["quenia", "kenya"] },
+      { id: "140", name: "República Centro-Africana", continent: "Africa", flag: "🇨🇫", syn: ["republica centro-africana", "rca"] },
+      { id: "180", name: "República Democrática do Congo", continent: "Africa", flag: "🇨🇩", syn: ["republica democratica do congo", "rd congo", "rdc", "congo-kinshasa", "zaire"] },
+      { id: "646", name: "Ruanda", continent: "Africa", flag: "🇷🇼", syn: ["ruanda", "rwanda"] },
+      { id: "678", name: "São Tomé e Príncipe", continent: "Africa", flag: "🇸🇹", syn: ["sao tome e principe", "sao tome"] },
+      { id: "686", name: "Senegal", continent: "Africa", flag: "🇸🇳", syn: ["senegal"] },
+      { id: "690", name: "Seicheles", continent: "Africa", flag: "🇸🇨", syn: ["seicheles", "seychelles"] },
+      { id: "694", name: "Serra Leoa", continent: "Africa", flag: "🇸🇱", syn: ["serra leoa"] },
+      { id: "706", name: "Somália", continent: "Africa", flag: "🇸🇴", syn: ["somalia"] },
+      { id: "729", name: "Sudão", continent: "Africa", flag: "🇸🇩", syn: ["sudao", "sudan"] },
+      { id: "728", name: "Sudão do Sul", continent: "Africa", flag: "🇸🇸", syn: ["sudao do sul"] },
+      { id: "834", name: "Tanzânia", continent: "Africa", flag: "🇹🇿", syn: ["tanzania"] },
+      { id: "768", name: "Togo", continent: "Africa", flag: "🇹🇬", syn: ["togo"] },
+      { id: "788", name: "Tunísia", continent: "Africa", flag: "🇹🇳", syn: ["tunisia"] },
+      { id: "800", name: "Uganda", continent: "Africa", flag: "🇺🇬", syn: ["uganda"] },
+      { id: "894", name: "Zâmbia", continent: "Africa", flag: "🇿🇲", syn: ["zambia"] },
+      { id: "716", name: "Zimbábue", continent: "Africa", flag: "🇿🇼", syn: ["zimbabue", "zimbabwe"] },
+
+      // OCEANIA (14)
+      { id: "036", name: "Austrália", continent: "Oceania", flag: "🇦🇺", syn: ["australia"] },
+      { id: "242", name: "Fiji", continent: "Oceania", flag: "🇫🇯", syn: ["fiji"] },
+      { id: "584", name: "Ilhas Marshall", continent: "Oceania", flag: "🇲🇭", syn: ["ilhas marshall", "marshall"] },
+      { id: "090", name: "Ilhas Salomão", continent: "Oceania", flag: "🇸🇧", syn: ["ilhas salomao", "salomao"] },
+      { id: "296", name: "Kiribati", continent: "Oceania", flag: "🇰🇮", syn: ["kiribati"] },
+      { id: "583", name: "Micronésia", continent: "Oceania", flag: "🇫🇲", syn: ["micronesia"] },
+      { id: "520", name: "Nauru", continent: "Oceania", flag: "🇳🇷", syn: ["nauru"] },
+      { id: "554", name: "Nova Zelândia", continent: "Oceania", flag: "🇳🇿", syn: ["nova zelandia", "new zealand"] },
+      { id: "585", name: "Palau", continent: "Oceania", flag: "🇵🇼", syn: ["palau"] },
+      { id: "598", name: "Papua Nova Guiné", continent: "Oceania", flag: "🇵🇬", syn: ["papua nova guine", "papua"] },
+      { id: "882", name: "Samoa", continent: "Oceania", flag: "🇼🇸", syn: ["samoa"] },
+      { id: "776", name: "Tonga", continent: "Oceania", flag: "🇹🇴", syn: ["tonga"] },
+      { id: "798", name: "Tuvalu", continent: "Oceania", flag: "🇹🇻", syn: ["tuvalu"] },
+      { id: "548", name: "Vanuatu", continent: "Oceania", flag: "🇻🇺", syn: ["vanuatu"] }
+    ];
+
+    const TOTAL_COUNTRIES = 198;
+
+    // Coordenadas para pontos dos microestados (usadas para o marcador visual e para centralizar)
+    const MICRO_STATES_COORDS = [
+      { id: "336", coords: [12.4534, 41.9029] }, // Vaticano
+      { id: "492", coords: [7.4200, 43.7384] },  // Mônaco
+      { id: "674", coords: [12.4578, 43.9424] }, // San Marino
+      { id: "438", coords: [9.5209, 47.1410] },  // Liechtenstein
+      { id: "020", coords: [1.5218, 42.5063] },  // Andorra
+      { id: "470", coords: [14.3754, 35.9375] }, // Malta
+      { id: "462", coords: [73.2207, 3.2028] },  // Maldivas
+      { id: "702", coords: [103.8198, 1.3521] }, // Singapura
+      { id: "048", coords: [50.5577, 26.0667] }, // Bahrein
+      { id: "678", coords: [6.6131, 0.1864] },   // São Tomé
+      { id: "690", coords: [55.4920, -4.6796] }, // Seicheles
+      { id: "174", coords: [43.3333, -11.6455] }, // Comores
+      { id: "480", coords: [57.5522, -20.3484] }, // Maurícia
+      { id: "132", coords: [-23.6167, 16.5388] }, // Cabo Verde
+      { id: "028", coords: [-61.7964, 17.0608] }, // Antígua
+      { id: "052", coords: [-59.5432, 13.1939] }, // Barbados
+      { id: "212", coords: [-61.3710, 15.4150] }, // Dominica
+      { id: "308", coords: [-61.6790, 12.1165] }, // Granada
+      { id: "659", coords: [-62.7830, 17.3578] }, // São Cristóvão
+      { id: "662", coords: [-60.9789, 13.9094] }, // Santa Lúcia
+      { id: "670", coords: [-61.2872, 13.2528] }, // São Vicente
+      { id: "780", coords: [-61.2225, 10.6918] }, // Trinidad
+      { id: "044", coords: [-77.3963, 25.0343] }, // Bahamas
+      { id: "583", coords: [158.1499, 6.8874] }, // Micronésia
+      { id: "584", coords: [171.1845, 7.1315] }, // Marshall
+      { id: "520", coords: [166.9315, -0.5228] }, // Nauru
+      { id: "585", coords: [134.5825, 7.5149] }, // Palau
+      { id: "882", coords: [-172.1046, -13.7590] }, // Samoa
+      { id: "776", coords: [-175.1982, -21.1789] }, // Tonga
+      { id: "798", coords: [179.1940, -8.5146] }, // Tuvalu
+      { id: "296", coords: [173.0000, 1.4167] }, // Kiribati
+      { id: "548", coords: [166.9592, -15.3767] }, // Vanuatu
+      { id: "090", coords: [160.1562, -9.6457] }, // Salomão
+      { id: "242", coords: [178.0650, -17.7134] }, // Fiji
+      { id: "096", coords: [114.7277, 4.5353] }, // Brunei
+      { id: "383", coords: [20.9029, 42.6026] }, // Kosovo (usado como ponto se falhar no polígono)
+      { id: "275", coords: [35.2332, 31.9522] }, // Palestina (usado como ponto se falhar no polígono)
+    ];
+
+    // Obras / Territórios que serão pintados com os donos
+    const TERRITORIES_DB = {
+      "304": { owner: "208", name: "Groenlândia", ownerName: "Dinamarca" },
+      "630": { owner: "840", name: "Porto Rico", ownerName: "Estados Unidos" },
+      "238": { owner: "826", name: "Ilhas Malvinas", ownerName: "Reino Unido" },
+      "540": { owner: "250", name: "Nova Caledônia", ownerName: "França" },
+      "260": { owner: "250", name: "Terras Antárticas Francesas", ownerName: "França" },
+      "258": { owner: "250", name: "Polinésia Francesa", ownerName: "França" },
+      "254": { owner: "250", name: "Guiana Francesa", ownerName: "França" },
+      "732": { owner: "504", name: "Saara Ocidental", ownerName: "Marrocos" },
+      "744": { owner: "578", name: "Svalbard e Jan Mayen", ownerName: "Noruega" },
+      "-99": { owner: "706", name: "Somalilândia", ownerName: "Somália" },
+      "-98": { owner: "196", name: "Chipre do Norte", ownerName: "Chipre" },
+    };
+
+    let isPlaying = false;
+    let isGameOver = false;
+    let selectedDurationMinutes = 15;
+    let timeRemaining = 15 * 60;
+    let timerInterval = null;
+    let guessedCountries = new Set();
+    let isMuted = false;
+    let countriesGeoGlobal = []; 
+
+    // DOM
+    const gameActionBtn = document.getElementById('gameActionBtn');
+    const countryInput = document.getElementById('countryInput');
+    const typingFeedback = document.getElementById('typingFeedback');
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const percentDisplay = document.getElementById('percentDisplay');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const timerLabel = document.getElementById('timerLabel');
+    const progressBar = document.getElementById('progressBar');
+    const lastGuessedDisplay = document.getElementById('lastGuessedDisplay');
+    const toggleAudioBtn = document.getElementById('toggleAudioBtn');
+    const audioIcon = document.getElementById('audioIcon');
+    const timeButtons = document.querySelectorAll('.time-btn');
+    const continentTabs = document.querySelectorAll('.continent-tab');
+    const continentsContainer = document.getElementById('continentsContainer');
+    const mapTooltip = document.getElementById('mapTooltip');
+    const resetZoomBtn = document.getElementById('resetZoomBtn');
+    const gameOverModal = document.getElementById('gameOverModal');
+
+    // Áudio
+    let audioCtx = null;
+    function playSound(type) {
+      if (isMuted) return;
+      try {
+        if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        if (type === 'hit') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(659.25, audioCtx.currentTime + 0.1);
+          gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+          osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+        } else if (type === 'duplicate') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+          gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
+          osc.start(); osc.stop(audioCtx.currentTime + 0.12);
+        }
+      } catch (e) {}
+    }
+
+    function normalize(text) {
+      return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "").trim();
+    }
+
+    // Easter Egg
+    function showPalestineEasterEgg() {
+      const overlay = document.getElementById('palestineEasterEgg');
+      overlay.classList.add('active');
+      
+      const icons = ['🍉', '🕊️', '🌿'];
+      for(let i=0; i<40; i++) {
+        const el = document.createElement('div');
+        el.className = 'friendly-icon';
+        el.innerText = icons[Math.floor(Math.random() * icons.length)];
+        el.style.left = (Math.random() * 100) + 'vw';
+        el.style.animationDuration = (3.5 + Math.random() * 2) + 's';
+        el.style.animationDelay = (Math.random() * 0.5) + 's';
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 6000);
+      }
+      setTimeout(() => overlay.classList.remove('active'), 4000);
+    }
+
+    function renderContinentTables() {
+      continentsContainer.innerHTML = '';
+      const continentsConfig = [
+        { key: 'Americas', title: 'Américas', total: 35 },
+        { key: 'Europa', title: 'Europa', total: 45 },
+        { key: 'Asia', title: 'Ásia', total: 48 },
+        { key: 'Africa', title: 'África', total: 54 },
+        { key: 'Oceania', title: 'Oceania', total: 14 }
+      ];
+
+      continentsConfig.forEach(conf => {
+        const list = COUNTRIES_DB
+          .map((c, originalIndex) => ({ ...c, originalIndex }))
+          .filter(c => c.continent === conf.key)
+          .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
+
+        const section = document.createElement('section');
+        section.dataset.continent = conf.key;
+        section.className = "bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm";
+
+        section.innerHTML = `
+          <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+              <span>${conf.title}</span>
+              <span class="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-semibold border border-slate-700/60" id="badge-${conf.key}">
+                0/${conf.total}
+              </span>
+            </h3>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
+            ${list.map(item => `
+              <div id="cell-${item.originalIndex}" class="p-3 rounded-xl border border-slate-800/80 bg-slate-950/60 flex items-center justify-between min-h-[52px] transition-all">
+                <span class="country-label text-xs font-semibold text-slate-500 uppercase tracking-wider select-none truncate mr-2 flex-1">• • •</span>
+                <span class="text-xl opacity-30 grayscale transition-all duration-500 country-flag select-none" title="Bandeira">${item.flag}</span>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        continentsContainer.appendChild(section);
+      });
+      updateCounters();
+    }
+
+    let svgContainer, mapGroup, projection, svgPath;
+    const INITIAL_SCALE = 220;
+
+    function initWorldMap() {
+      svgContainer = d3.select("#worldMapSvg");
+      mapGroup = svgContainer.append("g");
+
+      projection = d3.geoOrthographic()
+        .scale(INITIAL_SCALE)
+        .translate([480, 240])
+        .clipAngle(90)
+        .precision(0.1);
+        
+      svgPath = d3.geoPath().projection(projection).pointRadius(4.5);
+
+      const ocean = mapGroup.append("circle")
+        .attr("cx", 480).attr("cy", 240)
+        .attr("r", INITIAL_SCALE)
+        .attr("class", "ocean");
+
+      let rotate0, coords0;
+      const dragBehavior = d3.drag()
+        .on('start', (event) => {
+           rotate0 = projection.rotate();
+           coords0 = [event.x, event.y];
+        })
+        .on('drag', (event) => {
+           const k = 90 / projection.scale();
+           const rotate = [
+               rotate0[0] + (event.x - coords0[0]) * k,
+               rotate0[1] - (event.y - coords0[1]) * k
+           ];
+           rotate[1] = Math.max(-90, Math.min(90, rotate[1]));
+           projection.rotate(rotate);
+           mapGroup.selectAll("path.map-country").attr("d", svgPath);
+           checkResetButtonVisibility();
+        });
+
+      svgContainer.call(dragBehavior);
+
+      svgContainer.on("wheel", (event) => {
+        event.preventDefault();
+        const zoomFactor = event.deltaY < 0 ? 1.1 : 0.9;
+        const currentScale = projection.scale();
+        const newScale = Math.max(INITIAL_SCALE, Math.min(INITIAL_SCALE * 6, currentScale * zoomFactor));
+        
+        projection.scale(newScale);
+        ocean.attr("r", newScale);
+        mapGroup.selectAll("path.map-country").attr("d", svgPath);
+        checkResetButtonVisibility();
+      });
+
+      fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
+        .then(res => res.json())
+        .then(world => {
+          const topoFeatures = topojson.feature(world, world.objects.countries).features
+            .filter(d => String(d.id).padStart(3, '0') !== '010');
+
+          // Renomeando IDs problemáticos baseados no "name" do TopoJSON
+          topoFeatures.forEach(d => {
+             if (d.properties && d.properties.name) {
+                 if (d.properties.name === "Kosovo") d.id = "383";
+                 if (d.properties.name === "Northern Cyprus") d.id = "-98";
+                 if (d.properties.name === "Somaliland") d.id = "-99";
+                 if (d.properties.name === "W. Sahara") d.id = "732"; 
+             }
+          });
+
+          // Puxando microestados para forçar sua renderização como pontos
+          const existingIds = new Set(topoFeatures.map(d => String(d.id).padStart(3, '0')));
+          const microFeatures = MICRO_STATES_COORDS
+            .filter(m => !existingIds.has(m.id))
+            .map(m => ({
+              type: "Feature",
+              id: m.id,
+              geometry: { type: "Point", coordinates: m.coords }
+            }));
+
+          countriesGeoGlobal = [...topoFeatures, ...microFeatures];
+
+          mapGroup.selectAll(".map-country")
+            .data(countriesGeoGlobal)
+            .enter()
+            .append("path")
+            .attr("class", d => d.geometry.type === 'Point' ? 'map-country map-marker' : 'map-country')
+            .attr("d", svgPath)
+            .attr("id", d => `map-${String(d.id).padStart(3, '0')}`)
+            .attr("data-owner", d => {
+               const code = String(d.id).padStart(3, '0');
+               return TERRITORIES_DB[code] ? TERRITORIES_DB[code].owner : "";
+            })
+            .on("mouseover", (event, d) => {
+              const code = String(d.id).padStart(3, '0');
+              const foundCountry = COUNTRIES_DB.find(c => c.id === code);
+              const foundTerritory = TERRITORIES_DB[code];
+
+              if (foundCountry) {
+                const countryIdx = COUNTRIES_DB.indexOf(foundCountry);
+                if (guessedCountries.has(countryIdx) || isGameOver) mapTooltip.innerText = foundCountry.name;
+                else mapTooltip.innerText = "???";
+              } else if (foundTerritory) {
+                const ownerCountry = COUNTRIES_DB.find(c => c.id === foundTerritory.owner);
+                const ownerIdx = ownerCountry ? COUNTRIES_DB.indexOf(ownerCountry) : -1;
+                if ((ownerIdx !== -1 && guessedCountries.has(ownerIdx)) || isGameOver) {
+                  mapTooltip.innerText = `${foundTerritory.name} (${foundTerritory.ownerName})`;
+                } else {
+                  mapTooltip.innerText = "???";
+                }
+              } else {
+                mapTooltip.innerText = "???";
+              }
+            })
+            .on("mouseout", () => {
+              mapTooltip.innerText = "Arraste para girar / Clique para aproximar";
+            })
+            .on("click", (event, d) => clickedCountryZoom(event, d));
+        });
+    }
+
+    function autoRotateToCountry(countryCode) {
+      if (countriesGeoGlobal.length === 0) return;
+      const feature = countriesGeoGlobal.find(f => String(f.id).padStart(3, '0') === countryCode);
+      if (!feature) return;
+
+      const centroid = feature.geometry.type === "Point" ? feature.geometry.coordinates : d3.geoCentroid(feature);
+      const targetRotate = [-centroid[0], -centroid[1]];
+
+      d3.transition().duration(800).tween("rotate", () => {
+        const r = d3.interpolate(projection.rotate(), targetRotate);
+        return (t) => {
+          projection.rotate(r(t));
+          mapGroup.selectAll("path.map-country").attr("d", svgPath);
+        };
+      }).on("end", checkResetButtonVisibility);
+    }
+
+    function clickedCountryZoom(event, d) {
+      event.stopPropagation();
+      const centroid = d.geometry.type === "Point" ? d.geometry.coordinates : d3.geoCentroid(d);
+      const targetRotate = [-centroid[0], -centroid[1]];
+      
+      d3.transition().duration(800).tween("rotateAndZoom", () => {
+        const r = d3.interpolate(projection.rotate(), targetRotate);
+        const s = d3.interpolate(projection.scale(), INITIAL_SCALE * 3.5);
+        return (t) => {
+          projection.rotate(r(t)).scale(s(t));
+          mapGroup.select(".ocean").attr("r", s(t));
+          mapGroup.selectAll("path.map-country").attr("d", svgPath);
+        };
+      }).on("end", checkResetButtonVisibility);
+    }
+
+    function resetGlobeVision() {
+      d3.transition().duration(800).tween("reset", () => {
+        const r = d3.interpolate(projection.rotate(), [0, 0]);
+        const s = d3.interpolate(projection.scale(), INITIAL_SCALE);
+        return (t) => {
+          projection.rotate(r(t)).scale(s(t));
+          mapGroup.select(".ocean").attr("r", s(t));
+          mapGroup.selectAll("path.map-country").attr("d", svgPath);
+        };
+      }).on("end", checkResetButtonVisibility);
+    }
+    resetZoomBtn.addEventListener('click', resetGlobeVision);
+
+    function checkResetButtonVisibility() {
+       if (projection.scale() > INITIAL_SCALE + 5 || Math.abs(projection.rotate()[0]) > 5 || Math.abs(projection.rotate()[1]) > 5) {
+         resetZoomBtn.classList.remove('opacity-0', 'pointer-events-none');
+       } else {
+         resetZoomBtn.classList.add('opacity-0', 'pointer-events-none');
+       }
+    }
+
+    function updateMapCountry(countryIndex, status) {
+      const country = COUNTRIES_DB[countryIndex];
+      if (!country || !country.id) return;
+      
+      const updateClass = (el) => {
+        if (el) {
+          el.classList.remove('guessed', 'missed');
+          if (status === 'guessed') el.classList.add('guessed');
+          if (status === 'missed') el.classList.add('missed');
+        }
+      };
+
+      updateClass(document.getElementById(`map-${country.id}`));
+      document.querySelectorAll(`.map-country[data-owner="${country.id}"]`).forEach(tEl => {
+        updateClass(tEl);
+      });
+    }
+
+    function updateCounters() {
+      const counts = { all: 0, Americas: 0, Europa: 0, Asia: 0, Africa: 0, Oceania: 0 };
+      guessedCountries.forEach(idx => {
+        const c = COUNTRIES_DB[idx];
+        counts.all++;
+        counts[c.continent]++;
+      });
+
+      document.getElementById('count-all').innerText = `${counts.all}/${TOTAL_COUNTRIES}`;
+      document.getElementById('count-americas').innerText = `${counts.Americas}/35`;
+      document.getElementById('count-europa').innerText = `${counts.Europa}/45`;
+      document.getElementById('count-asia').innerText = `${counts.Asia}/48`;
+      document.getElementById('count-africa').innerText = `${counts.Africa}/54`;
+      document.getElementById('count-oceania').innerText = `${counts.Oceania}/14`;
+
+      const bA = document.getElementById('badge-Americas'); if (bA) bA.innerText = `${counts.Americas}/35`;
+      const bE = document.getElementById('badge-Europa'); if (bE) bE.innerText = `${counts.Europa}/45`;
+      const bAs = document.getElementById('badge-Asia'); if (bAs) bAs.innerText = `${counts.Asia}/48`;
+      const bAf = document.getElementById('badge-Africa'); if (bAf) bAf.innerText = `${counts.Africa}/54`;
+      const bO = document.getElementById('badge-Oceania'); if (bO) bO.innerText = `${counts.Oceania}/14`;
+
+      scoreDisplay.innerText = counts.all;
+      const pct = Math.round((counts.all / TOTAL_COUNTRIES) * 100);
+      percentDisplay.innerText = `${pct}%`;
+      progressBar.style.width = `${pct}%`;
+    }
+
+    function formatTime(seconds) {
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function startGame() {
+      isPlaying = true;
+      isGameOver = false;
+      guessedCountries.clear();
+      renderContinentTables();
+      resetGlobeVision();
+      
+      document.querySelectorAll('.map-country').forEach(el => el.classList.remove('guessed', 'missed'));
+
+      countryInput.disabled = false;
+      countryInput.value = '';
+      countryInput.placeholder = 'Digite o nome de um país...';
+      countryInput.focus();
+      typingFeedback.innerText = 'Digite';
+      typingFeedback.className = 'absolute right-4 text-xs font-bold px-2 py-1 rounded bg-slate-800 text-slate-400';
+
+      gameActionBtn.innerHTML = `<i data-lucide="flag" class="w-4 h-4 fill-white"></i> <span>Desistir</span>`;
+      gameActionBtn.className = "px-4 py-2 rounded-lg font-bold text-sm bg-rose-600 hover:bg-rose-500 text-white shadow-md transition flex items-center gap-1.5";
+      lucide.createIcons();
+
+      clearInterval(timerInterval);
+      if (selectedDurationMinutes > 0) {
+        timeRemaining = selectedDurationMinutes * 60;
+        timerLabel.innerText = "Tempo Restante";
+        timerDisplay.innerText = formatTime(timeRemaining);
+        timerInterval = setInterval(() => {
+          timeRemaining--;
+          timerDisplay.innerText = formatTime(timeRemaining);
+          if (timeRemaining <= 0) endGame(false, "Tempo Esgotado!");
+        }, 1000);
+      } else {
+        timeRemaining = 0;
+        timerLabel.innerText = "Tempo Decorrido";
+        timerDisplay.innerText = formatTime(timeRemaining);
+        timerInterval = setInterval(() => {
+          timeRemaining++;
+          timerDisplay.innerText = formatTime(timeRemaining);
+        }, 1000);
+      }
+    }
+
+    function endGame(victory = false, reason = "Viagem Finalizada") {
+      isPlaying = false;
+      isGameOver = true;
+      clearInterval(timerInterval);
+      countryInput.disabled = true;
+      countryInput.value = '';
+      countryInput.placeholder = 'Jogo finalizado!';
+      
+      gameActionBtn.innerHTML = `<i data-lucide="play" class="w-4 h-4 fill-white"></i> <span>Novo Jogo</span>`;
+      gameActionBtn.className = "px-4 py-2 rounded-lg font-bold text-sm bg-emerald-600 hover:bg-emerald-500 text-white shadow-md transition flex items-center gap-1.5";
+      lucide.createIcons();
+
+      COUNTRIES_DB.forEach((c, idx) => {
+        const cell = document.getElementById(`cell-${idx}`);
+        if (!guessedCountries.has(idx)) {
+          if (cell) {
+            cell.classList.remove('bg-slate-950/60', 'border-slate-800/80');
+            cell.classList.add('bg-rose-950/30', 'border-rose-800/50');
+            
+            const lbl = cell.querySelector('.country-label');
+            lbl.innerText = c.name;
+            lbl.classList.remove('text-slate-500');
+            lbl.classList.add('text-rose-400');
+
+            const flag = cell.querySelector('.country-flag');
+            flag.classList.remove('opacity-30', 'grayscale');
+            flag.classList.add('opacity-60'); 
+          }
+          updateMapCountry(idx, 'missed');
+        } else {
+          updateMapCountry(idx, 'guessed');
+        }
+      });
+
+      document.getElementById('modalTitle').innerText = victory ? "Parabéns, Você Conquistou o Globo!" : reason;
+      document.getElementById('modalSubtitle').innerText = victory ? `Você acertou todos os ${TOTAL_COUNTRIES} países do mundo!` : "Veja seu desempenho final na Volta ao Mundo:";
+      document.getElementById('modalScore').innerText = guessedCountries.size;
+      document.getElementById('modalPercent').innerText = `${Math.round((guessedCountries.size / TOTAL_COUNTRIES) * 100)}%`;
+      gameOverModal.classList.remove('hidden');
+    }
+
+    countryInput.addEventListener('input', (e) => {
+      if (!isPlaying) return;
+      const rawVal = e.target.value;
+      const val = normalize(rawVal);
+      if (!val) return;
+
+      let foundIndex = -1;
+      for (let i = 0; i < COUNTRIES_DB.length; i++) {
+        const c = COUNTRIES_DB[i];
+        if (normalize(c.name) === val || c.syn.some(s => normalize(s) === val)) {
+          foundIndex = i; break;
+        }
+      }
+
+      if (foundIndex !== -1) {
+        if (guessedCountries.has(foundIndex)) {
+          typingFeedback.innerText = 'Já digitado!';
+          typingFeedback.className = 'absolute right-4 text-xs font-bold px-2 py-1 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30';
+          playSound('duplicate');
+        } else {
+          guessedCountries.add(foundIndex);
+          const country = COUNTRIES_DB[foundIndex];
+          
+          if (normalize(country.name) === "palestina") {
+            showPalestineEasterEgg();
+          }
+
+          const cell = document.getElementById(`cell-${foundIndex}`);
+          if (cell) {
+            cell.classList.remove('bg-slate-950/60', 'border-slate-800/80');
+            cell.classList.add('bg-emerald-950/30', 'border-emerald-600/50');
+            
+            const lbl = cell.querySelector('.country-label');
+            lbl.innerText = country.name;
+            lbl.classList.remove('text-slate-500');
+            lbl.classList.add('text-emerald-400', 'font-bold');
+
+            const flag = cell.querySelector('.country-flag');
+            flag.classList.remove('opacity-30', 'grayscale');
+            flag.classList.add('opacity-100'); 
+          }
+
+          updateMapCountry(foundIndex, 'guessed');
+          autoRotateToCountry(country.id);
+
+          lastGuessedDisplay.innerText = country.name;
+          countryInput.value = '';
+          typingFeedback.innerText = '+1 Acerto!';
+          typingFeedback.className = 'absolute right-4 text-xs font-bold px-2 py-1 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+          playSound('hit');
+          updateCounters();
+
+          if (guessedCountries.size === TOTAL_COUNTRIES) endGame(true, "Você Venceu!");
+        }
+      }
+    });
+
+    timeButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (isPlaying) return;
+        timeButtons.forEach(b => b.className = "time-btn px-2.5 py-1.5 rounded-md font-semibold text-slate-400 hover:text-white transition");
+        btn.className = "time-btn px-2.5 py-1.5 rounded-md font-semibold text-white bg-brand-600 transition";
+
+        selectedDurationMinutes = parseInt(btn.dataset.time, 10);
+        if (selectedDurationMinutes > 0) {
+          timerLabel.innerText = "Tempo";
+          timerDisplay.innerText = formatTime(selectedDurationMinutes * 60);
+        } else {
+          timerLabel.innerText = "Tempo";
+          timerDisplay.innerText = "00:00";
+        }
+      });
+    });
+
+    continentTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        continentTabs.forEach(t => {
+          t.classList.remove('bg-brand-600', 'text-white');
+          t.classList.add('bg-slate-900', 'text-slate-400');
+        });
+        tab.classList.add('bg-brand-600', 'text-white');
+        tab.classList.remove('bg-slate-900', 'text-slate-400');
+
+        const continent = tab.dataset.continent;
+        document.querySelectorAll('#continentsContainer > section').forEach(sec => {
+          sec.style.display = (continent === 'all' || sec.dataset.continent === continent) ? 'block' : 'none';
+        });
+      });
+    });
+
+    toggleAudioBtn.addEventListener('click', () => {
+      isMuted = !isMuted;
+      audioIcon.setAttribute('data-lucide', isMuted ? 'volume-x' : 'volume-2');
+      toggleAudioBtn.classList.toggle('text-rose-400', isMuted);
+      lucide.createIcons();
+    });
+
+    gameActionBtn.addEventListener('click', () => {
+      if (!isPlaying) startGame();
+      else if (confirm("Deseja realmente desistir e revelar todas as respostas no mapa e nas tabelas?")) endGame(false, "Desistência");
+    });
+
+    document.getElementById('whatsappShareBtn').addEventListener('click', () => {
+      const score = guessedCountries.size;
+      const pct = Math.round((score / TOTAL_COUNTRIES) * 100);
+      let emoji = "😭";
+      
+      if (pct >= 10 && pct < 20) emoji = "😢";
+      else if (pct >= 20 && pct < 30) emoji = "🥲";
+      else if (pct >= 30 && pct < 40) emoji = "😕";
+      else if (pct >= 40 && pct < 50) emoji = "🙂";
+      else if (pct >= 50 && pct < 60) emoji = "😉";
+      else if (pct >= 60 && pct < 70) emoji = "😊";
+      else if (pct >= 70 && pct < 80) emoji = "😃";
+      else if (pct >= 80 && pct < 90) emoji = "🤩";
+      else if (pct >= 90 && pct < 100) emoji = "🤯";
+      else if (pct === 100) emoji = "👑🌍";
+      
+      const gameUrl = window.location.href;
+      const text = `🌍 Joguei o Volta ao Mundo e acertei ${score}/${TOTAL_COUNTRIES} países (${pct}%)! ${emoji}\n\nSerá que você consegue me vencer? Jogue em: ${gameUrl}`;
+      const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+      window.open(whatsappUrl, '_blank');
+    });
+
+    document.getElementById('modalReviewBtn').addEventListener('click', () => gameOverModal.classList.add('hidden'));
+    document.getElementById('modalRestartBtn').addEventListener('click', () => {
+      gameOverModal.classList.add('hidden');
+      startGame();
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      renderContinentTables();
+      initWorldMap();
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>
