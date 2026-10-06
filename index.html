@@ -9,7 +9,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- D3.js e TopoJSON para renderização de Mapa Vetorial -->
+  <!-- D3.js e TopoJSON -->
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <script src="https://unpkg.com/topojson-client@3"></script>
   
@@ -60,13 +60,15 @@
     .map-country {
       fill: #1e293b;
       stroke: #334155;
-      stroke-width: 0.5px;
-      transition: fill 0.3s ease, stroke 0.3s ease;
+      stroke-width: 0.6px;
+      /* Impede que a borda engrosse ao dar zoom */
+      vector-effect: non-scaling-stroke; 
+      transition: fill 0.25s ease, stroke 0.25s ease;
       cursor: pointer;
     }
     .map-country:hover {
-      stroke: #94a3b8;
-      stroke-width: 1px;
+      stroke: #60a5fa;
+      stroke-width: 1.5px;
     }
     .map-country.guessed {
       fill: #10b981 !important;
@@ -100,12 +102,10 @@
 
       <!-- CONTROLES -->
       <div class="flex items-center gap-3">
-        <!-- ÁUDIO -->
         <button id="toggleAudioBtn" class="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition" title="Alternar som">
           <i id="audioIcon" data-lucide="volume-2" class="w-5 h-5"></i>
         </button>
 
-        <!-- SELETOR DE TEMPO -->
         <div class="flex bg-slate-800 p-0.5 rounded-lg border border-slate-700 text-xs">
           <button class="time-btn px-2.5 py-1.5 rounded-md font-semibold text-white bg-brand-600 transition" data-time="15">15 min</button>
           <button class="time-btn px-2.5 py-1.5 rounded-md font-semibold text-slate-400 hover:text-white transition" data-time="30">30 min</button>
@@ -114,7 +114,6 @@
           <button class="time-btn px-2.5 py-1.5 rounded-md font-semibold text-slate-400 hover:text-white transition" data-time="0">Livre</button>
         </div>
 
-        <!-- BOTÃO PRINCIPAL -->
         <button id="gameActionBtn" class="px-4 py-2 rounded-lg font-bold text-sm bg-emerald-600 hover:bg-emerald-500 text-white shadow-md hover:shadow-emerald-500/20 transition flex items-center gap-1.5">
           <i data-lucide="play" class="w-4 h-4 fill-white"></i>
           <span>Começar</span>
@@ -178,14 +177,12 @@
       <div id="progressBar" class="bg-gradient-to-r from-brand-600 to-emerald-400 h-2 rounded-full transition-all duration-300 w-0"></div>
     </div>
 
-    <!-- CAMPO DE DIGITAÇÃO COM ESPAÇAMENTO CORRIGIDO -->
+    <!-- CAMPO DE DIGITAÇÃO -->
     <div class="relative w-full">
       <div class="relative flex items-center">
-        <!-- Ícone da lupa posicionado à esquerda -->
         <div class="absolute left-4.5 flex items-center pointer-events-none">
           <i data-lucide="search" class="w-5 h-5 text-slate-400"></i>
         </div>
-        <!-- Input com padding-left amplo (pl-14 / 56px) para não cortar texto -->
         <input 
           id="countryInput"
           type="text" 
@@ -202,17 +199,25 @@
       </div>
     </div>
 
-    <!-- SEÇÃO DO MAPA-MÚNDI INTERATIVO -->
-    <section class="bg-slate-900 border border-slate-800 rounded-2xl p-3 sm:p-5 relative overflow-hidden shadow-lg">
+    <!-- MAPA-MÚNDI INTERATIVO -->
+    <section class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 relative overflow-hidden shadow-lg group">
       <div class="flex items-center justify-between pb-3 mb-2 border-b border-slate-800">
         <div class="flex items-center gap-2">
           <i data-lucide="map" class="w-4 h-4 text-brand-400"></i>
           <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300">Mapa Global em Tempo Real</h2>
         </div>
-        <div id="mapTooltip" class="text-xs font-semibold text-slate-400 h-4">Passe o mouse para ver o país</div>
+        <div id="mapTooltip" class="text-xs font-bold px-2.5 py-1 rounded bg-slate-800/80 border border-slate-700/50 text-slate-300 transition-all">
+          Clique num país para dar zoom
+        </div>
       </div>
-      <div class="w-full overflow-hidden flex items-center justify-center">
-        <svg id="worldMapSvg" viewBox="0 0 960 480" class="w-full h-auto max-h-[460px]"></svg>
+      
+      <div class="w-full overflow-hidden flex items-center justify-center relative cursor-move rounded-xl">
+        <svg id="worldMapSvg" viewBox="0 15 960 440" class="w-full h-auto max-h-[500px]"></svg>
+        
+        <!-- Botão Flutuante de Resetar Zoom -->
+        <button id="resetZoomBtn" class="absolute bottom-4 right-4 bg-slate-800/90 backdrop-blur text-slate-300 px-3 py-2 rounded-lg text-xs font-bold border border-slate-700 hover:bg-slate-700 hover:text-white transition-all duration-300 opacity-0 pointer-events-none shadow-lg flex items-center gap-1.5 z-10">
+          <i data-lucide="zoom-out" class="w-4 h-4"></i> Restaurar Visão
+        </button>
       </div>
     </section>
 
@@ -238,10 +243,8 @@
       </button>
     </div>
 
-    <!-- SEÇÕES DE TABELAS POR CONTINENTE (ORDEM ALFABÉTICA) -->
-    <div id="continentsContainer" class="flex flex-col gap-8 pb-16">
-      <!-- Tabelas geradas dinamicamente via JS -->
-    </div>
+    <!-- SEÇÕES DE TABELAS POR CONTINENTE -->
+    <div id="continentsContainer" class="flex flex-col gap-8 pb-16"></div>
 
   </main>
 
@@ -267,7 +270,7 @@
 
       <div class="flex gap-3 w-full">
         <button id="modalReviewBtn" class="flex-1 py-2.5 rounded-xl font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 transition text-sm">
-          Ver Respostas no Mapa
+          Ver Mapa
         </button>
         <button id="modalRestartBtn" class="flex-1 py-2.5 rounded-xl font-semibold bg-brand-600 hover:bg-brand-500 text-white transition text-sm">
           Jogar Novamente
@@ -276,9 +279,8 @@
     </div>
   </div>
 
-  <!-- SCRIPT COMPLETO -->
+  <!-- SCRIPT DO JOGO -->
   <script>
-    // BASE DE DADOS OFICIAL - 196 PAÍSES COM CÓDIGO ISO NUMÉRICO PARA O MAPA
     const COUNTRIES_DB = [
       // AMÉRICAS (35)
       { id: "028", name: "Antígua e Barbuda", continent: "Americas", syn: ["antigua e barbuda", "antigua barbuda", "antigua"] },
@@ -487,16 +489,15 @@
       { id: "548", name: "Vanuatu", continent: "Oceania", syn: ["vanuatu"] }
     ];
 
-    // ESTADO
     let isPlaying = false;
-    let selectedDurationMinutes = 15; // 0 = livre
+    let isGameOver = false;
+    let selectedDurationMinutes = 15;
     let timeRemaining = 15 * 60;
     let timerInterval = null;
     let guessedCountries = new Set();
     let isMuted = false;
-    let activeFilter = 'all';
 
-    // ELEMENTOS DOM
+    // DOM Elements
     const gameActionBtn = document.getElementById('gameActionBtn');
     const countryInput = document.getElementById('countryInput');
     const typingFeedback = document.getElementById('typingFeedback');
@@ -512,8 +513,7 @@
     const continentTabs = document.querySelectorAll('.continent-tab');
     const continentsContainer = document.getElementById('continentsContainer');
     const mapTooltip = document.getElementById('mapTooltip');
-
-    // MODAL
+    const resetZoomBtn = document.getElementById('resetZoomBtn');
     const gameOverModal = document.getElementById('gameOverModal');
     const modalTitle = document.getElementById('modalTitle');
     const modalSubtitle = document.getElementById('modalSubtitle');
@@ -522,7 +522,6 @@
     const modalReviewBtn = document.getElementById('modalReviewBtn');
     const modalRestartBtn = document.getElementById('modalRestartBtn');
 
-    // ÁUDIO SINTETIZADO
     let audioCtx = null;
     function playSound(type) {
       if (isMuted) return;
@@ -537,8 +536,8 @@
 
         if (type === 'hit') {
           osc.type = 'triangle';
-          osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
-          osc.frequency.exponentialRampToValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+          osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(659.25, audioCtx.currentTime + 0.1);
           gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
           gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
           osc.start();
@@ -554,17 +553,10 @@
       } catch (e) {}
     }
 
-    // NORMALIZAÇÃO DE TEXTO
     function normalize(text) {
-      return text
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-z0-9]/g, "")
-        .trim();
+      return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "").trim();
     }
 
-    // RENDERIZAR TABELAS POR CONTINENTE EM ORDEM ALFABÉTICA
     function renderContinentTables() {
       continentsContainer.innerHTML = '';
       const continentsConfig = [
@@ -576,7 +568,6 @@
       ];
 
       continentsConfig.forEach(conf => {
-        // Filtrar e ordenar alfabeticamente
         const list = COUNTRIES_DB
           .map((c, originalIndex) => ({ ...c, originalIndex }))
           .filter(c => c.continent === conf.key)
@@ -598,7 +589,7 @@
             <span class="text-xs font-medium text-slate-500">Ordem Alfabética (A-Z)</span>
           </div>
           
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5" id="grid-${conf.key}">
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
             ${list.map(item => `
               <div id="cell-${item.originalIndex}" class="p-2.5 rounded-xl border border-slate-800/80 bg-slate-950/60 flex items-center justify-between min-h-[46px] transition-all">
                 <span class="country-label text-xs font-semibold text-slate-500 uppercase tracking-wider select-none">• • •</span>
@@ -613,20 +604,51 @@
       updateCounters();
     }
 
-    // MAPA MÚNDI SVG VIA D3 & TOPOJSON
-    let svgPath = null;
+    // Variáveis de Zoom D3
+    let svgPath, zoomBehavior, svgContainer, mapGroup;
+
     function initWorldMap() {
-      const svg = d3.select("#worldMapSvg");
-      const projection = d3.geoNaturalEarth1().scale(153).translate([480, 240]);
+      svgContainer = d3.select("#worldMapSvg");
+      
+      // Criação do grupo que sofrerá o zoom
+      mapGroup = svgContainer.append("g").attr("id", "mapLayers");
+
+      // Configuração do comportamento de Zoom/Pan
+      zoomBehavior = d3.zoom()
+        .scaleExtent([1, 8]) // Limite de 1x até 8x de aproximação
+        .on("zoom", (event) => {
+          mapGroup.attr("transform", event.transform);
+          
+          // Mostrar ou ocultar botão de reset
+          if (event.transform.k > 1.1) {
+            resetZoomBtn.classList.remove('opacity-0', 'pointer-events-none');
+          } else {
+            resetZoomBtn.classList.add('opacity-0', 'pointer-events-none');
+          }
+        });
+
+      svgContainer.call(zoomBehavior);
+
+      // Fundo clicável invisível para resetar o zoom
+      mapGroup.append("rect")
+        .attr("width", 960)
+        .attr("height", 440)
+        .style("fill", "transparent")
+        .on("click", resetZoom);
+
+      const projection = d3.geoNaturalEarth1()
+        .scale(172)
+        .translate([480, 248]);
+        
       svgPath = d3.geoPath().projection(projection);
 
-      // Carregar mapa vetorial leve
       fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
         .then(res => res.json())
         .then(world => {
-          const countriesGeo = topojson.feature(world, world.objects.countries).features;
+          const countriesGeo = topojson.feature(world, world.objects.countries).features
+            .filter(d => String(d.id).padStart(3, '0') !== '010');
 
-          svg.selectAll("path")
+          mapGroup.selectAll(".map-country")
             .data(countriesGeo)
             .enter()
             .append("path")
@@ -636,20 +658,63 @@
             .on("mouseover", (event, d) => {
               const code = String(d.id).padStart(3, '0');
               const found = COUNTRIES_DB.find(c => c.id === code);
-              if (found) {
-                mapTooltip.innerText = guessedCountries.has(COUNTRIES_DB.indexOf(found)) || !isPlaying ? found.name : "País misterioso";
+              
+              if (!found) {
+                mapTooltip.innerText = "???";
+                return;
+              }
+
+              const countryIdx = COUNTRIES_DB.indexOf(found);
+
+              if (guessedCountries.has(countryIdx) || isGameOver) {
+                mapTooltip.innerText = found.name;
+              } else {
+                mapTooltip.innerText = "???";
               }
             })
             .on("mouseout", () => {
-              mapTooltip.innerText = "Passe o mouse para ver o país";
-            });
+              mapTooltip.innerText = "Clique num país para dar zoom";
+            })
+            .on("click", clickedCountryZoom);
         })
         .catch(() => {
-          mapTooltip.innerText = "Modo offline (mapa simplificado)";
+          mapTooltip.innerText = "Modo offline (mapa)";
         });
     }
 
-    // ATUALIZAÇÃO DO MAPA
+    // Função de Zoom ao Clicar em um País
+    function clickedCountryZoom(event, d) {
+      event.stopPropagation(); // Evita que o clique vaze para o retângulo de fundo
+
+      const [[x0, y0], [x1, y1]] = svgPath.bounds(d);
+      const viewBoxWidth = 960;
+      const viewBoxHeight = 440;
+      
+      const dx = x1 - x0;
+      const dy = y1 - y0;
+      const x = (x0 + x1) / 2;
+      const y = (y0 + y1) / 2;
+      
+      // Define a escala mantendo um teto máximo de 8 e espaçamento de borda de 0.8
+      const scale = Math.max(1, Math.min(8, 0.8 / Math.max(dx / viewBoxWidth, dy / viewBoxHeight)));
+      const translate = [viewBoxWidth / 2 - scale * x, viewBoxHeight / 2 - scale * y];
+
+      svgContainer.transition()
+        .duration(750)
+        .call(
+          zoomBehavior.transform,
+          d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale)
+        );
+    }
+
+    // Restaurar a visão original
+    function resetZoom() {
+      svgContainer.transition()
+        .duration(750)
+        .call(zoomBehavior.transform, d3.zoomIdentity);
+    }
+    resetZoomBtn.addEventListener('click', resetZoom);
+
     function updateMapCountry(countryIndex, status) {
       const country = COUNTRIES_DB[countryIndex];
       if (!country || !country.id) return;
@@ -661,7 +726,6 @@
       }
     }
 
-    // ATUALIZAÇÃO DE CONTADORES
     function updateCounters() {
       const counts = { all: 0, Americas: 0, Europa: 0, Asia: 0, Africa: 0, Oceania: 0 };
       guessedCountries.forEach(idx => {
@@ -689,20 +753,19 @@
       progressBar.style.width = `${pct}%`;
     }
 
-    // TEMPO
     function formatTime(seconds) {
       const m = Math.floor(seconds / 60);
       const s = seconds % 60;
       return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
     }
 
-    // INICIAR
     function startGame() {
       isPlaying = true;
+      isGameOver = false;
       guessedCountries.clear();
       renderContinentTables();
+      resetZoom();
       
-      // Limpar classes do mapa
       document.querySelectorAll('.map-country').forEach(el => {
         el.classList.remove('guessed', 'missed');
       });
@@ -739,9 +802,9 @@
       }
     }
 
-    // FIM DE JOGO
     function endGame(victory = false, reason = "Viagem Finalizada") {
       isPlaying = false;
+      isGameOver = true;
       clearInterval(timerInterval);
       countryInput.disabled = true;
       countryInput.value = '';
@@ -751,7 +814,6 @@
       gameActionBtn.className = "px-4 py-2 rounded-lg font-bold text-sm bg-emerald-600 hover:bg-emerald-500 text-white shadow-md transition flex items-center gap-1.5";
       lucide.createIcons();
 
-      // Revelar não descobertos nas tabelas e no mapa em vermelho
       COUNTRIES_DB.forEach((c, idx) => {
         const cell = document.getElementById(`cell-${idx}`);
         if (!guessedCountries.has(idx)) {
@@ -776,7 +838,6 @@
       gameOverModal.classList.remove('hidden');
     }
 
-    // DIGITAÇÃO E VALIDAÇÃO
     countryInput.addEventListener('input', (e) => {
       if (!isPlaying) return;
       const rawVal = e.target.value;
@@ -827,7 +888,6 @@
       }
     });
 
-    // SELETORES DE TEMPO (15m, 30m, 45m, 1h, Livre)
     timeButtons.forEach(btn => {
       btn.addEventListener('click', () => {
         if (isPlaying) return;
@@ -847,7 +907,6 @@
       });
     });
 
-    // FILTRO DE CONTINENTES
     continentTabs.forEach(tab => {
       tab.addEventListener('click', () => {
         continentTabs.forEach(t => {
@@ -858,7 +917,6 @@
         tab.classList.remove('bg-slate-900', 'text-slate-400');
 
         const continent = tab.dataset.continent;
-        activeFilter = continent;
 
         document.querySelectorAll('#continentsContainer > section').forEach(sec => {
           if (continent === 'all' || sec.dataset.continent === continent) {
@@ -870,7 +928,6 @@
       });
     });
 
-    // BOTÃO ÁUDIO
     toggleAudioBtn.addEventListener('click', () => {
       isMuted = !isMuted;
       audioIcon.setAttribute('data-lucide', isMuted ? 'volume-x' : 'volume-2');
@@ -878,7 +935,6 @@
       lucide.createIcons();
     });
 
-    // BOTÃO PRINCIPAL
     gameActionBtn.addEventListener('click', () => {
       if (!isPlaying) {
         startGame();
@@ -889,14 +945,12 @@
       }
     });
 
-    // MODAL
     modalReviewBtn.addEventListener('click', () => gameOverModal.classList.add('hidden'));
     modalRestartBtn.addEventListener('click', () => {
       gameOverModal.classList.add('hidden');
       startGame();
     });
 
-    // INICIALIZAÇÃO
     window.addEventListener('DOMContentLoaded', () => {
       renderContinentTables();
       initWorldMap();
