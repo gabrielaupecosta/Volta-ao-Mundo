@@ -31,8 +31,8 @@
   <style>
     /* Scrollbar geral */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #09090b; } /* zinc-950 */
-    ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 9999px; } /* zinc-700 */
+    ::-webkit-scrollbar-track { background: #09090b; }
+    ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 9999px; }
     ::-webkit-scrollbar-thumb:hover { background: #52525b; }
     
     /* Scrollbar invisível para container horizontal */
@@ -41,22 +41,22 @@
 
     /* Estilo do Mapa 3D */
     .map-country {
-      fill: #18181b; /* zinc-900 */
-      stroke: #27272a; /* zinc-800 */
+      fill: #18181b; 
+      stroke: #27272a; 
       stroke-width: 0.6px;
       transition: fill 0.25s ease, stroke 0.25s ease;
       cursor: pointer;
     }
     .map-country:hover {
-      stroke: #a1a1aa; /* zinc-400 */
+      stroke: #a1a1aa; 
       stroke-width: 1.5px;
     }
     .map-country.guessed {
-      fill: #10b981 !important; /* emerald-500 */
+      fill: #10b981 !important; 
       stroke: #059669 !important;
     }
     .map-country.missed {
-      fill: #ef4444 !important; /* red-500 */
+      fill: #ef4444 !important; 
       stroke: #b91c1c !important;
     }
     
@@ -79,7 +79,7 @@
     }
 
     .ocean {
-      fill: #000000; /* Preto absoluto */
+      fill: #000000; 
       stroke: #18181b;
       stroke-width: 1px;
     }
@@ -95,8 +95,8 @@
       transition: all 0.5s ease;
     }
     .stat-card.victory {
-      background-color: rgba(6, 78, 59, 0.3) !important; /* emerald-900 opacity */
-      border-color: rgba(16, 185, 129, 0.4) !important; /* emerald-500 */
+      background-color: rgba(6, 78, 59, 0.3) !important; 
+      border-color: rgba(16, 185, 129, 0.4) !important; 
     }
 
     /* EASTER EGG: AVIÃO COM FAIXA ONDULANTE E VOO CONTÍNUO */
@@ -699,9 +699,9 @@
       return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "").trim();
     }
 
-    // Easter Egg Animado
+    // Easter Egg Animado - Avião Perfil e Chuva
     function showPalestineEasterEgg() {
-      // Avião com Voo Contínuo
+      // 1. Avião com faixa animada (Voo contínuo)
       const planeWrapper = document.createElement('div');
       planeWrapper.className = 'airplane-wrapper';
       planeWrapper.innerHTML = `
@@ -713,45 +713,33 @@
           <div style="transform: translateY(2px);">
             <!-- Avião Monomotor Customizado Estilo Referência -->
             <svg width="85" height="42" viewBox="0 0 100 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <!-- Hélice em movimento -->
               <ellipse cx="94" cy="25" rx="3" ry="18" fill="#d4d4d8" opacity="0.6">
                 <animate attributeName="ry" values="18;2;18" dur="0.1s" repeatCount="indefinite" />
               </ellipse>
               <ellipse cx="94" cy="25" rx="2" ry="18" fill="#a1a1aa" opacity="0.3">
                 <animate attributeName="ry" values="2;18;2" dur="0.1s" repeatCount="indefinite" />
               </ellipse>
-              <!-- Leme Horizontal Base (Vermelho) -->
               <path d="M5,26 L18,29 L14,32 L2,28 Z" fill="#b91c1c"/>
               <path d="M5,24 L18,27 L14,30 L2,26 Z" fill="#ef4444"/>
-              <!-- Leme Vertical Base (Amarelo) -->
               <path d="M15,22 L8,4 L22,18 Z" fill="#f59e0b"/>
               <path d="M15,22 L11,6 L22,18 Z" fill="#fbbf24"/>
-              <!-- Corpo Base (Amarelo Superior) -->
               <path d="M15,12 C15,5 25,5 25,22 L50,22 L55,16 L70,16 L75,22 L75,35 L35,35 L12,30 C8,28 12,18 15,12 Z" fill="#fbbf24"/>
-              <!-- Corpo Base (Vermelho Inferior - Barriga) -->
               <path d="M12,30 L35,35 L75,35 L75,26 L50,27 L45,31 L25,31 L8,27 Z" fill="#dc2626"/>
-              <!-- Bico do Avião (Cinza escuro) -->
               <path d="M75,22 L85,22 C90,22 90,35 85,35 L75,35 Z" fill="#71717a"/>
-              <!-- Vidros Cockpit (Ciano claro) -->
               <polygon points="57,17 68,17 72,21 57,21" fill="#cffafe"/>
               <polygon points="46,17 54,17 54,21 46,21" fill="#cffafe"/>
-              <!-- Asa Superior Vermelha flutuante -->
               <line x1="50" y1="12" x2="50" y2="22" stroke="#52525b" stroke-width="2"/>
               <line x1="60" y1="12" x2="55" y2="16" stroke="#52525b" stroke-width="2"/>
               <path d="M40,12 L65,12 C70,12 70,9 65,9 L40,9 C35,9 35,12 40,12 Z" fill="#dc2626"/>
-              <!-- Detalhe de Faixa Leme -->
               <path d="M8,26 L25,26 C28,26 28,29 25,29 L10,29 Z" fill="#dc2626"/>
-              <!-- Eixo da hélice -->
               <ellipse cx="86" cy="28.5" rx="1.5" ry="12" fill="#27272a">
                  <animate attributeName="ry" values="12;2;12" dur="0.05s" repeatCount="indefinite" />
               </ellipse>
               <path d="M86,26.5 C90,26.5 90,30.5 86,30.5 Z" fill="#e4e4e7"/>
-              <!-- Trem de Pouso Principal -->
               <line x1="60" y1="45" x2="55" y2="35" stroke="#3f3f46" stroke-width="2.5"/>
               <line x1="60" y1="45" x2="65" y2="35" stroke="#3f3f46" stroke-width="2.5"/>
               <circle cx="60" cy="45" r="5" fill="#27272a"/>
               <circle cx="60" cy="45" r="2" fill="#a1a1aa"/>
-              <!-- Ponto do Cabo de Reboque -->
               <circle cx="5" cy="28" r="1.5" fill="#52525b"/>
             </svg>
           </div>
@@ -760,7 +748,7 @@
       document.body.appendChild(planeWrapper);
       setTimeout(() => planeWrapper.remove(), 17000);
 
-      // Chuva de Melancias Dinâmica (Proporcional aos acertos)
+      // 2. Chuva de Melancias Dinâmica (Proporcional aos acertos)
       const amount = Math.min(guessedCountries.size, 196); 
       for(let i=0; i<amount; i++) {
         const wm = document.createElement('div');
@@ -857,7 +845,8 @@
 
       svgContainer.call(dragBehavior);
 
-      svgContainer.on("wheel", (event) => {
+      // Usando addEventListener para o 'wheel' garantindo passive: false (evita erro preventDefault no console)
+      document.getElementById('worldMapSvg').addEventListener('wheel', (event) => {
         event.preventDefault();
         const zoomFactor = event.deltaY < 0 ? 1.1 : 0.9;
         const currentScale = projection.scale();
@@ -867,7 +856,7 @@
         ocean.attr("r", newScale);
         mapGroup.selectAll("path.map-country").attr("d", svgPath);
         checkResetButtonVisibility();
-      });
+      }, { passive: false });
 
       fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
         .then(res => res.json())
@@ -931,7 +920,8 @@
               mapTooltip.innerText = "Arraste para girar / Clique para aproximar";
             })
             .on("click", (event, d) => clickedCountryZoom(event, d));
-        });
+        })
+        .catch(err => console.log("Modo offline / Mapa não carregou", err));
     }
 
     function autoRotateToCountry(countryCode) {
@@ -1014,37 +1004,40 @@
         counts[c.continent]++;
       });
 
-      document.getElementById('scoreDisplay').innerText = counts.all;
+      // Atualiza Cards Superiores
+      const scoreEl = document.getElementById('scoreDisplay');
+      if(scoreEl) scoreEl.innerText = counts.all;
+      
       const pct = Math.round((counts.all / TOTAL_COUNTRIES) * 100);
-      document.getElementById('percentDisplay').innerText = `${pct}%`;
+      const percentEl = document.getElementById('percentDisplay');
+      if(percentEl) percentEl.innerText = `${pct}%`;
       
-      // Barra de progresso visual
-      document.getElementById('progressBar').style.width = `${pct}%`;
+      const pBar = document.getElementById('progressBar');
+      if(pBar) pBar.style.width = `${pct}%`;
       
-      // Update header
-      document.getElementById('count-all').innerText = `${counts.all}/${TOTAL_COUNTRIES}`;
-      
-      // Update das abas
-      const bA = document.getElementById('count-americas-tab'); if (bA) bA.innerText = `${counts.Americas}/35`;
-      const bE = document.getElementById('count-europa-tab'); if (bE) bE.innerText = `${counts.Europa}/45`;
-      const bAs = document.getElementById('count-asia-tab'); if (bAs) bAs.innerText = `${counts.Asia}/48`;
-      const bAf = document.getElementById('count-africa-tab'); if (bAf) bAf.innerText = `${counts.Africa}/54`;
-      const bO = document.getElementById('count-oceania-tab'); if (bO) bO.innerText = `${counts.Oceania}/14`;
+      // Atualiza Abas (Tabs)
+      const tabAll = document.getElementById('count-all'); if(tabAll) tabAll.innerText = `${counts.all}/${TOTAL_COUNTRIES}`;
+      const tAm = document.getElementById('count-americas-tab'); if(tAm) tAm.innerText = `${counts.Americas}/35`;
+      const tEu = document.getElementById('count-europa-tab'); if(tEu) tEu.innerText = `${counts.Europa}/45`;
+      const tAs = document.getElementById('count-asia-tab'); if(tAs) tAs.innerText = `${counts.Asia}/48`;
+      const tAf = document.getElementById('count-africa-tab'); if(tAf) tAf.innerText = `${counts.Africa}/54`;
+      const tOc = document.getElementById('count-oceania-tab'); if(tOc) tOc.innerText = `${counts.Oceania}/14`;
 
-      // Update dos cabeçalhos das colunas
-      const pA = document.getElementById('badge-Americas'); if (pA) pA.innerText = `${counts.Americas}/35`;
-      const pE = document.getElementById('badge-Europa'); if (pE) pE.innerText = `${counts.Europa}/45`;
-      const pAs = document.getElementById('badge-Asia'); if (pAs) pAs.innerText = `${counts.Asia}/48`;
-      const pAf = document.getElementById('badge-Africa'); if (pAf) pAf.innerText = `${counts.Africa}/54`;
-      const pO = document.getElementById('badge-Oceania'); if (pO) pO.innerText = `${counts.Oceania}/14`;
+      // Atualiza Badges das Colunas (Lado a Lado)
+      const bAm = document.getElementById('badge-Americas'); if(bAm) bAm.innerText = `${counts.Americas}/35`;
+      const bEu = document.getElementById('badge-Europa'); if(bEu) bEu.innerText = `${counts.Europa}/45`;
+      const bAs = document.getElementById('badge-Asia'); if(bAs) bAs.innerText = `${counts.Asia}/48`;
+      const bAf = document.getElementById('badge-Africa'); if(bAf) bAf.innerText = `${counts.Africa}/54`;
+      const bOc = document.getElementById('badge-Oceania'); if(bOc) bOc.innerText = `${counts.Oceania}/14`;
 
-      // Vitória (100%)
-      if (counts.all === TOTAL_COUNTRIES && !isGameOver) {
-        document.querySelectorAll('.stat-card').forEach(card => {
-           card.classList.add('victory');
-        });
-        document.getElementById('progressBar').classList.add('bg-emerald-500');
-        document.getElementById('progressBar').classList.remove('bg-zinc-300');
+      // Gatilho de Vitória
+      if (counts.all === TOTAL_COUNTRIES && !isGameOver && isPlaying) {
+        document.querySelectorAll('.stat-card').forEach(card => card.classList.add('victory'));
+        const pBar = document.getElementById('progressBar');
+        if(pBar) {
+          pBar.classList.remove('bg-zinc-300');
+          pBar.classList.add('bg-emerald-500');
+        }
         endGame(true, "Você Venceu!");
       }
     }
@@ -1065,8 +1058,11 @@
       document.querySelectorAll('.map-country').forEach(el => el.classList.remove('guessed', 'missed'));
       
       document.querySelectorAll('.stat-card').forEach(card => card.classList.remove('victory'));
-      document.getElementById('progressBar').classList.remove('bg-emerald-500');
-      document.getElementById('progressBar').classList.add('bg-zinc-300');
+      const pBar = document.getElementById('progressBar');
+      if(pBar) {
+        pBar.classList.remove('bg-emerald-500');
+        pBar.classList.add('bg-zinc-300');
+      }
 
       document.querySelectorAll('.country-flag').forEach(flag => {
         flag.className = "country-flag w-0 opacity-0 scale-50 transition-all duration-500 origin-right rounded-sm shadow-sm";
@@ -1124,13 +1120,17 @@
             cell.classList.add('bg-rose-950/20', 'border-rose-900/50');
             
             const lbl = cell.querySelector('.country-label');
-            lbl.innerText = c.name;
-            lbl.classList.remove('text-zinc-500');
-            lbl.classList.add('text-rose-400');
+            if (lbl) {
+              lbl.innerText = c.name;
+              lbl.classList.remove('text-zinc-500');
+              lbl.classList.add('text-rose-400');
+            }
 
             const flag = cell.querySelector('.country-flag');
-            flag.classList.remove('w-0', 'opacity-0', 'scale-50');
-            flag.classList.add('w-7', 'opacity-50', 'scale-100', 'grayscale'); 
+            if (flag) {
+              flag.classList.remove('w-0', 'opacity-0', 'scale-50');
+              flag.classList.add('w-7', 'opacity-50', 'scale-100', 'grayscale'); 
+            }
           }
           updateMapCountry(idx, 'missed');
         } else {
@@ -1178,13 +1178,17 @@
             cell.classList.add('bg-emerald-950/30', 'border-emerald-900/50');
             
             const lbl = cell.querySelector('.country-label');
-            lbl.innerText = country.name;
-            lbl.classList.remove('text-zinc-500');
-            lbl.classList.add('text-emerald-400', 'font-bold');
+            if (lbl) {
+              lbl.innerText = country.name;
+              lbl.classList.remove('text-zinc-500');
+              lbl.classList.add('text-emerald-400', 'font-bold');
+            }
 
             const flag = cell.querySelector('.country-flag');
-            flag.classList.remove('w-0', 'opacity-0', 'scale-50');
-            flag.classList.add('w-7', 'opacity-100', 'scale-100'); 
+            if (flag) {
+              flag.classList.remove('w-0', 'opacity-0', 'scale-50');
+              flag.classList.add('w-7', 'opacity-100', 'scale-100'); 
+            }
           }
 
           updateMapCountry(foundIndex, 'guessed');
@@ -1241,7 +1245,7 @@
       else if (confirm("Deseja realmente desistir e revelar todas as respostas no mapa e nas tabelas?")) endGame(false, "Desistência");
     });
 
-    // Compartilhar no WhatsApp - Textos Divertidos
+    // Compartilhar no WhatsApp
     document.getElementById('whatsappShareBtn').addEventListener('click', () => {
       const score = guessedCountries.size;
       const pctVal = (score / TOTAL_COUNTRIES) * 100;
