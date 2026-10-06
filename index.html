@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Volta ao Mundo - O Desafio dos 196 Países</title>
   
-  <!-- Tailwind CSS CDN -->
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Lucide Icons CDN -->
+  <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- D3.js e TopoJSON -->
   <script src="https://d3js.org/d3.v7.min.js"></script>
@@ -22,18 +22,10 @@
     tailwind.config = {
       theme: {
         extend: {
-          fontFamily: {
-            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
-          },
+          fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
           colors: {
             brand: {
-              50: '#eff6ff',
-              100: '#dbeafe',
-              500: '#3b82f6',
-              600: '#2563eb',
-              700: '#1d4ed8',
-              800: '#1e40af',
-              900: '#1e3a8a',
+              50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a',
             }
           }
         }
@@ -42,27 +34,15 @@
   </script>
 
   <style>
-    ::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #0f172a;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #334155;
-      border-radius: 9999px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #475569;
-    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
     
     .map-country {
       fill: #1e293b;
       stroke: #334155;
       stroke-width: 0.6px;
-      /* Impede que a borda engrosse ao dar zoom */
-      vector-effect: non-scaling-stroke; 
       transition: fill 0.25s ease, stroke 0.25s ease;
       cursor: pointer;
     }
@@ -78,18 +58,23 @@
       fill: #ef4444 !important;
       stroke: #b91c1c !important;
     }
+    .ocean {
+      fill: #090e17; /* Tom muito escuro simulando o mar */
+      stroke: #1e293b;
+      stroke-width: 1px;
+    }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-brand-500 selection:text-white">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-emerald-500 selection:text-white">
 
   <!-- HEADER -->
   <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
       
-      <!-- LOGO -->
+      <!-- LOGO APRIMORADA -->
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-brand-500/20">
-          <i data-lucide="globe-2" class="w-6 h-6 text-white"></i>
+        <div class="w-11 h-11 rounded-full bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.3)] border border-white/20">
+          <i data-lucide="earth" class="w-6 h-6 text-slate-950 drop-shadow-sm"></i>
         </div>
         <div>
           <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
@@ -174,10 +159,10 @@
 
     <!-- BARRA DE PROGRESSO -->
     <div class="w-full bg-slate-900 rounded-full h-2 overflow-hidden border border-slate-800">
-      <div id="progressBar" class="bg-gradient-to-r from-brand-600 to-emerald-400 h-2 rounded-full transition-all duration-300 w-0"></div>
+      <div id="progressBar" class="bg-gradient-to-r from-emerald-500 to-cyan-400 h-2 rounded-full transition-all duration-300 w-0"></div>
     </div>
 
-    <!-- CAMPO DE DIGITAÇÃO -->
+    <!-- CAMPO DE DIGITAÇÃO SEM RESPOSTAS -->
     <div class="relative w-full">
       <div class="relative flex items-center">
         <div class="absolute left-4.5 flex items-center pointer-events-none">
@@ -199,24 +184,24 @@
       </div>
     </div>
 
-    <!-- MAPA-MÚNDI INTERATIVO -->
+    <!-- GLOBO 3D INTERATIVO -->
     <section class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 relative overflow-hidden shadow-lg group">
       <div class="flex items-center justify-between pb-3 mb-2 border-b border-slate-800">
         <div class="flex items-center gap-2">
-          <i data-lucide="map" class="w-4 h-4 text-brand-400"></i>
-          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300">Mapa Global em Tempo Real</h2>
+          <i data-lucide="globe-2" class="w-4 h-4 text-cyan-400"></i>
+          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300">Globo Terrestre Interativo</h2>
         </div>
         <div id="mapTooltip" class="text-xs font-bold px-2.5 py-1 rounded bg-slate-800/80 border border-slate-700/50 text-slate-300 transition-all">
-          Clique num país para dar zoom
+          Arraste para girar / Clique para aproximar
         </div>
       </div>
       
-      <div class="w-full overflow-hidden flex items-center justify-center relative cursor-move rounded-xl">
-        <svg id="worldMapSvg" viewBox="0 15 960 440" class="w-full h-auto max-h-[500px]"></svg>
+      <div class="w-full overflow-hidden flex items-center justify-center relative rounded-xl" id="mapWrapper">
+        <svg id="worldMapSvg" viewBox="0 0 960 480" class="w-full h-auto max-h-[500px] cursor-grab active:cursor-grabbing"></svg>
         
-        <!-- Botão Flutuante de Resetar Zoom -->
+        <!-- Botão Flutuante de Resetar Globo -->
         <button id="resetZoomBtn" class="absolute bottom-4 right-4 bg-slate-800/90 backdrop-blur text-slate-300 px-3 py-2 rounded-lg text-xs font-bold border border-slate-700 hover:bg-slate-700 hover:text-white transition-all duration-300 opacity-0 pointer-events-none shadow-lg flex items-center gap-1.5 z-10">
-          <i data-lucide="zoom-out" class="w-4 h-4"></i> Restaurar Visão
+          <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Resetar Globo
         </button>
       </div>
     </section>
@@ -489,6 +474,19 @@
       { id: "548", name: "Vanuatu", continent: "Oceania", syn: ["vanuatu"] }
     ];
 
+    // DICIONÁRIO DE TERRITÓRIOS FAMOSOS
+    const TERRITORIES_DB = {
+      "304": { owner: "208", name: "Groenlândia", ownerName: "Dinamarca" },
+      "630": { owner: "840", name: "Porto Rico", ownerName: "Estados Unidos" },
+      "238": { owner: "826", name: "Ilhas Malvinas", ownerName: "Reino Unido" },
+      "540": { owner: "250", name: "Nova Caledônia", ownerName: "França" },
+      "260": { owner: "250", name: "Terras Antárticas Francesas", ownerName: "França" },
+      "258": { owner: "250", name: "Polinésia Francesa", ownerName: "França" },
+      "254": { owner: "250", name: "Guiana Francesa", ownerName: "França" },
+      "732": { owner: "504", name: "Saara Ocidental", ownerName: "Marrocos" },
+      "744": { owner: "578", name: "Svalbard e Jan Mayen", ownerName: "Noruega" },
+    };
+
     let isPlaying = false;
     let isGameOver = false;
     let selectedDurationMinutes = 15;
@@ -515,40 +513,31 @@
     const mapTooltip = document.getElementById('mapTooltip');
     const resetZoomBtn = document.getElementById('resetZoomBtn');
     const gameOverModal = document.getElementById('gameOverModal');
-    const modalTitle = document.getElementById('modalTitle');
-    const modalSubtitle = document.getElementById('modalSubtitle');
-    const modalScore = document.getElementById('modalScore');
-    const modalPercent = document.getElementById('modalPercent');
-    const modalReviewBtn = document.getElementById('modalReviewBtn');
-    const modalRestartBtn = document.getElementById('modalRestartBtn');
 
+    // Efeitos Sonoros
     let audioCtx = null;
     function playSound(type) {
       if (isMuted) return;
       try {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         if (audioCtx.state === 'suspended') audioCtx.resume();
-
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.connect(gain);
         gain.connect(audioCtx.destination);
-
         if (type === 'hit') {
           osc.type = 'triangle';
           osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
           osc.frequency.exponentialRampToValueAtTime(659.25, audioCtx.currentTime + 0.1);
           gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
           gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
-          osc.start();
-          osc.stop(audioCtx.currentTime + 0.2);
+          osc.start(); osc.stop(audioCtx.currentTime + 0.2);
         } else if (type === 'duplicate') {
           osc.type = 'sine';
           osc.frequency.setValueAtTime(220, audioCtx.currentTime);
           gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
           gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
-          osc.start();
-          osc.stop(audioCtx.currentTime + 0.12);
+          osc.start(); osc.stop(audioCtx.currentTime + 0.12);
         }
       } catch (e) {}
     }
@@ -557,6 +546,7 @@
       return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "").trim();
     }
 
+    // Renderizar Tabelas
     function renderContinentTables() {
       continentsContainer.innerHTML = '';
       const continentsConfig = [
@@ -574,9 +564,8 @@
           .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
 
         const section = document.createElement('section');
-        section.id = `section-${conf.key}`;
         section.dataset.continent = conf.key;
-        section.className = "bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm transition-all";
+        section.className = "bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm";
 
         section.innerHTML = `
           <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
@@ -586,67 +575,84 @@
                 0/${conf.total}
               </span>
             </h3>
-            <span class="text-xs font-medium text-slate-500">Ordem Alfabética (A-Z)</span>
           </div>
-          
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
             ${list.map(item => `
               <div id="cell-${item.originalIndex}" class="p-2.5 rounded-xl border border-slate-800/80 bg-slate-950/60 flex items-center justify-between min-h-[46px] transition-all">
                 <span class="country-label text-xs font-semibold text-slate-500 uppercase tracking-wider select-none">• • •</span>
-                <span class="text-[10px] text-slate-600 font-mono">#${item.originalIndex + 1}</span>
               </div>
             `).join('')}
           </div>
         `;
-
         continentsContainer.appendChild(section);
       });
       updateCounters();
     }
 
-    // Variáveis de Zoom D3
-    let svgPath, zoomBehavior, svgContainer, mapGroup;
+    // VARIÁVEIS DO GLOBO 3D D3.js
+    let svgContainer, mapGroup, projection, svgPath;
+    const INITIAL_SCALE = 220;
 
     function initWorldMap() {
       svgContainer = d3.select("#worldMapSvg");
-      
-      // Criação do grupo que sofrerá o zoom
-      mapGroup = svgContainer.append("g").attr("id", "mapLayers");
+      mapGroup = svgContainer.append("g");
 
-      // Configuração do comportamento de Zoom/Pan
-      zoomBehavior = d3.zoom()
-        .scaleExtent([1, 8]) // Limite de 1x até 8x de aproximação
-        .on("zoom", (event) => {
-          mapGroup.attr("transform", event.transform);
-          
-          // Mostrar ou ocultar botão de reset
-          if (event.transform.k > 1.1) {
-            resetZoomBtn.classList.remove('opacity-0', 'pointer-events-none');
-          } else {
-            resetZoomBtn.classList.add('opacity-0', 'pointer-events-none');
-          }
-        });
-
-      svgContainer.call(zoomBehavior);
-
-      // Fundo clicável invisível para resetar o zoom
-      mapGroup.append("rect")
-        .attr("width", 960)
-        .attr("height", 440)
-        .style("fill", "transparent")
-        .on("click", resetZoom);
-
-      const projection = d3.geoNaturalEarth1()
-        .scale(172)
-        .translate([480, 248]);
+      // Projeção Ortográfica (Globo 3D)
+      projection = d3.geoOrthographic()
+        .scale(INITIAL_SCALE)
+        .translate([480, 240])
+        .clipAngle(90)
+        .precision(0.1);
         
       svgPath = d3.geoPath().projection(projection);
 
+      // Círculo do Oceano
+      const ocean = mapGroup.append("circle")
+        .attr("cx", 480).attr("cy", 240)
+        .attr("r", INITIAL_SCALE)
+        .attr("class", "ocean");
+
+      // Comportamento de Girar ao Arrastar (Drag)
+      let rotate0, coords0;
+      const dragBehavior = d3.drag()
+        .on('start', (event) => {
+           rotate0 = projection.rotate();
+           coords0 = [event.x, event.y];
+        })
+        .on('drag', (event) => {
+           const k = 90 / projection.scale();
+           const rotate = [
+               rotate0[0] + (event.x - coords0[0]) * k,
+               rotate0[1] - (event.y - coords0[1]) * k
+           ];
+           // Limita inclinação para não virar de ponta cabeça
+           rotate[1] = Math.max(-90, Math.min(90, rotate[1]));
+           projection.rotate(rotate);
+           mapGroup.selectAll("path.map-country").attr("d", svgPath);
+           checkResetButtonVisibility();
+        });
+
+      svgContainer.call(dragBehavior);
+
+      // Comportamento de Zoom pelo Scroll (Wheel)
+      svgContainer.on("wheel", (event) => {
+        event.preventDefault();
+        const zoomFactor = event.deltaY < 0 ? 1.1 : 0.9;
+        const currentScale = projection.scale();
+        const newScale = Math.max(INITIAL_SCALE, Math.min(INITIAL_SCALE * 6, currentScale * zoomFactor));
+        
+        projection.scale(newScale);
+        ocean.attr("r", newScale);
+        mapGroup.selectAll("path.map-country").attr("d", svgPath);
+        checkResetButtonVisibility();
+      });
+
+      // Carregamento dos Países
       fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
         .then(res => res.json())
         .then(world => {
           const countriesGeo = topojson.feature(world, world.objects.countries).features
-            .filter(d => String(d.id).padStart(3, '0') !== '010');
+            .filter(d => String(d.id).padStart(3, '0') !== '010'); // Ignorar Antártida no 110m
 
           mapGroup.selectAll(".map-country")
             .data(countriesGeo)
@@ -655,75 +661,103 @@
             .attr("d", svgPath)
             .attr("class", "map-country")
             .attr("id", d => `map-${String(d.id).padStart(3, '0')}`)
+            .attr("data-owner", d => {
+               const code = String(d.id).padStart(3, '0');
+               return TERRITORIES_DB[code] ? TERRITORIES_DB[code].owner : "";
+            })
             .on("mouseover", (event, d) => {
               const code = String(d.id).padStart(3, '0');
-              const found = COUNTRIES_DB.find(c => c.id === code);
-              
-              if (!found) {
-                mapTooltip.innerText = "???";
-                return;
-              }
+              const foundCountry = COUNTRIES_DB.find(c => c.id === code);
+              const foundTerritory = TERRITORIES_DB[code];
 
-              const countryIdx = COUNTRIES_DB.indexOf(found);
-
-              if (guessedCountries.has(countryIdx) || isGameOver) {
-                mapTooltip.innerText = found.name;
+              // É País soberano
+              if (foundCountry) {
+                const countryIdx = COUNTRIES_DB.indexOf(foundCountry);
+                if (guessedCountries.has(countryIdx) || isGameOver) {
+                  mapTooltip.innerText = foundCountry.name;
+                } else {
+                  mapTooltip.innerText = "???";
+                }
+              } 
+              // É Território mapeado
+              else if (foundTerritory) {
+                const ownerCountry = COUNTRIES_DB.find(c => c.id === foundTerritory.owner);
+                const ownerIdx = ownerCountry ? COUNTRIES_DB.indexOf(ownerCountry) : -1;
+                if ((ownerIdx !== -1 && guessedCountries.has(ownerIdx)) || isGameOver) {
+                  mapTooltip.innerText = `${foundTerritory.name} (${foundTerritory.ownerName})`;
+                } else {
+                  mapTooltip.innerText = "???";
+                }
               } else {
                 mapTooltip.innerText = "???";
               }
             })
             .on("mouseout", () => {
-              mapTooltip.innerText = "Clique num país para dar zoom";
+              mapTooltip.innerText = "Arraste para girar / Clique para aproximar";
             })
-            .on("click", clickedCountryZoom);
-        })
-        .catch(() => {
-          mapTooltip.innerText = "Modo offline (mapa)";
+            .on("click", (event, d) => clickedCountryZoom(event, d)); // Zoom e foco ao clicar
         });
     }
 
-    // Função de Zoom ao Clicar em um País
+    // Zoom animado para o país clicado
     function clickedCountryZoom(event, d) {
-      event.stopPropagation(); // Evita que o clique vaze para o retângulo de fundo
-
-      const [[x0, y0], [x1, y1]] = svgPath.bounds(d);
-      const viewBoxWidth = 960;
-      const viewBoxHeight = 440;
+      event.stopPropagation();
+      const centroid = d3.geoCentroid(d);
+      const targetRotate = [-centroid[0], -centroid[1]];
       
-      const dx = x1 - x0;
-      const dy = y1 - y0;
-      const x = (x0 + x1) / 2;
-      const y = (y0 + y1) / 2;
-      
-      // Define a escala mantendo um teto máximo de 8 e espaçamento de borda de 0.8
-      const scale = Math.max(1, Math.min(8, 0.8 / Math.max(dx / viewBoxWidth, dy / viewBoxHeight)));
-      const translate = [viewBoxWidth / 2 - scale * x, viewBoxHeight / 2 - scale * y];
-
-      svgContainer.transition()
-        .duration(750)
-        .call(
-          zoomBehavior.transform,
-          d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale)
-        );
+      d3.transition().duration(800).tween("rotateAndZoom", () => {
+        const r = d3.interpolate(projection.rotate(), targetRotate);
+        const s = d3.interpolate(projection.scale(), INITIAL_SCALE * 3.5); // Nível do zoom
+        return (t) => {
+          projection.rotate(r(t)).scale(s(t));
+          mapGroup.select(".ocean").attr("r", s(t));
+          mapGroup.selectAll("path.map-country").attr("d", svgPath);
+        };
+      }).on("end", checkResetButtonVisibility);
     }
 
-    // Restaurar a visão original
-    function resetZoom() {
-      svgContainer.transition()
-        .duration(750)
-        .call(zoomBehavior.transform, d3.zoomIdentity);
+    // Restaura visão original
+    function resetGlobeVision() {
+      d3.transition().duration(800).tween("reset", () => {
+        const r = d3.interpolate(projection.rotate(), [0, 0]);
+        const s = d3.interpolate(projection.scale(), INITIAL_SCALE);
+        return (t) => {
+          projection.rotate(r(t)).scale(s(t));
+          mapGroup.select(".ocean").attr("r", s(t));
+          mapGroup.selectAll("path.map-country").attr("d", svgPath);
+        };
+      }).on("end", checkResetButtonVisibility);
     }
-    resetZoomBtn.addEventListener('click', resetZoom);
+    resetZoomBtn.addEventListener('click', resetGlobeVision);
 
+    function checkResetButtonVisibility() {
+       if (projection.scale() > INITIAL_SCALE + 5 || Math.abs(projection.rotate()[0]) > 5 || Math.abs(projection.rotate()[1]) > 5) {
+         resetZoomBtn.classList.remove('opacity-0', 'pointer-events-none');
+       } else {
+         resetZoomBtn.classList.add('opacity-0', 'pointer-events-none');
+       }
+    }
+
+    // Atualiza classes do Mapa (País e seus Territórios)
     function updateMapCountry(countryIndex, status) {
       const country = COUNTRIES_DB[countryIndex];
       if (!country || !country.id) return;
-      const el = document.getElementById(`map-${country.id}`);
-      if (el) {
-        el.classList.remove('guessed', 'missed');
-        if (status === 'guessed') el.classList.add('guessed');
-        if (status === 'missed') el.classList.add('missed');
-      }
+      
+      const updateClass = (el) => {
+        if (el) {
+          el.classList.remove('guessed', 'missed');
+          if (status === 'guessed') el.classList.add('guessed');
+          if (status === 'missed') el.classList.add('missed');
+        }
+      };
+
+      // Atualiza País principal
+      updateClass(document.getElementById(`map-${country.id}`));
+      
+      // Atualiza os Territórios que pertencem a ele
+      document.querySelectorAll(`.map-country[data-owner="${country.id}"]`).forEach(tEl => {
+        updateClass(tEl);
+      });
     }
 
     function updateCounters() {
@@ -764,15 +798,13 @@
       isGameOver = false;
       guessedCountries.clear();
       renderContinentTables();
-      resetZoom();
+      resetGlobeVision();
       
-      document.querySelectorAll('.map-country').forEach(el => {
-        el.classList.remove('guessed', 'missed');
-      });
+      document.querySelectorAll('.map-country').forEach(el => el.classList.remove('guessed', 'missed'));
 
       countryInput.disabled = false;
       countryInput.value = '';
-      countryInput.placeholder = 'Digite um país (ex: Brasil, Japão, Egito)...';
+      countryInput.placeholder = 'Digite o nome de um país...';
       countryInput.focus();
       typingFeedback.innerText = 'Digite';
       typingFeedback.className = 'absolute right-4 text-xs font-bold px-2 py-1 rounded bg-slate-800 text-slate-400';
@@ -831,13 +863,14 @@
         }
       });
 
-      modalTitle.innerText = victory ? "Parabéns, Você Conquistou o Globo!" : reason;
-      modalSubtitle.innerText = victory ? "Você acertou todos os 196 países do mundo!" : "Veja seu desempenho final na Volta ao Mundo:";
-      modalScore.innerText = guessedCountries.size;
-      modalPercent.innerText = `${Math.round((guessedCountries.size / 196) * 100)}%`;
+      document.getElementById('modalTitle').innerText = victory ? "Parabéns, Você Conquistou o Globo!" : reason;
+      document.getElementById('modalSubtitle').innerText = victory ? "Você acertou todos os 196 países do mundo!" : "Veja seu desempenho final na Volta ao Mundo:";
+      document.getElementById('modalScore').innerText = guessedCountries.size;
+      document.getElementById('modalPercent').innerText = `${Math.round((guessedCountries.size / 196) * 100)}%`;
       gameOverModal.classList.remove('hidden');
     }
 
+    // Input principal
     countryInput.addEventListener('input', (e) => {
       if (!isPlaying) return;
       const rawVal = e.target.value;
@@ -848,8 +881,7 @@
       for (let i = 0; i < COUNTRIES_DB.length; i++) {
         const c = COUNTRIES_DB[i];
         if (normalize(c.name) === val || c.syn.some(s => normalize(s) === val)) {
-          foundIndex = i;
-          break;
+          foundIndex = i; break;
         }
       }
 
@@ -881,9 +913,7 @@
           playSound('hit');
           updateCounters();
 
-          if (guessedCountries.size === 196) {
-            endGame(true, "Você Venceu!");
-          }
+          if (guessedCountries.size === 196) endGame(true, "Você Venceu!");
         }
       }
     });
@@ -891,9 +921,7 @@
     timeButtons.forEach(btn => {
       btn.addEventListener('click', () => {
         if (isPlaying) return;
-        timeButtons.forEach(b => {
-          b.className = "time-btn px-2.5 py-1.5 rounded-md font-semibold text-slate-400 hover:text-white transition";
-        });
+        timeButtons.forEach(b => b.className = "time-btn px-2.5 py-1.5 rounded-md font-semibold text-slate-400 hover:text-white transition");
         btn.className = "time-btn px-2.5 py-1.5 rounded-md font-semibold text-white bg-brand-600 transition";
 
         selectedDurationMinutes = parseInt(btn.dataset.time, 10);
@@ -917,13 +945,8 @@
         tab.classList.remove('bg-slate-900', 'text-slate-400');
 
         const continent = tab.dataset.continent;
-
         document.querySelectorAll('#continentsContainer > section').forEach(sec => {
-          if (continent === 'all' || sec.dataset.continent === continent) {
-            sec.style.display = 'block';
-          } else {
-            sec.style.display = 'none';
-          }
+          sec.style.display = (continent === 'all' || sec.dataset.continent === continent) ? 'block' : 'none';
         });
       });
     });
@@ -936,17 +959,12 @@
     });
 
     gameActionBtn.addEventListener('click', () => {
-      if (!isPlaying) {
-        startGame();
-      } else {
-        if (confirm("Deseja realmente desistir e revelar todas as respostas no mapa e nas tabelas?")) {
-          endGame(false, "Desistência");
-        }
-      }
+      if (!isPlaying) startGame();
+      else if (confirm("Deseja realmente desistir e revelar todas as respostas no mapa e nas tabelas?")) endGame(false, "Desistência");
     });
 
-    modalReviewBtn.addEventListener('click', () => gameOverModal.classList.add('hidden'));
-    modalRestartBtn.addEventListener('click', () => {
+    document.getElementById('modalReviewBtn').addEventListener('click', () => gameOverModal.classList.add('hidden'));
+    document.getElementById('modalRestartBtn').addEventListener('click', () => {
       gameOverModal.classList.add('hidden');
       startGame();
     });
