@@ -9,7 +9,11 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- Fonte Inter -->
+  <!-- D3.js e TopoJSON para renderização de Mapa Vetorial -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://unpkg.com/topojson-client@3"></script>
+  
+  <!-- Fonte Google -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -38,32 +42,43 @@
   </script>
 
   <style>
-    /* Estilização da barra de rolagem */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
     }
     ::-webkit-scrollbar-track {
-      background: #f1f5f9;
+      background: #0f172a;
     }
     ::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
+      background: #334155;
       border-radius: 9999px;
     }
     ::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
+      background: #475569;
     }
     
-    @keyframes pulse-success {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
+    .map-country {
+      fill: #1e293b;
+      stroke: #334155;
+      stroke-width: 0.5px;
+      transition: fill 0.3s ease, stroke 0.3s ease;
+      cursor: pointer;
     }
-    .animate-success-pop {
-      animation: pulse-success 0.3s ease-in-out;
+    .map-country:hover {
+      stroke: #94a3b8;
+      stroke-width: 1px;
+    }
+    .map-country.guessed {
+      fill: #10b981 !important;
+      stroke: #059669 !important;
+    }
+    .map-country.missed {
+      fill: #ef4444 !important;
+      stroke: #b91c1c !important;
     }
   </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-brand-500 selection:text-white">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-brand-500 selection:text-white">
 
   <!-- HEADER -->
   <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-40">
@@ -83,20 +98,23 @@
         </div>
       </div>
 
-      <!-- PAINEL CONTROLES -->
+      <!-- CONTROLES -->
       <div class="flex items-center gap-3">
         <!-- ÁUDIO -->
         <button id="toggleAudioBtn" class="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition" title="Alternar som">
           <i id="audioIcon" data-lucide="volume-2" class="w-5 h-5"></i>
         </button>
 
-        <!-- MODO DE TEMPO -->
+        <!-- SELETOR DE TEMPO -->
         <div class="flex bg-slate-800 p-0.5 rounded-lg border border-slate-700 text-xs">
-          <button id="modeTimerBtn" class="px-2.5 py-1.5 rounded-md font-semibold text-white bg-brand-600 transition">15 min</button>
-          <button id="modeFreeBtn" class="px-2.5 py-1.5 rounded-md font-semibold text-slate-400 hover:text-white transition">Livre</button>
+          <button class="time-btn px-2.5 py-1.5 rounded-md font-semibold text-white bg-brand-600 transition" data-time="15">15 min</button>
+          <button class="time-btn px-2.5 py-1.5 rounded-md font-semibold text-slate-400 hover:text-white transition" data-time="30">30 min</button>
+          <button class="time-btn px-2.5 py-1.5 rounded-md font-semibold text-slate-400 hover:text-white transition" data-time="45">45 min</button>
+          <button class="time-btn px-2.5 py-1.5 rounded-md font-semibold text-slate-400 hover:text-white transition" data-time="60">1h</button>
+          <button class="time-btn px-2.5 py-1.5 rounded-md font-semibold text-slate-400 hover:text-white transition" data-time="0">Livre</button>
         </div>
 
-        <!-- BOTÃO AÇÃO (INICIAR / DESISTIR) -->
+        <!-- BOTÃO PRINCIPAL -->
         <button id="gameActionBtn" class="px-4 py-2 rounded-lg font-bold text-sm bg-emerald-600 hover:bg-emerald-500 text-white shadow-md hover:shadow-emerald-500/20 transition flex items-center gap-1.5">
           <i data-lucide="play" class="w-4 h-4 fill-white"></i>
           <span>Começar</span>
@@ -109,10 +127,9 @@
   <!-- CONTEÚDO PRINCIPAL -->
   <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6">
 
-    <!-- BARRA DE STATUS / PAINEL SUPERIOR -->
+    <!-- CARDS DE ESTATÍSTICA -->
     <section class="grid grid-cols-2 md:grid-cols-4 gap-3">
-      <!-- CARD 1: PLACAR -->
-      <div class="bg-slate-800/80 border border-slate-700/80 p-4 rounded-xl flex items-center justify-between">
+      <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl flex items-center justify-between shadow-sm">
         <div>
           <span class="text-xs font-semibold text-slate-400 block uppercase tracking-wider">Acertos</span>
           <div class="text-2xl font-extrabold text-white mt-0.5">
@@ -125,8 +142,7 @@
         </div>
       </div>
 
-      <!-- CARD 2: PROGRESSO % -->
-      <div class="bg-slate-800/80 border border-slate-700/80 p-4 rounded-xl flex items-center justify-between">
+      <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl flex items-center justify-between shadow-sm">
         <div>
           <span class="text-xs font-semibold text-slate-400 block uppercase tracking-wider">Conclusão</span>
           <div class="text-2xl font-extrabold text-white mt-0.5" id="percentDisplay">0%</div>
@@ -136,8 +152,7 @@
         </div>
       </div>
 
-      <!-- CARD 3: TEMPO -->
-      <div class="bg-slate-800/80 border border-slate-700/80 p-4 rounded-xl flex items-center justify-between">
+      <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl flex items-center justify-between shadow-sm">
         <div>
           <span class="text-xs font-semibold text-slate-400 block uppercase tracking-wider" id="timerLabel">Tempo</span>
           <div class="text-2xl font-mono font-bold text-white mt-0.5 tracking-tight" id="timerDisplay">15:00</div>
@@ -147,8 +162,7 @@
         </div>
       </div>
 
-      <!-- CARD 4: ÚLTIMO ACERTO -->
-      <div class="bg-slate-800/80 border border-slate-700/80 p-4 rounded-xl flex items-center justify-between overflow-hidden">
+      <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl flex items-center justify-between overflow-hidden shadow-sm">
         <div class="truncate">
           <span class="text-xs font-semibold text-slate-400 block uppercase tracking-wider">Último Acerto</span>
           <div class="text-lg font-bold text-emerald-400 mt-1 truncate" id="lastGuessedDisplay">—</div>
@@ -159,15 +173,19 @@
       </div>
     </section>
 
-    <!-- BARRA DE PROGRESSO GLOBAL -->
-    <div class="w-full bg-slate-800 rounded-full h-2.5 overflow-hidden border border-slate-700/50">
-      <div id="progressBar" class="bg-gradient-to-r from-brand-600 to-emerald-400 h-2.5 rounded-full transition-all duration-300 w-0"></div>
+    <!-- BARRA DE PROGRESSO -->
+    <div class="w-full bg-slate-900 rounded-full h-2 overflow-hidden border border-slate-800">
+      <div id="progressBar" class="bg-gradient-to-r from-brand-600 to-emerald-400 h-2 rounded-full transition-all duration-300 w-0"></div>
     </div>
 
-    <!-- CAMPO DE DIGITAÇÃO -->
-    <div class="relative">
+    <!-- CAMPO DE DIGITAÇÃO COM ESPAÇAMENTO CORRIGIDO -->
+    <div class="relative w-full">
       <div class="relative flex items-center">
-        <i data-lucide="search" class="w-6 h-6 text-slate-400 absolute left-4 pointer-events-none"></i>
+        <!-- Ícone da lupa posicionado à esquerda -->
+        <div class="absolute left-4.5 flex items-center pointer-events-none">
+          <i data-lucide="search" class="w-5 h-5 text-slate-400"></i>
+        </div>
+        <!-- Input com padding-left amplo (pl-14 / 56px) para não cortar texto -->
         <input 
           id="countryInput"
           type="text" 
@@ -176,53 +194,67 @@
           autocorrect="off" 
           spellcheck="false"
           placeholder="Clique em 'Começar' para iniciar sua jornada..." 
-          class="w-full pl-13 pr-28 py-4 bg-slate-800/90 border-2 border-slate-700 focus:border-brand-500 rounded-2xl text-lg font-medium placeholder-slate-500 text-white outline-none transition disabled:opacity-50 disabled:cursor-not-allowed shadow-inner"
+          class="w-full pl-14 pr-28 py-3.5 bg-slate-900 border border-slate-800 focus:border-brand-500 rounded-xl text-base font-medium placeholder-slate-500 text-white outline-none transition disabled:opacity-50 disabled:cursor-not-allowed shadow-inner"
         >
-        <span id="typingFeedback" class="absolute right-4 text-xs font-bold px-2 py-1 rounded bg-slate-700/50 text-slate-400">
+        <span id="typingFeedback" class="absolute right-4 text-xs font-bold px-2 py-1 rounded bg-slate-800 text-slate-400">
           Aguardando
         </span>
       </div>
     </div>
 
-    <!-- ABAS DOS CONTINENTES -->
+    <!-- SEÇÃO DO MAPA-MÚNDI INTERATIVO -->
+    <section class="bg-slate-900 border border-slate-800 rounded-2xl p-3 sm:p-5 relative overflow-hidden shadow-lg">
+      <div class="flex items-center justify-between pb-3 mb-2 border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <i data-lucide="map" class="w-4 h-4 text-brand-400"></i>
+          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300">Mapa Global em Tempo Real</h2>
+        </div>
+        <div id="mapTooltip" class="text-xs font-semibold text-slate-400 h-4">Passe o mouse para ver o país</div>
+      </div>
+      <div class="w-full overflow-hidden flex items-center justify-center">
+        <svg id="worldMapSvg" viewBox="0 0 960 480" class="w-full h-auto max-h-[460px]"></svg>
+      </div>
+    </section>
+
+    <!-- NAVEGAÇÃO DE CONTINENTES / ABAS -->
     <div class="flex items-center gap-2 overflow-x-auto pb-1 border-b border-slate-800" id="continentTabs">
       <button class="continent-tab px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-brand-600 text-white transition flex items-center gap-2" data-continent="all">
-        Todos <span class="text-xs bg-slate-900/40 px-1.5 py-0.5 rounded-full" id="count-all">0/196</span>
+        Todos <span class="text-xs bg-slate-900/50 px-1.5 py-0.5 rounded-full" id="count-all">0/196</span>
       </button>
-      <button class="continent-tab px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-slate-800 text-slate-300 hover:text-white transition flex items-center gap-2" data-continent="Americas">
-        Américas <span class="text-xs bg-slate-900/40 px-1.5 py-0.5 rounded-full" id="count-americas">0/35</span>
+      <button class="continent-tab px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-slate-900 text-slate-400 hover:text-white transition flex items-center gap-2" data-continent="Americas">
+        Américas <span class="text-xs bg-slate-800 px-1.5 py-0.5 rounded-full" id="count-americas">0/35</span>
       </button>
-      <button class="continent-tab px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-slate-800 text-slate-300 hover:text-white transition flex items-center gap-2" data-continent="Europa">
-        Europa <span class="text-xs bg-slate-900/40 px-1.5 py-0.5 rounded-full" id="count-europa">0/44</span>
+      <button class="continent-tab px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-slate-900 text-slate-400 hover:text-white transition flex items-center gap-2" data-continent="Europa">
+        Europa <span class="text-xs bg-slate-800 px-1.5 py-0.5 rounded-full" id="count-europa">0/44</span>
       </button>
-      <button class="continent-tab px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-slate-800 text-slate-300 hover:text-white transition flex items-center gap-2" data-continent="Asia">
-        Ásia <span class="text-xs bg-slate-900/40 px-1.5 py-0.5 rounded-full" id="count-asia">0/48</span>
+      <button class="continent-tab px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-slate-900 text-slate-400 hover:text-white transition flex items-center gap-2" data-continent="Asia">
+        Ásia <span class="text-xs bg-slate-800 px-1.5 py-0.5 rounded-full" id="count-asia">0/48</span>
       </button>
-      <button class="continent-tab px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-slate-800 text-slate-300 hover:text-white transition flex items-center gap-2" data-continent="Africa">
-        África <span class="text-xs bg-slate-900/40 px-1.5 py-0.5 rounded-full" id="count-africa">0/54</span>
+      <button class="continent-tab px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-slate-900 text-slate-400 hover:text-white transition flex items-center gap-2" data-continent="Africa">
+        África <span class="text-xs bg-slate-800 px-1.5 py-0.5 rounded-full" id="count-africa">0/54</span>
       </button>
-      <button class="continent-tab px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-slate-800 text-slate-300 hover:text-white transition flex items-center gap-2" data-continent="Oceania">
-        Oceania <span class="text-xs bg-slate-900/40 px-1.5 py-0.5 rounded-full" id="count-oceania">0/14</span>
+      <button class="continent-tab px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-slate-900 text-slate-400 hover:text-white transition flex items-center gap-2" data-continent="Oceania">
+        Oceania <span class="text-xs bg-slate-800 px-1.5 py-0.5 rounded-full" id="count-oceania">0/14</span>
       </button>
     </div>
 
-    <!-- GRADE DOS PAÍSES -->
-    <div id="countriesGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 pb-12">
-      <!-- Inserido dinamicamente via JS -->
+    <!-- SEÇÕES DE TABELAS POR CONTINENTE (ORDEM ALFABÉTICA) -->
+    <div id="continentsContainer" class="flex flex-col gap-8 pb-16">
+      <!-- Tabelas geradas dinamicamente via JS -->
     </div>
 
   </main>
 
-  <!-- MODAL DE FIM DE JOGO -->
+  <!-- MODAL DE RESULTADO / FIM DE JOGO -->
   <div id="gameOverModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-slate-900 border border-slate-700 max-w-md w-full rounded-2xl p-6 shadow-2xl text-center flex flex-col items-center">
+    <div class="bg-slate-900 border border-slate-800 max-w-md w-full rounded-2xl p-6 shadow-2xl text-center flex flex-col items-center">
       <div id="modalIconContainer" class="w-16 h-16 rounded-2xl bg-brand-500/20 text-brand-400 border border-brand-500/30 flex items-center justify-center mb-4">
         <i data-lucide="trophy" class="w-8 h-8"></i>
       </div>
       <h3 id="modalTitle" class="text-2xl font-black text-white">Fim da Viagem!</h3>
       <p id="modalSubtitle" class="text-slate-400 text-sm mt-1 mb-6">Confira o seu desempenho na Volta ao Mundo:</p>
 
-      <div class="w-full bg-slate-800/80 border border-slate-700 rounded-xl p-4 grid grid-cols-2 gap-4 mb-6">
+      <div class="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 grid grid-cols-2 gap-4 mb-6">
         <div>
           <span class="text-xs text-slate-400 uppercase font-semibold">Total Acertado</span>
           <div class="text-2xl font-bold text-white mt-0.5"><span id="modalScore">0</span> / 196</div>
@@ -235,7 +267,7 @@
 
       <div class="flex gap-3 w-full">
         <button id="modalReviewBtn" class="flex-1 py-2.5 rounded-xl font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 transition text-sm">
-          Ver Respostas
+          Ver Respostas no Mapa
         </button>
         <button id="modalRestartBtn" class="flex-1 py-2.5 rounded-xl font-semibold bg-brand-600 hover:bg-brand-500 text-white transition text-sm">
           Jogar Novamente
@@ -244,222 +276,221 @@
     </div>
   </div>
 
-  <!-- BASE DE DADOS E SCRIPTS -->
+  <!-- SCRIPT COMPLETO -->
   <script>
-    // LISTA COMPLETA DOS 196 PAÍSES RECONHECIDOS
+    // BASE DE DADOS OFICIAL - 196 PAÍSES COM CÓDIGO ISO NUMÉRICO PARA O MAPA
     const COUNTRIES_DB = [
       // AMÉRICAS (35)
-      { name: "Antígua e Barbuda", continent: "Americas", syn: ["antigua e barbuda", "antigua barbuda", "antigua"] },
-      { name: "Argentina", continent: "Americas", syn: ["argentina"] },
-      { name: "Bahamas", continent: "Americas", syn: ["bahamas"] },
-      { name: "Barbados", continent: "Americas", syn: ["barbados"] },
-      { name: "Belize", continent: "Americas", syn: ["belize"] },
-      { name: "Bolívia", continent: "Americas", syn: ["bolivia"] },
-      { name: "Brasil", continent: "Americas", syn: ["brasil", "brazil"] },
-      { name: "Canadá", continent: "Americas", syn: ["canada"] },
-      { name: "Chile", continent: "Americas", syn: ["chile"] },
-      { name: "Colômbia", continent: "Americas", syn: ["colombia"] },
-      { name: "Costa Rica", continent: "Americas", syn: ["costa rica"] },
-      { name: "Cuba", continent: "Americas", syn: ["cuba"] },
-      { name: "Dominica", continent: "Americas", syn: ["dominica"] },
-      { name: "El Salvador", continent: "Americas", syn: ["el salvador", "salvador"] },
-      { name: "Equador", continent: "Americas", syn: ["equador", "ecuador"] },
-      { name: "Estados Unidos", continent: "Americas", syn: ["estados unidos", "eua", "usa"] },
-      { name: "Granada", continent: "Americas", syn: ["granada"] },
-      { name: "Guatemala", continent: "Americas", syn: ["guatemala"] },
-      { name: "Guiana", continent: "Americas", syn: ["guiana", "guyana"] },
-      { name: "Haiti", continent: "Americas", syn: ["haiti"] },
-      { name: "Honduras", continent: "Americas", syn: ["honduras"] },
-      { name: "Jamaica", continent: "Americas", syn: ["jamaica"] },
-      { name: "México", continent: "Americas", syn: ["mexico"] },
-      { name: "Nicarágua", continent: "Americas", syn: ["nicaragua"] },
-      { name: "Panamá", continent: "Americas", syn: ["panama"] },
-      { name: "Paraguai", continent: "Americas", syn: ["paraguai", "paraguay"] },
-      { name: "Peru", continent: "Americas", syn: ["peru"] },
-      { name: "República Dominicana", continent: "Americas", syn: ["republica dominicana", "rep dominicana"] },
-      { name: "Santa Lúcia", continent: "Americas", syn: ["santa lucia", "santa lucia"] },
-      { name: "São Cristóvão e Névis", continent: "Americas", syn: ["sao cristovao e nevis", "sao cristovao", "sao cristovao e neves", "st kitts"] },
-      { name: "São Vicente e Granadinas", continent: "Americas", syn: ["sao vicente e granadinas", "sao vicente"] },
-      { name: "Suriname", continent: "Americas", syn: ["suriname"] },
-      { name: "Trinidad e Tobago", continent: "Americas", syn: ["trinidad e tobago", "trinidad"] },
-      { name: "Uruguai", continent: "Americas", syn: ["uruguai", "uruguay"] },
-      { name: "Venezuela", continent: "Americas", syn: ["venezuela"] },
+      { id: "028", name: "Antígua e Barbuda", continent: "Americas", syn: ["antigua e barbuda", "antigua barbuda", "antigua"] },
+      { id: "032", name: "Argentina", continent: "Americas", syn: ["argentina"] },
+      { id: "044", name: "Bahamas", continent: "Americas", syn: ["bahamas"] },
+      { id: "052", name: "Barbados", continent: "Americas", syn: ["barbados"] },
+      { id: "084", name: "Belize", continent: "Americas", syn: ["belize"] },
+      { id: "068", name: "Bolívia", continent: "Americas", syn: ["bolivia"] },
+      { id: "076", name: "Brasil", continent: "Americas", syn: ["brasil", "brazil"] },
+      { id: "124", name: "Canadá", continent: "Americas", syn: ["canada"] },
+      { id: "152", name: "Chile", continent: "Americas", syn: ["chile"] },
+      { id: "170", name: "Colômbia", continent: "Americas", syn: ["colombia"] },
+      { id: "188", name: "Costa Rica", continent: "Americas", syn: ["costa rica"] },
+      { id: "192", name: "Cuba", continent: "Americas", syn: ["cuba"] },
+      { id: "212", name: "Dominica", continent: "Americas", syn: ["dominica"] },
+      { id: "222", name: "El Salvador", continent: "Americas", syn: ["el salvador", "salvador"] },
+      { id: "218", name: "Equador", continent: "Americas", syn: ["equador", "ecuador"] },
+      { id: "840", name: "Estados Unidos", continent: "Americas", syn: ["estados unidos", "eua", "usa"] },
+      { id: "308", name: "Granada", continent: "Americas", syn: ["granada"] },
+      { id: "320", name: "Guatemala", continent: "Americas", syn: ["guatemala"] },
+      { id: "328", name: "Guiana", continent: "Americas", syn: ["guiana", "guyana"] },
+      { id: "332", name: "Haiti", continent: "Americas", syn: ["haiti"] },
+      { id: "340", name: "Honduras", continent: "Americas", syn: ["honduras"] },
+      { id: "388", name: "Jamaica", continent: "Americas", syn: ["jamaica"] },
+      { id: "484", name: "México", continent: "Americas", syn: ["mexico"] },
+      { id: "558", name: "Nicarágua", continent: "Americas", syn: ["nicaragua"] },
+      { id: "591", name: "Panamá", continent: "Americas", syn: ["panama"] },
+      { id: "600", name: "Paraguai", continent: "Americas", syn: ["paraguai", "paraguay"] },
+      { id: "604", name: "Peru", continent: "Americas", syn: ["peru"] },
+      { id: "214", name: "República Dominicana", continent: "Americas", syn: ["republica dominicana", "rep dominicana"] },
+      { id: "662", name: "Santa Lúcia", continent: "Americas", syn: ["santa lucia"] },
+      { id: "659", name: "São Cristóvão e Névis", continent: "Americas", syn: ["sao cristovao e nevis", "sao cristovao", "st kitts"] },
+      { id: "670", name: "São Vicente e Granadinas", continent: "Americas", syn: ["sao vicente e granadinas", "sao vicente"] },
+      { id: "740", name: "Suriname", continent: "Americas", syn: ["suriname"] },
+      { id: "780", name: "Trinidad e Tobago", continent: "Americas", syn: ["trinidad e tobago", "trinidad"] },
+      { id: "858", name: "Uruguai", continent: "Americas", syn: ["uruguai", "uruguay"] },
+      { id: "862", name: "Venezuela", continent: "Americas", syn: ["venezuela"] },
 
       // EUROPA (44)
-      { name: "Albânia", continent: "Europa", syn: ["albania"] },
-      { name: "Alemanha", continent: "Europa", syn: ["alemanha", "germany"] },
-      { name: "Andorra", continent: "Europa", syn: ["andorra"] },
-      { name: "Áustria", continent: "Europa", syn: ["austria"] },
-      { name: "Bélgica", continent: "Europa", syn: ["belgica", "belgium"] },
-      { name: "Bielorrússia", continent: "Europa", syn: ["bielorrussia", "bielorussia", "belarus"] },
-      { name: "Bósnia e Herzegovina", continent: "Europa", syn: ["bosnia e herzegovina", "bosnia", "bosnia herzegovina"] },
-      { name: "Bulgária", continent: "Europa", syn: ["bulgaria"] },
-      { name: "Chipre", continent: "Europa", syn: ["chipre", "cyprus"] },
-      { name: "Croácia", continent: "Europa", syn: ["croacia", "croatia"] },
-      { name: "Dinamarca", continent: "Europa", syn: ["dinamarca", "denmark"] },
-      { name: "Eslováquia", continent: "Europa", syn: ["eslovaquia", "slovakia"] },
-      { name: "Eslovênia", continent: "Europa", syn: ["eslovenia", "slovenia"] },
-      { name: "Espanha", continent: "Europa", syn: ["espanha", "spain"] },
-      { name: "Estônia", continent: "Europa", syn: ["estonia"] },
-      { name: "Finlândia", continent: "Europa", syn: ["finlandia", "finland"] },
-      { name: "França", continent: "Europa", syn: ["franca", "france"] },
-      { name: "Grécia", continent: "Europa", syn: ["grecia", "greece"] },
-      { name: "Hungria", continent: "Europa", syn: ["hungria", "hungary"] },
-      { name: "Irlanda", continent: "Europa", syn: ["irlanda", "ireland"] },
-      { name: "Islândia", continent: "Europa", syn: ["islandia", "iceland"] },
-      { name: "Itália", continent: "Europa", syn: ["italia", "italy"] },
-      { name: "Kosovo", continent: "Europa", syn: ["kosovo", "cosovo"] },
-      { name: "Letônia", continent: "Europa", syn: ["letonia", "latvia"] },
-      { name: "Liechtenstein", continent: "Europa", syn: ["liechtenstein", "listenshtain"] },
-      { name: "Lituânia", continent: "Europa", syn: ["lituania", "lithuania"] },
-      { name: "Luxemburgo", continent: "Europa", syn: ["luxemburgo", "luxembourg"] },
-      { name: "Macedônia do Norte", continent: "Europa", syn: ["macedonia do norte", "macedonia"] },
-      { name: "Malta", continent: "Europa", syn: ["malta"] },
-      { name: "Moldávia", continent: "Europa", syn: ["moldavia", "moldova"] },
-      { name: "Mônaco", continent: "Europa", syn: ["monaco"] },
-      { name: "Montenegro", continent: "Europa", syn: ["montenegro"] },
-      { name: "Noruega", continent: "Europa", syn: ["noruega", "norway"] },
-      { name: "Países Baixos", continent: "Europa", syn: ["paises baixos", "holanda", "netherlands"] },
-      { name: "Polônia", continent: "Europa", syn: ["polonia", "poland"] },
-      { name: "Portugal", continent: "Europa", syn: ["portugal"] },
-      { name: "Reino Unido", continent: "Europa", syn: ["reino unido", "inglaterra", "uk", "gra-bretanha", "gra bretanha"] },
-      { name: "República Tcheca", continent: "Europa", syn: ["republica tcheca", "tchequia", "republica checa", "chequia"] },
-      { name: "Romênia", continent: "Europa", syn: ["romenia", "romania"] },
-      { name: "Rússia", continent: "Europa", syn: ["russia"] },
-      { name: "San Marino", continent: "Europa", syn: ["san marino", "sao marino"] },
-      { name: "Sérvia", continent: "Europa", syn: ["servia", "serbia"] },
-      { name: "Suécia", continent: "Europa", syn: ["suecia", "sweden"] },
-      { name: "Suíça", continent: "Europa", syn: ["suica", "switzerland"] },
-      { name: "Ucrânia", continent: "Europa", syn: ["ucrania", "ukraine"] },
-      { name: "Vaticano", continent: "Europa", syn: ["vaticano", "santa se"] },
+      { id: "008", name: "Albânia", continent: "Europa", syn: ["albania"] },
+      { id: "276", name: "Alemanha", continent: "Europa", syn: ["alemanha", "germany"] },
+      { id: "020", name: "Andorra", continent: "Europa", syn: ["andorra"] },
+      { id: "040", name: "Áustria", continent: "Europa", syn: ["austria"] },
+      { id: "056", name: "Bélgica", continent: "Europa", syn: ["belgica", "belgium"] },
+      { id: "112", name: "Bielorrússia", continent: "Europa", syn: ["bielorrussia", "bielorussia", "belarus"] },
+      { id: "070", name: "Bósnia e Herzegovina", continent: "Europa", syn: ["bosnia e herzegovina", "bosnia"] },
+      { id: "100", name: "Bulgária", continent: "Europa", syn: ["bulgaria"] },
+      { id: "196", name: "Chipre", continent: "Europa", syn: ["chipre", "cyprus"] },
+      { id: "191", name: "Croácia", continent: "Europa", syn: ["croacia", "croatia"] },
+      { id: "208", name: "Dinamarca", continent: "Europa", syn: ["dinamarca", "denmark"] },
+      { id: "703", name: "Eslováquia", continent: "Europa", syn: ["eslovaquia", "slovakia"] },
+      { id: "705", name: "Eslovênia", continent: "Europa", syn: ["eslovenia", "slovenia"] },
+      { id: "724", name: "Espanha", continent: "Europa", syn: ["espanha", "spain"] },
+      { id: "233", name: "Estônia", continent: "Europa", syn: ["estonia"] },
+      { id: "246", name: "Finlândia", continent: "Europa", syn: ["finlandia", "finland"] },
+      { id: "250", name: "França", continent: "Europa", syn: ["franca", "france"] },
+      { id: "300", name: "Grécia", continent: "Europa", syn: ["grecia", "greece"] },
+      { id: "348", name: "Hungria", continent: "Europa", syn: ["hungria", "hungary"] },
+      { id: "372", name: "Irlanda", continent: "Europa", syn: ["irlanda", "ireland"] },
+      { id: "352", name: "Islândia", continent: "Europa", syn: ["islandia", "iceland"] },
+      { id: "380", name: "Itália", continent: "Europa", syn: ["italia", "italy"] },
+      { id: "688", name: "Sérvia", continent: "Europa", syn: ["servia", "serbia", "kosovo"] },
+      { id: "428", name: "Letônia", continent: "Europa", syn: ["letonia", "latvia"] },
+      { id: "438", name: "Liechtenstein", continent: "Europa", syn: ["liechtenstein"] },
+      { id: "440", name: "Lituânia", continent: "Europa", syn: ["lituania", "lithuania"] },
+      { id: "442", name: "Luxemburgo", continent: "Europa", syn: ["luxemburgo", "luxembourg"] },
+      { id: "807", name: "Macedônia do Norte", continent: "Europa", syn: ["macedonia do norte", "macedonia"] },
+      { id: "470", name: "Malta", continent: "Europa", syn: ["malta"] },
+      { id: "498", name: "Moldávia", continent: "Europa", syn: ["moldavia", "moldova"] },
+      { id: "492", name: "Mônaco", continent: "Europa", syn: ["monaco"] },
+      { id: "499", name: "Montenegro", continent: "Europa", syn: ["montenegro"] },
+      { id: "578", name: "Noruega", continent: "Europa", syn: ["noruega", "norway"] },
+      { id: "528", name: "Países Baixos", continent: "Europa", syn: ["paises baixos", "holanda", "netherlands"] },
+      { id: "616", name: "Polônia", continent: "Europa", syn: ["polonia", "poland"] },
+      { id: "620", name: "Portugal", continent: "Europa", syn: ["portugal"] },
+      { id: "826", name: "Reino Unido", continent: "Europa", syn: ["reino unido", "inglaterra", "uk", "gra bretanha"] },
+      { id: "203", name: "República Tcheca", continent: "Europa", syn: ["republica tcheca", "tchequia", "chequia"] },
+      { id: "642", name: "Romênia", continent: "Europa", syn: ["romenia", "romania"] },
+      { id: "643", name: "Rússia", continent: "Europa", syn: ["russia"] },
+      { id: "674", name: "San Marino", continent: "Europa", syn: ["san marino"] },
+      { id: "752", name: "Suécia", continent: "Europa", syn: ["suecia", "sweden"] },
+      { id: "756", name: "Suíça", continent: "Europa", syn: ["suica", "switzerland"] },
+      { id: "804", name: "Ucrânia", continent: "Europa", syn: ["ucrania", "ukraine"] },
+      { id: "336", name: "Vaticano", continent: "Europa", syn: ["vaticano", "santa se"] },
 
       // ÁSIA (48)
-      { name: "Afeganistão", continent: "Asia", syn: ["afeganistao", "afghanistan"] },
-      { name: "Arábia Saudita", continent: "Asia", syn: ["arabia saudita", "arabia"] },
-      { name: "Armênia", continent: "Asia", syn: ["armenia"] },
-      { name: "Azerbaijão", continent: "Asia", syn: ["azerbaijao", "azerbaijan"] },
-      { name: "Bahrein", continent: "Asia", syn: ["bahrein", "barem", "bahrain"] },
-      { name: "Bangladesh", continent: "Asia", syn: ["bangladesh"] },
-      { name: "Brunei", continent: "Asia", syn: ["brunei"] },
-      { name: "Butão", continent: "Asia", syn: ["butao", "bhutan"] },
-      { name: "Camboja", continent: "Asia", syn: ["camboja", "cambodia"] },
-      { name: "Catar", continent: "Asia", syn: ["catar", "qatar"] },
-      { name: "Cazaquistão", continent: "Asia", syn: ["cazaquistao", "kazakhstan"] },
-      { name: "China", continent: "Asia", syn: ["china"] },
-      { name: "Coreia do Norte", continent: "Asia", syn: ["coreia do norte"] },
-      { name: "Coreia do Sul", continent: "Asia", syn: ["coreia do sul", "coreia"] },
-      { name: "Emirados Árabes Unidos", continent: "Asia", syn: ["emirados arabes unidos", "eau", "emirados arabes", "emirados"] },
-      { name: "Filipinas", continent: "Asia", syn: ["filipinas", "philippines"] },
-      { name: "Geórgia", continent: "Asia", syn: ["georgia"] },
-      { name: "Iêmen", continent: "Asia", syn: ["iemen", "yemen"] },
-      { name: "Índia", continent: "Asia", syn: ["india"] },
-      { name: "Indonésia", continent: "Asia", syn: ["indonesia"] },
-      { name: "Irã", continent: "Asia", syn: ["ira", "iran"] },
-      { name: "Iraque", continent: "Asia", syn: ["iraque", "iraq"] },
-      { name: "Israel", continent: "Asia", syn: ["israel"] },
-      { name: "Japão", continent: "Asia", syn: ["japao", "japan"] },
-      { name: "Jordânia", continent: "Asia", syn: ["jordania", "jordan"] },
-      { name: "Kuwait", continent: "Asia", syn: ["kuwait", "coveite"] },
-      { name: "Laos", continent: "Asia", syn: ["laos"] },
-      { name: "Líbano", continent: "Asia", syn: ["libano", "lebanon"] },
-      { name: "Malásia", continent: "Asia", syn: ["malasia", "malaysia"] },
-      { name: "Maldivas", continent: "Asia", syn: ["maldivas"] },
-      { name: "Mianmar", continent: "Asia", syn: ["mianmar", "birmania", "myanmar"] },
-      { name: "Mongólia", continent: "Asia", syn: ["mongolia"] },
-      { name: "Nepal", continent: "Asia", syn: ["nepal"] },
-      { name: "Omã", continent: "Asia", syn: ["oma", "oman"] },
-      { name: "Paquistão", continent: "Asia", syn: ["paquistao", "pakistan"] },
-      { name: "Quirguistão", continent: "Asia", syn: ["quirguistao", "kyrgyzstan"] },
-      { name: "Singapura", continent: "Asia", syn: ["singapura", "singapore"] },
-      { name: "Síria", continent: "Asia", syn: ["siria", "syria"] },
-      { name: "Sri Lanka", continent: "Asia", syn: ["sri lanka", "ceilao"] },
-      { name: "Tadjiquistão", continent: "Asia", syn: ["tadjiquistao", "tajikistan"] },
-      { name: "Tailândia", continent: "Asia", syn: ["tailandia", "thailand"] },
-      { name: "Taiwan", continent: "Asia", syn: ["taiwan", "formosa"] },
-      { name: "Timor-Leste", continent: "Asia", syn: ["timor-leste", "timor leste", "timor"] },
-      { name: "Turquemenistão", continent: "Asia", syn: ["turquemenistao", "turcomenistao", "turkmenistan"] },
-      { name: "Turquia", continent: "Asia", syn: ["turquia", "turkey"] },
-      { name: "Uzbequistão", continent: "Asia", syn: ["uzbequistao", "uzbekistan"] },
-      { name: "Vietnã", continent: "Asia", syn: ["vietna", "vietnam"] },
-      { name: "Palestina", continent: "Asia", syn: ["palestina"] },
+      { id: "004", name: "Afeganistão", continent: "Asia", syn: ["afeganistao", "afghanistan"] },
+      { id: "682", name: "Arábia Saudita", continent: "Asia", syn: ["arabia saudita", "arabia"] },
+      { id: "051", name: "Armênia", continent: "Asia", syn: ["armenia"] },
+      { id: "031", name: "Azerbaijão", continent: "Asia", syn: ["azerbaijao", "azerbaijan"] },
+      { id: "048", name: "Bahrein", continent: "Asia", syn: ["bahrein", "bahrain"] },
+      { id: "050", name: "Bangladesh", continent: "Asia", syn: ["bangladesh"] },
+      { id: "096", name: "Brunei", continent: "Asia", syn: ["brunei"] },
+      { id: "064", name: "Butão", continent: "Asia", syn: ["butao", "bhutan"] },
+      { id: "116", name: "Camboja", continent: "Asia", syn: ["camboja", "cambodia"] },
+      { id: "634", name: "Catar", continent: "Asia", syn: ["catar", "qatar"] },
+      { id: "398", name: "Cazaquistão", continent: "Asia", syn: ["cazaquistao", "kazakhstan"] },
+      { id: "156", name: "China", continent: "Asia", syn: ["china"] },
+      { id: "408", name: "Coreia do Norte", continent: "Asia", syn: ["coreia do norte"] },
+      { id: "410", name: "Coreia do Sul", continent: "Asia", syn: ["coreia do sul", "coreia"] },
+      { id: "784", name: "Emirados Árabes Unidos", continent: "Asia", syn: ["emirados arabes unidos", "eau", "emirados arabes", "emirados"] },
+      { id: "608", name: "Filipinas", continent: "Asia", syn: ["filipinas", "philippines"] },
+      { id: "268", name: "Geórgia", continent: "Asia", syn: ["georgia"] },
+      { id: "887", name: "Iêmen", continent: "Asia", syn: ["iemen", "yemen"] },
+      { id: "356", name: "Índia", continent: "Asia", syn: ["india"] },
+      { id: "360", name: "Indonésia", continent: "Asia", syn: ["indonesia"] },
+      { id: "364", name: "Irã", continent: "Asia", syn: ["ira", "iran"] },
+      { id: "368", name: "Iraque", continent: "Asia", syn: ["iraque", "iraq"] },
+      { id: "376", name: "Israel", continent: "Asia", syn: ["israel"] },
+      { id: "392", name: "Japão", continent: "Asia", syn: ["japao", "japan"] },
+      { id: "400", name: "Jordânia", continent: "Asia", syn: ["jordania", "jordan"] },
+      { id: "414", name: "Kuwait", continent: "Asia", syn: ["kuwait"] },
+      { id: "418", name: "Laos", continent: "Asia", syn: ["laos"] },
+      { id: "422", name: "Líbano", continent: "Asia", syn: ["libano", "lebanon"] },
+      { id: "458", name: "Malásia", continent: "Asia", syn: ["malasia", "malaysia"] },
+      { id: "462", name: "Maldivas", continent: "Asia", syn: ["maldivas"] },
+      { id: "104", name: "Mianmar", continent: "Asia", syn: ["mianmar", "birmania", "myanmar"] },
+      { id: "496", name: "Mongólia", continent: "Asia", syn: ["mongolia"] },
+      { id: "524", name: "Nepal", continent: "Asia", syn: ["nepal"] },
+      { id: "512", name: "Omã", continent: "Asia", syn: ["oma", "oman"] },
+      { id: "275", name: "Palestina", continent: "Asia", syn: ["palestina"] },
+      { id: "586", name: "Paquistão", continent: "Asia", syn: ["paquistao", "pakistan"] },
+      { id: "417", name: "Quirguistão", continent: "Asia", syn: ["quirguistao", "kyrgyzstan"] },
+      { id: "702", name: "Singapura", continent: "Asia", syn: ["singapura", "singapore"] },
+      { id: "760", name: "Síria", continent: "Asia", syn: ["siria", "syria"] },
+      { id: "144", name: "Sri Lanka", continent: "Asia", syn: ["sri lanka"] },
+      { id: "762", name: "Tadjiquistão", continent: "Asia", syn: ["tadjiquistao", "tajikistan"] },
+      { id: "764", name: "Tailândia", continent: "Asia", syn: ["tailandia", "thailand"] },
+      { id: "158", name: "Taiwan", continent: "Asia", syn: ["taiwan"] },
+      { id: "626", name: "Timor-Leste", continent: "Asia", syn: ["timor-leste", "timor leste", "timor"] },
+      { id: "795", name: "Turquemenistão", continent: "Asia", syn: ["turquemenistao", "turkmenistan"] },
+      { id: "792", name: "Turquia", continent: "Asia", syn: ["turquia", "turkey"] },
+      { id: "860", name: "Uzbequistão", continent: "Asia", syn: ["uzbequistao", "uzbekistan"] },
+      { id: "704", name: "Vietnã", continent: "Asia", syn: ["vietna", "vietnam"] },
 
       // ÁFRICA (54)
-      { name: "África do Sul", continent: "Africa", syn: ["africa do sul"] },
-      { name: "Angola", continent: "Africa", syn: ["angola"] },
-      { name: "Argélia", continent: "Africa", syn: ["argelia", "algeria"] },
-      { name: "Benin", continent: "Africa", syn: ["benin", "benim"] },
-      { name: "Botsuana", continent: "Africa", syn: ["botsuana", "botswana"] },
-      { name: "Burquina Faso", continent: "Africa", syn: ["burquina faso", "burkina faso", "burkina"] },
-      { name: "Burundi", continent: "Africa", syn: ["burundi"] },
-      { name: "Cabo Verde", continent: "Africa", syn: ["cabo verde"] },
-      { name: "Camarões", continent: "Africa", syn: ["camaroes", "cameroon"] },
-      { name: "Chade", continent: "Africa", syn: ["chade", "chad"] },
-      { name: "Comores", continent: "Africa", syn: ["comores", "comoros"] },
-      { name: "Congo-Brazzaville", continent: "Africa", syn: ["congo-brazzaville", "congo", "republica do congo"] },
-      { name: "Costa do Marfim", continent: "Africa", syn: ["costa do marfim", "cote d'ivoire"] },
-      { name: "Djibuti", continent: "Africa", syn: ["djibuti", "djibouti"] },
-      { name: "Egito", continent: "Africa", syn: ["egito", "egypt"] },
-      { name: "Eritreia", continent: "Africa", syn: ["eritreia", "eritrea"] },
-      { name: "Essuatíni", continent: "Africa", syn: ["essuatini", "suazilandia", "eswatini"] },
-      { name: "Etiópia", continent: "Africa", syn: ["etiopia", "ethiopia"] },
-      { name: "Gabão", continent: "Africa", syn: ["gabao", "gabon"] },
-      { name: "Gâmbia", continent: "Africa", syn: ["gambia"] },
-      { name: "Gana", continent: "Africa", syn: ["gana", "ghana"] },
-      { name: "Guiné", continent: "Africa", syn: ["guine", "guinea"] },
-      { name: "Guiné-Bissau", continent: "Africa", syn: ["guine-bissau", "guine bissau"] },
-      { name: "Guiné Equatorial", continent: "Africa", syn: ["guine equatorial"] },
-      { name: "Lesoto", continent: "Africa", syn: ["lesoto", "lesotho"] },
-      { name: "Libéria", continent: "Africa", syn: ["liberia"] },
-      { name: "Líbia", continent: "Africa", syn: ["libia", "libya"] },
-      { name: "Madagascar", continent: "Africa", syn: ["madagascar"] },
-      { name: "Malaui", continent: "Africa", syn: ["malaui", "malawi"] },
-      { name: "Mali", continent: "Africa", syn: ["mali"] },
-      { name: "Marrocos", continent: "Africa", syn: ["marrocos", "morocco"] },
-      { name: "Maurícia", continent: "Africa", syn: ["mauricia", "mauricio", "mauritius"] },
-      { name: "Mauritânia", continent: "Africa", syn: ["mauritania"] },
-      { name: "Moçambique", continent: "Africa", syn: ["mocambique", "mozambique"] },
-      { name: "Namíbia", continent: "Africa", syn: ["namibia"] },
-      { name: "Níger", continent: "Africa", syn: ["niger"] },
-      { name: "Nigéria", continent: "Africa", syn: ["nigeria"] },
-      { name: "Quênia", continent: "Africa", syn: ["quenia", "kenya"] },
-      { name: "República Centro-Africana", continent: "Africa", syn: ["republica centro-africana", "rca", "centro africana"] },
-      { name: "República Democrática do Congo", continent: "Africa", syn: ["republica democratica do congo", "rd congo", "rdc", "congo-kinshasa", "zaire"] },
-      { name: "Ruanda", continent: "Africa", syn: ["ruanda", "rwanda"] },
-      { name: "São Tomé e Príncipe", continent: "Africa", syn: ["sao tome e principe", "sao tome"] },
-      { name: "Senegal", continent: "Africa", syn: ["senegal"] },
-      { name: "Seicheles", continent: "Africa", syn: ["seicheles", "seychelles"] },
-      { name: "Serra Leoa", continent: "Africa", syn: ["serra leoa", "sierra leone"] },
-      { name: "Somália", continent: "Africa", syn: ["somalia"] },
-      { name: "Sudão", continent: "Africa", syn: ["sudao", "sudan"] },
-      { name: "Sudão do Sul", continent: "Africa", syn: ["sudao do sul"] },
-      { name: "Tanzânia", continent: "Africa", syn: ["tanzania"] },
-      { name: "Togo", continent: "Africa", syn: ["togo"] },
-      { name: "Tunísia", continent: "Africa", syn: ["tunisia"] },
-      { name: "Uganda", continent: "Africa", syn: ["uganda"] },
-      { name: "Zâmbia", continent: "Africa", syn: ["zambia"] },
-      { name: "Zimbábue", continent: "Africa", syn: ["zimbabue", "zimbabwe"] },
+      { id: "710", name: "África do Sul", continent: "Africa", syn: ["africa do sul"] },
+      { id: "024", name: "Angola", continent: "Africa", syn: ["angola"] },
+      { id: "012", name: "Argélia", continent: "Africa", syn: ["argelia", "algeria"] },
+      { id: "204", name: "Benin", continent: "Africa", syn: ["benin", "benim"] },
+      { id: "072", name: "Botsuana", continent: "Africa", syn: ["botsuana", "botswana"] },
+      { id: "854", name: "Burquina Faso", continent: "Africa", syn: ["burquina faso", "burkina faso", "burkina"] },
+      { id: "108", name: "Burundi", continent: "Africa", syn: ["burundi"] },
+      { id: "132", name: "Cabo Verde", continent: "Africa", syn: ["cabo verde"] },
+      { id: "120", name: "Camarões", continent: "Africa", syn: ["camaroes", "cameroon"] },
+      { id: "148", name: "Chade", continent: "Africa", syn: ["chade", "chad"] },
+      { id: "174", name: "Comores", continent: "Africa", syn: ["comores"] },
+      { id: "178", name: "Congo-Brazzaville", continent: "Africa", syn: ["congo-brazzaville", "congo", "republica do congo"] },
+      { id: "384", name: "Costa do Marfim", continent: "Africa", syn: ["costa do marfim"] },
+      { id: "262", name: "Djibuti", continent: "Africa", syn: ["djibuti", "djibouti"] },
+      { id: "818", name: "Egito", continent: "Africa", syn: ["egito", "egypt"] },
+      { id: "232", name: "Eritreia", continent: "Africa", syn: ["eritreia", "eritrea"] },
+      { id: "748", name: "Essuatíni", continent: "Africa", syn: ["essuatini", "suazilandia", "eswatini"] },
+      { id: "231", name: "Etiópia", continent: "Africa", syn: ["etiopia", "ethiopia"] },
+      { id: "266", name: "Gabão", continent: "Africa", syn: ["gabao", "gabon"] },
+      { id: "270", name: "Gâmbia", continent: "Africa", syn: ["gambia"] },
+      { id: "288", name: "Gana", continent: "Africa", syn: ["gana", "ghana"] },
+      { id: "324", name: "Guiné", continent: "Africa", syn: ["guine", "guinea"] },
+      { id: "624", name: "Guiné-Bissau", continent: "Africa", syn: ["guine-bissau", "guine bissau"] },
+      { id: "226", name: "Guiné Equatorial", continent: "Africa", syn: ["guine equatorial"] },
+      { id: "426", name: "Lesoto", continent: "Africa", syn: ["lesoto", "lesotho"] },
+      { id: "430", name: "Libéria", continent: "Africa", syn: ["liberia"] },
+      { id: "434", name: "Líbia", continent: "Africa", syn: ["libia", "libya"] },
+      { id: "450", name: "Madagascar", continent: "Africa", syn: ["madagascar"] },
+      { id: "454", name: "Malaui", continent: "Africa", syn: ["malaui", "malawi"] },
+      { id: "466", name: "Mali", continent: "Africa", syn: ["mali"] },
+      { id: "504", name: "Marrocos", continent: "Africa", syn: ["marrocos", "morocco"] },
+      { id: "480", name: "Maurícia", continent: "Africa", syn: ["mauricia", "mauricio"] },
+      { id: "478", name: "Mauritânia", continent: "Africa", syn: ["mauritania"] },
+      { id: "508", name: "Moçambique", continent: "Africa", syn: ["mocambique", "mozambique"] },
+      { id: "516", name: "Namíbia", continent: "Africa", syn: ["namibia"] },
+      { id: "562", name: "Níger", continent: "Africa", syn: ["niger"] },
+      { id: "566", name: "Nigéria", continent: "Africa", syn: ["nigeria"] },
+      { id: "404", name: "Quênia", continent: "Africa", syn: ["quenia", "kenya"] },
+      { id: "140", name: "República Centro-Africana", continent: "Africa", syn: ["republica centro-africana", "rca"] },
+      { id: "180", name: "República Democrática do Congo", continent: "Africa", syn: ["republica democratica do congo", "rd congo", "rdc", "congo-kinshasa", "zaire"] },
+      { id: "646", name: "Ruanda", continent: "Africa", syn: ["ruanda", "rwanda"] },
+      { id: "678", name: "São Tomé e Príncipe", continent: "Africa", syn: ["sao tome e principe", "sao tome"] },
+      { id: "686", name: "Senegal", continent: "Africa", syn: ["senegal"] },
+      { id: "690", name: "Seicheles", continent: "Africa", syn: ["seicheles", "seychelles"] },
+      { id: "694", name: "Serra Leoa", continent: "Africa", syn: ["serra leoa"] },
+      { id: "706", name: "Somália", continent: "Africa", syn: ["somalia"] },
+      { id: "729", name: "Sudão", continent: "Africa", syn: ["sudao", "sudan"] },
+      { id: "728", name: "Sudão do Sul", continent: "Africa", syn: ["sudao do sul"] },
+      { id: "834", name: "Tanzânia", continent: "Africa", syn: ["tanzania"] },
+      { id: "768", name: "Togo", continent: "Africa", syn: ["togo"] },
+      { id: "788", name: "Tunísia", continent: "Africa", syn: ["tunisia"] },
+      { id: "800", name: "Uganda", continent: "Africa", syn: ["uganda"] },
+      { id: "894", name: "Zâmbia", continent: "Africa", syn: ["zambia"] },
+      { id: "716", name: "Zimbábue", continent: "Africa", syn: ["zimbabue", "zimbabwe"] },
 
       // OCEANIA (14)
-      { name: "Austrália", continent: "Oceania", syn: ["australia"] },
-      { name: "Fiji", continent: "Oceania", syn: ["fiji"] },
-      { name: "Ilhas Marshall", continent: "Oceania", syn: ["ilhas marshall", "marshall"] },
-      { name: "Ilhas Salomão", continent: "Oceania", syn: ["ilhas salomao", "salomao"] },
-      { name: "Kiribati", continent: "Oceania", syn: ["kiribati"] },
-      { name: "Micronésia", continent: "Oceania", syn: ["micronesia"] },
-      { name: "Nauru", continent: "Oceania", syn: ["nauru"] },
-      { name: "Nova Zelândia", continent: "Oceania", syn: ["nova zelandia", "new zealand"] },
-      { name: "Palau", continent: "Oceania", syn: ["palau"] },
-      { name: "Papua Nova Guiné", continent: "Oceania", syn: ["papua nova guine", "papua"] },
-      { name: "Samoa", continent: "Oceania", syn: ["samoa"] },
-      { name: "Tonga", continent: "Oceania", syn: ["tonga"] },
-      { name: "Tuvalu", continent: "Oceania", syn: ["tuvalu"] },
-      { name: "Vanuatu", continent: "Oceania", syn: ["vanuatu"] }
+      { id: "036", name: "Austrália", continent: "Oceania", syn: ["australia"] },
+      { id: "242", name: "Fiji", continent: "Oceania", syn: ["fiji"] },
+      { id: "584", name: "Ilhas Marshall", continent: "Oceania", syn: ["ilhas marshall", "marshall"] },
+      { id: "090", name: "Ilhas Salomão", continent: "Oceania", syn: ["ilhas salomao", "salomao"] },
+      { id: "296", name: "Kiribati", continent: "Oceania", syn: ["kiribati"] },
+      { id: "583", name: "Micronésia", continent: "Oceania", syn: ["micronesia"] },
+      { id: "520", name: "Nauru", continent: "Oceania", syn: ["nauru"] },
+      { id: "554", name: "Nova Zelândia", continent: "Oceania", syn: ["nova zelandia", "new zealand"] },
+      { id: "585", name: "Palau", continent: "Oceania", syn: ["palau"] },
+      { id: "598", name: "Papua Nova Guiné", continent: "Oceania", syn: ["papua nova guine", "papua"] },
+      { id: "882", name: "Samoa", continent: "Oceania", syn: ["samoa"] },
+      { id: "776", name: "Tonga", continent: "Oceania", syn: ["tonga"] },
+      { id: "798", name: "Tuvalu", continent: "Oceania", syn: ["tuvalu"] },
+      { id: "548", name: "Vanuatu", continent: "Oceania", syn: ["vanuatu"] }
     ];
 
-    // ESTADO DO JOGO
+    // ESTADO
     let isPlaying = false;
-    let mode = 'timer'; // 'timer' ou 'free'
-    let timeRemaining = 15 * 60; // 15 minutos em segundos
+    let selectedDurationMinutes = 15; // 0 = livre
+    let timeRemaining = 15 * 60;
     let timerInterval = null;
     let guessedCountries = new Set();
     let isMuted = false;
@@ -475,14 +506,14 @@
     const timerLabel = document.getElementById('timerLabel');
     const progressBar = document.getElementById('progressBar');
     const lastGuessedDisplay = document.getElementById('lastGuessedDisplay');
-    const countriesGrid = document.getElementById('countriesGrid');
-    const modeTimerBtn = document.getElementById('modeTimerBtn');
-    const modeFreeBtn = document.getElementById('modeFreeBtn');
     const toggleAudioBtn = document.getElementById('toggleAudioBtn');
     const audioIcon = document.getElementById('audioIcon');
+    const timeButtons = document.querySelectorAll('.time-btn');
     const continentTabs = document.querySelectorAll('.continent-tab');
-    
-    // MODAL DOM
+    const continentsContainer = document.getElementById('continentsContainer');
+    const mapTooltip = document.getElementById('mapTooltip');
+
+    // MODAL
     const gameOverModal = document.getElementById('gameOverModal');
     const modalTitle = document.getElementById('modalTitle');
     const modalSubtitle = document.getElementById('modalSubtitle');
@@ -491,7 +522,7 @@
     const modalReviewBtn = document.getElementById('modalReviewBtn');
     const modalRestartBtn = document.getElementById('modalRestartBtn');
 
-    // WEB AUDIO API
+    // ÁUDIO SINTETIZADO
     let audioCtx = null;
     function playSound(type) {
       if (isMuted) return;
@@ -508,24 +539,22 @@
           osc.type = 'triangle';
           osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
           osc.frequency.exponentialRampToValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
-          gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+          gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
           gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
           osc.start();
           osc.stop(audioCtx.currentTime + 0.2);
         } else if (type === 'duplicate') {
           osc.type = 'sine';
           osc.frequency.setValueAtTime(220, audioCtx.currentTime);
-          gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+          gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
           osc.start();
-          osc.stop(audioCtx.currentTime + 0.15);
+          osc.stop(audioCtx.currentTime + 0.12);
         }
-      } catch (e) {
-        console.error("Audio error", e);
-      }
+      } catch (e) {}
     }
 
-    // UTILITÁRIO DE NORMALIZAÇÃO
+    // NORMALIZAÇÃO DE TEXTO
     function normalize(text) {
       return text
         .toLowerCase()
@@ -535,26 +564,104 @@
         .trim();
     }
 
-    // INICIALIZAÇÃO DA GRADE
-    function renderGrid() {
-      countriesGrid.innerHTML = '';
-      COUNTRIES_DB.sort((a, b) => a.name.localeCompare(b.name)).forEach((country, index) => {
-        const card = document.createElement('div');
-        card.id = `card-${index}`;
-        card.dataset.continent = country.continent;
-        card.dataset.index = index;
-        card.className = `p-3 rounded-xl border border-slate-800 bg-slate-800/40 text-center flex flex-col items-center justify-center min-h-[58px] transition-all duration-300`;
-        
-        card.innerHTML = `
-          <span class="country-name text-xs font-semibold text-slate-500 uppercase tracking-wider select-none">• • •</span>
-          <span class="text-[10px] text-slate-500 font-medium uppercase mt-0.5">${country.continent}</span>
+    // RENDERIZAR TABELAS POR CONTINENTE EM ORDEM ALFABÉTICA
+    function renderContinentTables() {
+      continentsContainer.innerHTML = '';
+      const continentsConfig = [
+        { key: 'Americas', title: 'Américas', total: 35 },
+        { key: 'Europa', title: 'Europa', total: 44 },
+        { key: 'Asia', title: 'Ásia', total: 48 },
+        { key: 'Africa', title: 'África', total: 54 },
+        { key: 'Oceania', title: 'Oceania', total: 14 }
+      ];
+
+      continentsConfig.forEach(conf => {
+        // Filtrar e ordenar alfabeticamente
+        const list = COUNTRIES_DB
+          .map((c, originalIndex) => ({ ...c, originalIndex }))
+          .filter(c => c.continent === conf.key)
+          .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
+
+        const section = document.createElement('section');
+        section.id = `section-${conf.key}`;
+        section.dataset.continent = conf.key;
+        section.className = "bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm transition-all";
+
+        section.innerHTML = `
+          <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+              <span>${conf.title}</span>
+              <span class="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-semibold border border-slate-700/60" id="badge-${conf.key}">
+                0/${conf.total}
+              </span>
+            </h3>
+            <span class="text-xs font-medium text-slate-500">Ordem Alfabética (A-Z)</span>
+          </div>
+          
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5" id="grid-${conf.key}">
+            ${list.map(item => `
+              <div id="cell-${item.originalIndex}" class="p-2.5 rounded-xl border border-slate-800/80 bg-slate-950/60 flex items-center justify-between min-h-[46px] transition-all">
+                <span class="country-label text-xs font-semibold text-slate-500 uppercase tracking-wider select-none">• • •</span>
+                <span class="text-[10px] text-slate-600 font-mono">#${item.originalIndex + 1}</span>
+              </div>
+            `).join('')}
+          </div>
         `;
-        countriesGrid.appendChild(card);
+
+        continentsContainer.appendChild(section);
       });
       updateCounters();
     }
 
-    // ATUALIZAÇÃO DE CONTADORES E TABS
+    // MAPA MÚNDI SVG VIA D3 & TOPOJSON
+    let svgPath = null;
+    function initWorldMap() {
+      const svg = d3.select("#worldMapSvg");
+      const projection = d3.geoNaturalEarth1().scale(153).translate([480, 240]);
+      svgPath = d3.geoPath().projection(projection);
+
+      // Carregar mapa vetorial leve
+      fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
+        .then(res => res.json())
+        .then(world => {
+          const countriesGeo = topojson.feature(world, world.objects.countries).features;
+
+          svg.selectAll("path")
+            .data(countriesGeo)
+            .enter()
+            .append("path")
+            .attr("d", svgPath)
+            .attr("class", "map-country")
+            .attr("id", d => `map-${String(d.id).padStart(3, '0')}`)
+            .on("mouseover", (event, d) => {
+              const code = String(d.id).padStart(3, '0');
+              const found = COUNTRIES_DB.find(c => c.id === code);
+              if (found) {
+                mapTooltip.innerText = guessedCountries.has(COUNTRIES_DB.indexOf(found)) || !isPlaying ? found.name : "País misterioso";
+              }
+            })
+            .on("mouseout", () => {
+              mapTooltip.innerText = "Passe o mouse para ver o país";
+            });
+        })
+        .catch(() => {
+          mapTooltip.innerText = "Modo offline (mapa simplificado)";
+        });
+    }
+
+    // ATUALIZAÇÃO DO MAPA
+    function updateMapCountry(countryIndex, status) {
+      const country = COUNTRIES_DB[countryIndex];
+      if (!country || !country.id) return;
+      const el = document.getElementById(`map-${country.id}`);
+      if (el) {
+        el.classList.remove('guessed', 'missed');
+        if (status === 'guessed') el.classList.add('guessed');
+        if (status === 'missed') el.classList.add('missed');
+      }
+    }
+
+    // ATUALIZAÇÃO DE CONTADORES
     function updateCounters() {
       const counts = { all: 0, Americas: 0, Europa: 0, Asia: 0, Africa: 0, Oceania: 0 };
       guessedCountries.forEach(idx => {
@@ -570,55 +677,61 @@
       document.getElementById('count-africa').innerText = `${counts.Africa}/54`;
       document.getElementById('count-oceania').innerText = `${counts.Oceania}/14`;
 
+      const bA = document.getElementById('badge-Americas'); if (bA) bA.innerText = `${counts.Americas}/35`;
+      const bE = document.getElementById('badge-Europa'); if (bE) bE.innerText = `${counts.Europa}/44`;
+      const bAs = document.getElementById('badge-Asia'); if (bAs) bAs.innerText = `${counts.Asia}/48`;
+      const bAf = document.getElementById('badge-Africa'); if (bAf) bAf.innerText = `${counts.Africa}/54`;
+      const bO = document.getElementById('badge-Oceania'); if (bO) bO.innerText = `${counts.Oceania}/14`;
+
       scoreDisplay.innerText = counts.all;
       const pct = Math.round((counts.all / 196) * 100);
       percentDisplay.innerText = `${pct}%`;
       progressBar.style.width = `${pct}%`;
     }
 
-    // FORMATAÇÃO DE TEMPO
+    // TEMPO
     function formatTime(seconds) {
       const m = Math.floor(seconds / 60);
       const s = seconds % 60;
       return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
     }
 
-    // INICIAR JOGO
+    // INICIAR
     function startGame() {
       isPlaying = true;
       guessedCountries.clear();
-      renderGrid();
+      renderContinentTables();
       
-      // Reset de controles
+      // Limpar classes do mapa
+      document.querySelectorAll('.map-country').forEach(el => {
+        el.classList.remove('guessed', 'missed');
+      });
+
       countryInput.disabled = false;
       countryInput.value = '';
       countryInput.placeholder = 'Digite um país (ex: Brasil, Japão, Egito)...';
       countryInput.focus();
       typingFeedback.innerText = 'Digite';
-      typingFeedback.className = 'absolute right-4 text-xs font-bold px-2 py-1 rounded bg-slate-700/50 text-slate-400';
+      typingFeedback.className = 'absolute right-4 text-xs font-bold px-2 py-1 rounded bg-slate-800 text-slate-400';
 
       gameActionBtn.innerHTML = `<i data-lucide="flag" class="w-4 h-4 fill-white"></i> <span>Desistir</span>`;
       gameActionBtn.className = "px-4 py-2 rounded-lg font-bold text-sm bg-rose-600 hover:bg-rose-500 text-white shadow-md transition flex items-center gap-1.5";
       lucide.createIcons();
 
-      // Configuração de timer
-      if (mode === 'timer') {
-        timeRemaining = 15 * 60;
+      clearInterval(timerInterval);
+      if (selectedDurationMinutes > 0) {
+        timeRemaining = selectedDurationMinutes * 60;
         timerLabel.innerText = "Tempo Restante";
         timerDisplay.innerText = formatTime(timeRemaining);
-        clearInterval(timerInterval);
         timerInterval = setInterval(() => {
           timeRemaining--;
           timerDisplay.innerText = formatTime(timeRemaining);
-          if (timeRemaining <= 0) {
-            endGame(false, "Tempo Esgotado!");
-          }
+          if (timeRemaining <= 0) endGame(false, "Tempo Esgotado!");
         }, 1000);
       } else {
         timeRemaining = 0;
         timerLabel.innerText = "Tempo Decorrido";
         timerDisplay.innerText = formatTime(timeRemaining);
-        clearInterval(timerInterval);
         timerInterval = setInterval(() => {
           timeRemaining++;
           timerDisplay.innerText = formatTime(timeRemaining);
@@ -626,7 +739,7 @@
       }
     }
 
-    // ENCERRAR JOGO / DESISTÊNCIA
+    // FIM DE JOGO
     function endGame(victory = false, reason = "Viagem Finalizada") {
       isPlaying = false;
       clearInterval(timerInterval);
@@ -638,27 +751,32 @@
       gameActionBtn.className = "px-4 py-2 rounded-lg font-bold text-sm bg-emerald-600 hover:bg-emerald-500 text-white shadow-md transition flex items-center gap-1.5";
       lucide.createIcons();
 
-      // Revelar países que faltaram em vermelho
+      // Revelar não descobertos nas tabelas e no mapa em vermelho
       COUNTRIES_DB.forEach((c, idx) => {
-        const card = document.getElementById(`card-${idx}`);
+        const cell = document.getElementById(`cell-${idx}`);
         if (!guessedCountries.has(idx)) {
-          card.classList.remove('bg-slate-800/40', 'border-slate-800');
-          card.classList.add('bg-rose-950/40', 'border-rose-800/60');
-          card.querySelector('.country-name').innerText = c.name;
-          card.querySelector('.country-name').classList.remove('text-slate-500');
-          card.querySelector('.country-name').classList.add('text-rose-400');
+          if (cell) {
+            cell.classList.remove('bg-slate-950/60', 'border-slate-800/80');
+            cell.classList.add('bg-rose-950/30', 'border-rose-800/50');
+            const lbl = cell.querySelector('.country-label');
+            lbl.innerText = c.name;
+            lbl.classList.remove('text-slate-500');
+            lbl.classList.add('text-rose-400');
+          }
+          updateMapCountry(idx, 'missed');
+        } else {
+          updateMapCountry(idx, 'guessed');
         }
       });
 
-      // Abrir modal de pontuação
-      modalTitle.innerText = victory ? "Parabéns, Você Deu a Volta ao Mundo!" : reason;
-      modalSubtitle.innerText = victory ? "Você acertou todos os 196 países da Terra!" : "Veja como foi sua performance global nesta partida:";
+      modalTitle.innerText = victory ? "Parabéns, Você Conquistou o Globo!" : reason;
+      modalSubtitle.innerText = victory ? "Você acertou todos os 196 países do mundo!" : "Veja seu desempenho final na Volta ao Mundo:";
       modalScore.innerText = guessedCountries.size;
       modalPercent.innerText = `${Math.round((guessedCountries.size / 196) * 100)}%`;
       gameOverModal.classList.remove('hidden');
     }
 
-    // VALIDAÇÃO EM TEMPO REAL
+    // DIGITAÇÃO E VALIDAÇÃO
     countryInput.addEventListener('input', (e) => {
       if (!isPlaying) return;
       const rawVal = e.target.value;
@@ -666,13 +784,9 @@
       if (!val) return;
 
       let foundIndex = -1;
-
       for (let i = 0; i < COUNTRIES_DB.length; i++) {
-        const country = COUNTRIES_DB[i];
-        const matchMain = normalize(country.name) === val;
-        const matchSyn = country.syn.some(s => normalize(s) === val);
-
-        if (matchMain || matchSyn) {
+        const c = COUNTRIES_DB[i];
+        if (normalize(c.name) === val || c.syn.some(s => normalize(s) === val)) {
           foundIndex = i;
           break;
         }
@@ -680,21 +794,24 @@
 
       if (foundIndex !== -1) {
         if (guessedCountries.has(foundIndex)) {
-          // Já adivinhado
           typingFeedback.innerText = 'Já digitado!';
           typingFeedback.className = 'absolute right-4 text-xs font-bold px-2 py-1 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30';
           playSound('duplicate');
         } else {
-          // Novo acerto
           guessedCountries.add(foundIndex);
           const country = COUNTRIES_DB[foundIndex];
-          const card = document.getElementById(`card-${foundIndex}`);
+          const cell = document.getElementById(`cell-${foundIndex}`);
           
-          card.classList.remove('bg-slate-800/40', 'border-slate-800');
-          card.classList.add('bg-emerald-950/40', 'border-emerald-600/60', 'animate-success-pop');
-          card.querySelector('.country-name').innerText = country.name;
-          card.querySelector('.country-name').classList.remove('text-slate-500');
-          card.querySelector('.country-name').classList.add('text-emerald-300', 'font-bold');
+          if (cell) {
+            cell.classList.remove('bg-slate-950/60', 'border-slate-800/80');
+            cell.classList.add('bg-emerald-950/30', 'border-emerald-600/50');
+            const lbl = cell.querySelector('.country-label');
+            lbl.innerText = country.name;
+            lbl.classList.remove('text-slate-500');
+            lbl.classList.add('text-emerald-400', 'font-bold');
+          }
+
+          updateMapCountry(foundIndex, 'guessed');
 
           lastGuessedDisplay.innerText = country.name;
           countryInput.value = '';
@@ -710,26 +827,50 @@
       }
     });
 
-    // TROCA DE MODO (15M / LIVRE)
-    modeTimerBtn.addEventListener('click', () => {
-      if (isPlaying) return;
-      mode = 'timer';
-      modeTimerBtn.className = "px-2.5 py-1.5 rounded-md font-semibold text-white bg-brand-600 transition";
-      modeFreeBtn.className = "px-2.5 py-1.5 rounded-md font-semibold text-slate-400 hover:text-white transition";
-      timerLabel.innerText = "Tempo";
-      timerDisplay.innerText = "15:00";
+    // SELETORES DE TEMPO (15m, 30m, 45m, 1h, Livre)
+    timeButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (isPlaying) return;
+        timeButtons.forEach(b => {
+          b.className = "time-btn px-2.5 py-1.5 rounded-md font-semibold text-slate-400 hover:text-white transition";
+        });
+        btn.className = "time-btn px-2.5 py-1.5 rounded-md font-semibold text-white bg-brand-600 transition";
+
+        selectedDurationMinutes = parseInt(btn.dataset.time, 10);
+        if (selectedDurationMinutes > 0) {
+          timerLabel.innerText = "Tempo";
+          timerDisplay.innerText = formatTime(selectedDurationMinutes * 60);
+        } else {
+          timerLabel.innerText = "Tempo";
+          timerDisplay.innerText = "00:00";
+        }
+      });
     });
 
-    modeFreeBtn.addEventListener('click', () => {
-      if (isPlaying) return;
-      mode = 'free';
-      modeFreeBtn.className = "px-2.5 py-1.5 rounded-md font-semibold text-white bg-brand-600 transition";
-      modeTimerBtn.className = "px-2.5 py-1.5 rounded-md font-semibold text-slate-400 hover:text-white transition";
-      timerLabel.innerText = "Tempo";
-      timerDisplay.innerText = "00:00";
+    // FILTRO DE CONTINENTES
+    continentTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        continentTabs.forEach(t => {
+          t.classList.remove('bg-brand-600', 'text-white');
+          t.classList.add('bg-slate-900', 'text-slate-400');
+        });
+        tab.classList.add('bg-brand-600', 'text-white');
+        tab.classList.remove('bg-slate-900', 'text-slate-400');
+
+        const continent = tab.dataset.continent;
+        activeFilter = continent;
+
+        document.querySelectorAll('#continentsContainer > section').forEach(sec => {
+          if (continent === 'all' || sec.dataset.continent === continent) {
+            sec.style.display = 'block';
+          } else {
+            sec.style.display = 'none';
+          }
+        });
+      });
     });
 
-    // BOTÃO DE ÁUDIO
+    // BOTÃO ÁUDIO
     toggleAudioBtn.addEventListener('click', () => {
       isMuted = !isMuted;
       audioIcon.setAttribute('data-lucide', isMuted ? 'volume-x' : 'volume-2');
@@ -737,46 +878,19 @@
       lucide.createIcons();
     });
 
-    // BOTÃO COMEÇAR / DESISTIR
+    // BOTÃO PRINCIPAL
     gameActionBtn.addEventListener('click', () => {
       if (!isPlaying) {
         startGame();
       } else {
-        if (confirm("Tem certeza de que deseja encerrar a viagem e ver as respostas restantes?")) {
+        if (confirm("Deseja realmente desistir e revelar todas as respostas no mapa e nas tabelas?")) {
           endGame(false, "Desistência");
         }
       }
     });
 
-    // FILTRO DE ABAS POR CONTINENTE
-    continentTabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        continentTabs.forEach(t => {
-          t.classList.remove('bg-brand-600', 'text-white');
-          t.classList.add('bg-slate-800', 'text-slate-300');
-        });
-        tab.classList.add('bg-brand-600', 'text-white');
-        tab.classList.remove('bg-slate-800', 'text-slate-300');
-
-        const continent = tab.dataset.continent;
-        activeFilter = continent;
-
-        COUNTRIES_DB.forEach((c, idx) => {
-          const card = document.getElementById(`card-${idx}`);
-          if (continent === 'all' || c.continent === continent) {
-            card.style.display = 'flex';
-          } else {
-            card.style.display = 'none';
-          }
-        });
-      });
-    });
-
-    // BOTÕES DO MODAL
-    modalReviewBtn.addEventListener('click', () => {
-      gameOverModal.classList.add('hidden');
-    });
-
+    // MODAL
+    modalReviewBtn.addEventListener('click', () => gameOverModal.classList.add('hidden'));
     modalRestartBtn.addEventListener('click', () => {
       gameOverModal.classList.add('hidden');
       startGame();
@@ -784,7 +898,8 @@
 
     // INICIALIZAÇÃO
     window.addEventListener('DOMContentLoaded', () => {
-      renderGrid();
+      renderContinentTables();
+      initWorldMap();
       lucide.createIcons();
     });
   </script>
