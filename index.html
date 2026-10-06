@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Volta ao Mundo - O Desafio dos 198 Países</title>
+  <title>Volta ao Mundo - O Desafio dos 197 Países</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -59,7 +59,6 @@
       stroke: #b91c1c !important;
     }
     
-    /* Marcadores para Micropaíses */
     .map-marker {
       fill: #334155; 
       stroke: #64748b;
@@ -84,85 +83,69 @@
       stroke-width: 1px;
     }
 
-    /* Bandeiras animadas */
     .country-flag {
       transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       border-radius: 2px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
 
-    /* EASTER EGG PALESTINA */
-    .easter-egg-overlay {
+    /* EASTER EGG: AVIÃO COM FAIXA */
+    @keyframes flyPlane {
+      0% { transform: translateX(-30vw) translateY(0); }
+      50% { transform: translateX(50vw) translateY(-10px); }
+      100% { transform: translateX(120vw) translateY(0); }
+    }
+    .airplane-wrapper {
       position: fixed;
-      inset: 0;
+      top: 10vh;
+      left: 0;
       z-index: 9999;
       display: flex;
       align-items: center;
-      justify-content: center;
-      background: radial-gradient(circle at center, rgba(255,255,255,0.92) 0%, rgba(240,253,244,0.85) 100%);
-      backdrop-filter: blur(8px);
-      opacity: 0;
+      animation: flyPlane 8s linear forwards;
       pointer-events: none;
-      transition: opacity 0.8s ease;
+      filter: drop-shadow(0px 8px 12px rgba(0,0,0,0.15));
     }
-    .easter-egg-overlay.active { opacity: 1; pointer-events: auto; }
-    
-    .easter-egg-card {
+    .airplane-banner {
       background: white;
-      padding: 3rem 4rem;
-      border-radius: 2rem;
-      box-shadow: 0 25px 50px -12px rgba(16, 185, 129, 0.25), 0 0 0 1px rgba(16, 185, 129, 0.1);
-      transform: translateY(20px) scale(0.95);
-      opacity: 0;
-      transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      text-align: center;
+      color: #064e3b;
+      padding: 6px 20px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-size: 0.9rem;
+      border-right: 2px dashed #cbd5e1;
+      border-radius: 4px 0 0 4px;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.02);
+    }
+    .airplane-icon {
+      background: white;
+      padding: 6px 8px;
+      border-radius: 0 8px 8px 0;
       display: flex;
-      flex-direction: column;
       align-items: center;
-      gap: 1.5rem;
-      border-top: 6px solid #10b981;
-    }
-    .easter-egg-overlay.active .easter-egg-card {
-      transform: translateY(0) scale(1);
-      opacity: 1;
+      justify-content: center;
     }
 
-    .easter-egg-title {
-      font-size: 2.5rem;
-      font-weight: 900;
-      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      letter-spacing: -0.025em;
-      line-height: 1.2;
-    }
-
-    @keyframes floatFriendly {
-      0% { transform: translateY(110vh) translateX(0) rotate(0deg) scale(0.5); opacity: 0; }
-      10% { opacity: 1; transform: scale(1.2); }
+    /* EASTER EGG: CHUVA DE MELANCIAS */
+    @keyframes rainDrop {
+      0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
+      10% { opacity: 1; }
       90% { opacity: 1; }
-      100% { transform: translateY(-20vh) translateX(30px) rotate(360deg) scale(1); opacity: 0; }
+      100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
     }
-    .friendly-icon {
+    .watermelon-rain {
       position: fixed;
-      font-size: 3rem;
-      z-index: 10000;
-      animation: floatFriendly linear forwards;
+      top: 0;
+      font-size: 1.5rem;
+      z-index: 9998;
+      animation: rainDrop linear forwards;
       pointer-events: none;
-      filter: drop-shadow(0px 8px 8px rgba(0,0,0,0.15));
+      filter: drop-shadow(0px 3px 5px rgba(0,0,0,0.2));
     }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-emerald-500 selection:text-white">
-
-  <!-- EASTER EGG OVERLAY -->
-  <div id="palestineEasterEgg" class="easter-egg-overlay">
-    <div class="easter-egg-card">
-      <div class="text-6xl drop-shadow-md">🕊️🍉</div>
-      <div class="easter-egg-title uppercase">Palestina livre<br>do rio ao mar</div>
-      <p class="text-emerald-700 font-semibold opacity-80">A paz, a vida e a esperança prevalecerão.</p>
-    </div>
-  </div>
 
   <!-- HEADER -->
   <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-40">
@@ -176,7 +159,7 @@
         <div>
           <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
             Volta ao Mundo
-            <span class="text-xs px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-400 font-semibold border border-brand-500/30" id="headerCount">198 Países</span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-400 font-semibold border border-brand-500/30">197 Países</span>
           </h1>
           <p class="text-xs text-slate-400 hidden sm:block">Adivinhe todas as nações do planeta antes do tempo acabar</p>
         </div>
@@ -215,7 +198,7 @@
           <span class="text-xs font-semibold text-slate-400 block uppercase tracking-wider">Acertos</span>
           <div class="text-2xl font-extrabold text-white mt-0.5">
             <span id="scoreDisplay" class="text-brand-400">0</span>
-            <span class="text-slate-500 text-lg" id="totalScoreText">/ 198</span>
+            <span class="text-slate-500 text-lg">/ 197</span>
           </div>
         </div>
         <div class="w-10 h-10 rounded-lg bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-400">
@@ -305,7 +288,7 @@
     <!-- NAVEGAÇÃO DE CONTINENTES / ABAS -->
     <div class="flex items-center gap-2 overflow-x-auto pb-1 border-b border-slate-800" id="continentTabs">
       <button class="continent-tab px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-brand-600 text-white transition flex items-center gap-2" data-continent="all">
-        Todos <span class="text-xs bg-slate-900/50 px-1.5 py-0.5 rounded-full" id="count-all">0/198</span>
+        Todos <span class="text-xs bg-slate-900/50 px-1.5 py-0.5 rounded-full" id="count-all">0/197</span>
       </button>
       <button class="continent-tab px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-slate-900 text-slate-400 hover:text-white transition flex items-center gap-2" data-continent="Americas">
         Américas <span class="text-xs bg-slate-800 px-1.5 py-0.5 rounded-full" id="count-americas">0/35</span>
@@ -341,7 +324,7 @@
       <div class="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 grid grid-cols-2 gap-4 mb-6">
         <div>
           <span class="text-xs text-slate-400 uppercase font-semibold">Total Acertado</span>
-          <div class="text-2xl font-bold text-white mt-0.5"><span id="modalScore">0</span> <span id="modalScoreTotal" class="text-slate-500 text-lg">/ 198</span></div>
+          <div class="text-2xl font-bold text-white mt-0.5"><span id="modalScore">0</span> <span class="text-slate-500 text-lg">/ 197</span></div>
         </div>
         <div>
           <span class="text-xs text-slate-400 uppercase font-semibold">Aproveitamento</span>
@@ -368,7 +351,6 @@
 
   <!-- SCRIPT DO JOGO -->
   <script>
-    // BASE DE DADOS COM ISO CODES (Bandeiras SVG via CDN)
     const COUNTRIES_DB = [
       // AMÉRICAS (35)
       { id: "028", name: "Antígua e Barbuda", continent: "Americas", flag: "ag", syn: ["antigua e barbuda", "antigua barbuda", "antigua"] },
@@ -578,47 +560,46 @@
       { id: "548", name: "Vanuatu", continent: "Oceania", flag: "vu", syn: ["vanuatu"] }
     ];
 
-    const TOTAL_COUNTRIES = 198;
+    const TOTAL_COUNTRIES = 197;
 
-    // Coordenadas para pontos dos microestados
     const MICRO_STATES_COORDS = [
-      { id: "336", coords: [12.4534, 41.9029] }, // Vaticano
-      { id: "492", coords: [7.4200, 43.7384] },  // Mônaco
-      { id: "674", coords: [12.4578, 43.9424] }, // San Marino
-      { id: "438", coords: [9.5209, 47.1410] },  // Liechtenstein
-      { id: "020", coords: [1.5218, 42.5063] },  // Andorra
-      { id: "470", coords: [14.3754, 35.9375] }, // Malta
-      { id: "462", coords: [73.2207, 3.2028] },  // Maldivas
-      { id: "702", coords: [103.8198, 1.3521] }, // Singapura
-      { id: "048", coords: [50.5577, 26.0667] }, // Bahrein
-      { id: "678", coords: [6.6131, 0.1864] },   // São Tomé
-      { id: "690", coords: [55.4920, -4.6796] }, // Seicheles
-      { id: "174", coords: [43.3333, -11.6455] }, // Comores
-      { id: "480", coords: [57.5522, -20.3484] }, // Maurícia
-      { id: "132", coords: [-23.6167, 16.5388] }, // Cabo Verde
-      { id: "028", coords: [-61.7964, 17.0608] }, // Antígua
-      { id: "052", coords: [-59.5432, 13.1939] }, // Barbados
-      { id: "212", coords: [-61.3710, 15.4150] }, // Dominica
-      { id: "308", coords: [-61.6790, 12.1165] }, // Granada
-      { id: "659", coords: [-62.7830, 17.3578] }, // São Cristóvão
-      { id: "662", coords: [-60.9789, 13.9094] }, // Santa Lúcia
-      { id: "670", coords: [-61.2872, 13.2528] }, // São Vicente
-      { id: "780", coords: [-61.2225, 10.6918] }, // Trinidad
-      { id: "044", coords: [-77.3963, 25.0343] }, // Bahamas
-      { id: "583", coords: [158.1499, 6.8874] }, // Micronésia
-      { id: "584", coords: [171.1845, 7.1315] }, // Marshall
-      { id: "520", coords: [166.9315, -0.5228] }, // Nauru
-      { id: "585", coords: [134.5825, 7.5149] }, // Palau
-      { id: "882", coords: [-172.1046, -13.7590] }, // Samoa
-      { id: "776", coords: [-175.1982, -21.1789] }, // Tonga
-      { id: "798", coords: [179.1940, -8.5146] }, // Tuvalu
-      { id: "296", coords: [173.0000, 1.4167] }, // Kiribati
-      { id: "548", coords: [166.9592, -15.3767] }, // Vanuatu
-      { id: "090", coords: [160.1562, -9.6457] }, // Salomão
-      { id: "242", coords: [178.0650, -17.7134] }, // Fiji
-      { id: "096", coords: [114.7277, 4.5353] }, // Brunei
-      { id: "383", coords: [20.9029, 42.6026] }, // Kosovo
-      { id: "275", coords: [35.2332, 31.9522] }, // Palestina
+      { id: "336", coords: [12.4534, 41.9029] },
+      { id: "492", coords: [7.4200, 43.7384] },
+      { id: "674", coords: [12.4578, 43.9424] },
+      { id: "438", coords: [9.5209, 47.1410] },
+      { id: "020", coords: [1.5218, 42.5063] },
+      { id: "470", coords: [14.3754, 35.9375] },
+      { id: "462", coords: [73.2207, 3.2028] },
+      { id: "702", coords: [103.8198, 1.3521] },
+      { id: "048", coords: [50.5577, 26.0667] },
+      { id: "678", coords: [6.6131, 0.1864] },
+      { id: "690", coords: [55.4920, -4.6796] },
+      { id: "174", coords: [43.3333, -11.6455] },
+      { id: "480", coords: [57.5522, -20.3484] },
+      { id: "132", coords: [-23.6167, 16.5388] },
+      { id: "028", coords: [-61.7964, 17.0608] },
+      { id: "052", coords: [-59.5432, 13.1939] },
+      { id: "212", coords: [-61.3710, 15.4150] },
+      { id: "308", coords: [-61.6790, 12.1165] },
+      { id: "659", coords: [-62.7830, 17.3578] },
+      { id: "662", coords: [-60.9789, 13.9094] },
+      { id: "670", coords: [-61.2872, 13.2528] },
+      { id: "780", coords: [-61.2225, 10.6918] },
+      { id: "044", coords: [-77.3963, 25.0343] },
+      { id: "583", coords: [158.1499, 6.8874] },
+      { id: "584", coords: [171.1845, 7.1315] },
+      { id: "520", coords: [166.9315, -0.5228] },
+      { id: "585", coords: [134.5825, 7.5149] },
+      { id: "882", coords: [-172.1046, -13.7590] },
+      { id: "776", coords: [-175.1982, -21.1789] },
+      { id: "798", coords: [179.1940, -8.5146] },
+      { id: "296", coords: [173.0000, 1.4167] },
+      { id: "548", coords: [166.9592, -15.3767] },
+      { id: "090", coords: [160.1562, -9.6457] },
+      { id: "242", coords: [178.0650, -17.7134] },
+      { id: "096", coords: [114.7277, 4.5353] },
+      { id: "383", coords: [20.9029, 42.6026] },
+      { id: "275", coords: [35.2332, 31.9522] },
     ];
 
     const TERRITORIES_DB = {
@@ -695,23 +676,32 @@
       return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "").trim();
     }
 
-    // Easter Egg
+    // Easter Egg - Palestina Animada
     function showPalestineEasterEgg() {
-      const overlay = document.getElementById('palestineEasterEgg');
-      overlay.classList.add('active');
-      
-      const icons = ['🍉', '🕊️', '🌿'];
-      for(let i=0; i<40; i++) {
-        const el = document.createElement('div');
-        el.className = 'friendly-icon';
-        el.innerText = icons[Math.floor(Math.random() * icons.length)];
-        el.style.left = (Math.random() * 100) + 'vw';
-        el.style.animationDuration = (3.5 + Math.random() * 2) + 's';
-        el.style.animationDelay = (Math.random() * 0.5) + 's';
-        document.body.appendChild(el);
-        setTimeout(() => el.remove(), 6000);
+      // Cria o avião e a faixa
+      const planeWrapper = document.createElement('div');
+      planeWrapper.className = 'airplane-wrapper';
+      planeWrapper.innerHTML = `
+        <div class="airplane-banner">Palestina Livre</div>
+        <div class="airplane-icon">
+          <svg xmlns="http://www.w3.org/200w/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0f172a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform: rotate(45deg);"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.2-1.1.6L2.5 8l6.4 3.9L7 15l-3.5-.5L2 16l4.6 2.4L9 23l1.5-1.5-.5-3.5 3.1-1.9 3.9 6.4 1.2-1.2c.4-.2.7-.6.6-1.1Z"/></svg>
+        </div>
+      `;
+      document.body.appendChild(planeWrapper);
+      setTimeout(() => planeWrapper.remove(), 8000);
+
+      // Cria a chuva de melancias baseada nos acertos atuais
+      const amount = Math.min(guessedCountries.size, 197); // Segurança limite
+      for(let i=0; i<amount; i++) {
+        const wm = document.createElement('div');
+        wm.className = 'watermelon-rain';
+        wm.innerText = '🍉';
+        wm.style.left = (Math.random() * 96) + 'vw';
+        wm.style.animationDuration = (3 + Math.random() * 3) + 's';
+        wm.style.animationDelay = (Math.random() * 2) + 's';
+        document.body.appendChild(wm);
+        setTimeout(() => wm.remove(), 8000);
       }
-      setTimeout(() => overlay.classList.remove('active'), 4000);
     }
 
     function renderContinentTables() {
@@ -1168,25 +1158,26 @@
       else if (confirm("Deseja realmente desistir e revelar todas as respostas no mapa e nas tabelas?")) endGame(false, "Desistência");
     });
 
-    // Compartilhar no WhatsApp
+    // Compartilhar no WhatsApp - Animado e Divertido
     document.getElementById('whatsappShareBtn').addEventListener('click', () => {
       const score = guessedCountries.size;
-      const pct = Math.round((score / TOTAL_COUNTRIES) * 100);
-      let emoji = "😭";
+      const pctVal = (score / TOTAL_COUNTRIES) * 100;
+      const pctStr = pctVal.toFixed(2).replace('.', ','); // Formata para XX,XX%
       
-      if (pct >= 10 && pct < 20) emoji = "😢";
-      else if (pct >= 20 && pct < 30) emoji = "🥲";
-      else if (pct >= 30 && pct < 40) emoji = "😕";
-      else if (pct >= 40 && pct < 50) emoji = "🙂";
-      else if (pct >= 50 && pct < 60) emoji = "😉";
-      else if (pct >= 60 && pct < 70) emoji = "😊";
-      else if (pct >= 70 && pct < 80) emoji = "😃";
-      else if (pct >= 80 && pct < 90) emoji = "🤩";
-      else if (pct >= 90 && pct < 100) emoji = "🤯";
-      else if (pct === 100) emoji = "👑🌍";
+      let emoji = "😭";
+      if (pctVal >= 10 && pctVal < 20) emoji = "😢";
+      else if (pctVal >= 20 && pctVal < 30) emoji = "🥲";
+      else if (pctVal >= 30 && pctVal < 40) emoji = "😕";
+      else if (pctVal >= 40 && pctVal < 50) emoji = "🙂";
+      else if (pctVal >= 50 && pctVal < 60) emoji = "😉";
+      else if (pctVal >= 60 && pctVal < 70) emoji = "😊";
+      else if (pctVal >= 70 && pctVal < 80) emoji = "😃";
+      else if (pctVal >= 80 && pctVal < 90) emoji = "🤩";
+      else if (pctVal >= 90 && pctVal < 100) emoji = "🤯";
+      else if (pctVal === 100) emoji = "👑🌍";
       
       const gameUrl = window.location.href;
-      const text = `🌍 Joguei o Volta ao Mundo e acertei ${score}/${TOTAL_COUNTRIES} países (${pct}%)! ${emoji}\n\nSerá que você consegue me vencer? Jogue em: ${gameUrl}`;
+      const text = `✈️🌍 *Que viagem incrível!*\n\nAcabei de jogar o *Volta ao Mundo* e adivinhei *${score} de ${TOTAL_COUNTRIES}* países!\nIsso dá exatamente *${pctStr}%* do globo! ${emoji}\n\nSerá que você tem bagagem suficiente para bater meu recorde? 🧳\n\nJogue agora em: ${gameUrl}`;
       const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
       window.open(whatsappUrl, '_blank');
     });
