@@ -90,56 +90,60 @@
     }
 
     /* EASTER EGG: AVIÃO COM FAIXA ONDULANTE */
-    @keyframes flyPlane {
-      0% { transform: translateX(-50vw) translateY(0); }
-      25% { transform: translateX(-10vw) translateY(-15px); }
-      50% { transform: translateX(30vw) translateY(5px); }
-      75% { transform: translateX(70vw) translateY(-10px); }
-      100% { transform: translateX(120vw) translateY(0); }
-    }
-    .airplane-wrapper {
-      position: fixed;
-      top: 10vh;
-      left: 0;
-      z-index: 9999;
-      display: flex;
-      align-items: center;
-      animation: flyPlane 14s ease-in-out forwards; /* Muito mais lento e suave */
-      pointer-events: none;
-      filter: drop-shadow(0px 8px 12px rgba(0,0,0,0.2));
+    
+    /* 1. Translação horizontal constante e contínua (sem parar) */
+    @keyframes flyPlaneX {
+      0% { transform: translateX(-30vw); }
+      100% { transform: translateX(110vw); }
     }
     
-    /* Animação do balanço natural da faixa no vento */
-    @keyframes waveBanner {
-      0%, 100% { transform: rotate(0deg) skewY(0deg) translateY(0); }
-      25% { transform: rotate(-3deg) skewY(-2deg) translateY(-2px); }
-      75% { transform: rotate(3deg) skewY(2deg) translateY(2px); }
+    /* 2. Flutuação vertical simulando a turbulência do vento */
+    @keyframes flyPlaneY {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-25px) rotate(-1.5deg); }
     }
-    .airplane-banner-container {
-      transform-origin: center right; /* Eixo de torção preso no avião */
-      animation: waveBanner 2s ease-in-out infinite;
+
+    /* 3. Onda da faixa puxada pelo avião */
+    @keyframes waveBanner {
+      0%, 100% { transform: skewY(0deg) rotate(0deg); }
+      50% { transform: skewY(-3deg) rotate(1.5deg); }
+    }
+
+    .airplane-wrapper {
+      position: fixed;
+      top: 15vh;
+      left: 0;
+      z-index: 9999;
+      animation: flyPlaneX 16s linear forwards; /* Voo suave e lento */
+      pointer-events: none;
+    }
+    
+    .airplane-bobbing {
       display: flex;
       align-items: center;
+      animation: flyPlaneY 4s ease-in-out infinite;
+      filter: drop-shadow(0px 15px 10px rgba(0,0,0,0.25));
     }
+
+    .airplane-banner-container {
+      display: flex;
+      align-items: center;
+      transform-origin: center right; /* Eixo preso na cauda do avião */
+      animation: waveBanner 1.5s ease-in-out infinite;
+      margin-right: -4px; /* Para conectar perfeitamente com a cauda */
+    }
+
     .airplane-banner {
-      background: white;
+      background: #ffffff;
       color: #064e3b;
-      padding: 8px 24px;
+      padding: 6px 20px 6px 25px;
       font-weight: 900;
       text-transform: uppercase;
-      letter-spacing: 2px;
-      font-size: 1rem;
-      border-right: 3px dashed #cbd5e1;
-      border-radius: 4px 0 0 4px;
-      box-shadow: inset 0 0 15px rgba(0,0,0,0.03);
-    }
-    .airplane-icon {
-      background: white;
-      padding: 8px 12px;
-      border-radius: 0 12px 12px 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      letter-spacing: 2.5px;
+      font-size: 0.95rem;
+      border-radius: 2px;
+      clip-path: polygon(15px 0%, 100% 0%, 100% 100%, 15px 100%, 0% 50%); /* Rabo de andorinha */
+      box-shadow: inset -5px 0 10px rgba(0,0,0,0.05);
     }
 
     /* EASTER EGG: CHUVA DE MELANCIAS */
@@ -174,7 +178,7 @@
         <div>
           <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
             Volta ao Mundo
-            <span class="text-xs px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-400 font-semibold border border-brand-500/30">198 Países</span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-400 font-semibold border border-brand-500/30" id="headerCount">198 Países</span>
           </h1>
           <p class="text-xs text-slate-400 hidden sm:block">Adivinhe todas as nações do planeta antes do tempo acabar</p>
         </div>
@@ -213,7 +217,7 @@
           <span class="text-xs font-semibold text-slate-400 block uppercase tracking-wider">Acertos</span>
           <div class="text-2xl font-extrabold text-white mt-0.5">
             <span id="scoreDisplay" class="text-brand-400">0</span>
-            <span class="text-slate-500 text-lg">/ 198</span>
+            <span class="text-slate-500 text-lg" id="totalScoreText">/ 198</span>
           </div>
         </div>
         <div class="w-10 h-10 rounded-lg bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-400">
@@ -339,7 +343,7 @@
       <div class="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 grid grid-cols-2 gap-4 mb-6">
         <div>
           <span class="text-xs text-slate-400 uppercase font-semibold">Total Acertado</span>
-          <div class="text-2xl font-bold text-white mt-0.5"><span id="modalScore">0</span> <span id="modalScoreTotal" class="text-slate-500 text-lg">/ 198</span></div>
+          <div class="text-2xl font-bold text-white mt-0.5"><span id="modalScore">0</span> <span class="text-slate-500 text-lg">/ 198</span></div>
         </div>
         <div>
           <span class="text-xs text-slate-400 uppercase font-semibold">Aproveitamento</span>
@@ -691,27 +695,55 @@
       return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "").trim();
     }
 
-    // Easter Egg Animado e Suave
+    // Easter Egg - Palestina Animada
     function showPalestineEasterEgg() {
-      // 1. Avião com faixa animada
+      // Cria o avião e a faixa
       const planeWrapper = document.createElement('div');
       planeWrapper.className = 'airplane-wrapper';
       planeWrapper.innerHTML = `
-        <div class="airplane-banner-container">
-          <div class="airplane-banner">Palestina Livre</div>
-          <div style="width: 15px; height: 2px; background: #cbd5e1; margin-top: 4px;"></div>
-        </div>
-        <div class="airplane-icon">
-          <svg viewBox="0 0 24 24" width="30" height="30" fill="#0f172a">
-            <path d="M21.94 10.55l-8.49-3.77-3.6-5.4a1 1 0 0 0-.83-.44H6.55a.5.5 0 0 0-.46.7l2.84 6.64H5.34l-1.8-2.4a1 1 0 0 0-.8-.4H1.5a.5.5 0 0 0-.5.5v2l1.6 1.6-1.6 1.6v2a.5.5 0 0 0 .5.5h1.24a1 1 0 0 0 .8-.4l1.8-2.4h3.6l-2.84 6.64a.5.5 0 0 0 .46.7h2.47a1 1 0 0 0 .83-.44l3.6-5.4 8.49-3.77a2.5 2.5 0 0 0 .01-4.56z"/>
-          </svg>
+        <div class="airplane-bobbing">
+          <div class="airplane-banner-container">
+            <div class="airplane-banner">Palestina Livre</div>
+            <div style="width: 25px; height: 1.5px; background: #94a3b8; margin-top: 5px;"></div>
+          </div>
+          <div class="airplane-model" style="transform: translateY(2px);">
+            <!-- Avião de reboque desenhado em SVG -->
+            <svg width="85" height="42" viewBox="0 0 100 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Hélice em movimento -->
+              <ellipse cx="94" cy="25" rx="3" ry="18" fill="#cbd5e1" opacity="0.6">
+                <animate attributeName="ry" values="18;2;18" dur="0.1s" repeatCount="indefinite" />
+              </ellipse>
+              <!-- Leme Horizontal -->
+              <path d="M5,26 L18,29 L14,32 L2,28 Z" fill="#b91c1c"/>
+              <path d="M5,24 L18,27 L14,30 L2,26 Z" fill="#ef4444"/>
+              <!-- Leme Vertical -->
+              <path d="M15,22 L8,4 L22,18 Z" fill="#ef4444"/>
+              <!-- Corpo e Sombra -->
+              <path d="M8,25 Q30,38 75,32 Q90,28 90,25 Q90,22 75,18 Q30,12 8,25 Z" fill="#d97706"/>
+              <path d="M8,23 Q30,36 75,30 Q90,26 90,23 Q90,20 75,16 Q30,10 8,23 Z" fill="#f59e0b"/>
+              <!-- Vidros Cockpit -->
+              <path d="M50,18 Q62,12 70,20 L50,21 Z" fill="#7dd3fc"/>
+              <path d="M52,18 Q62,13 68,19 L52,20 Z" fill="#bae6fd"/>
+              <!-- Listra de Detalhe -->
+              <path d="M20,23 Q40,28 70,25 L70,27 Q40,30 20,25 Z" fill="#ffffff" opacity="0.5"/>
+              <!-- Asa Lateral -->
+              <path d="M40,26 L65,30 L55,48 L35,38 Z" fill="#fbbf24"/>
+              <path d="M40,26 L65,30 L60,34 L38,30 Z" fill="#f59e0b"/>
+              <!-- Trem de Pouso -->
+              <circle cx="50" cy="42" r="4" fill="#334155"/>
+              <circle cx="50" cy="42" r="2" fill="#94a3b8"/>
+              <path d="M50,42 L45,30" stroke="#475569" stroke-width="2"/>
+              <!-- Engate do Cabo -->
+              <circle cx="5" cy="25" r="2" fill="#334155"/>
+            </svg>
+          </div>
         </div>
       `;
       document.body.appendChild(planeWrapper);
-      setTimeout(() => planeWrapper.remove(), 15000); // 15s
+      setTimeout(() => planeWrapper.remove(), 16000);
 
-      // 2. Chuva de Melancias Dinâmica
-      const amount = Math.min(guessedCountries.size, 198); // Vinculado aos acertos
+      // Cria a chuva de melancias baseada nos acertos atuais
+      const amount = Math.min(guessedCountries.size, 198); // Segurança limite
       for(let i=0; i<amount; i++) {
         const wm = document.createElement('div');
         wm.className = 'watermelon-rain';
@@ -998,6 +1030,7 @@
       
       document.querySelectorAll('.map-country').forEach(el => el.classList.remove('guessed', 'missed'));
       
+      // Oculta todas as bandeiras no início
       document.querySelectorAll('.country-flag').forEach(flag => {
         flag.className = "country-flag w-0 opacity-0 scale-50 transition-all duration-500 origin-right rounded-sm shadow-sm";
       });
@@ -1177,10 +1210,11 @@
       else if (confirm("Deseja realmente desistir e revelar todas as respostas no mapa e nas tabelas?")) endGame(false, "Desistência");
     });
 
+    // Compartilhar no WhatsApp - Animado e Divertido
     document.getElementById('whatsappShareBtn').addEventListener('click', () => {
       const score = guessedCountries.size;
       const pctVal = (score / TOTAL_COUNTRIES) * 100;
-      const pctStr = pctVal.toFixed(2).replace('.', ',');
+      const pctStr = pctVal.toFixed(2).replace('.', ','); 
       
       let emoji = "😭";
       if (pctVal >= 10 && pctVal < 20) emoji = "😢";
