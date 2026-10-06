@@ -59,7 +59,7 @@
       stroke: #b91c1c !important;
     }
     .ocean {
-      fill: #090e17; /* Tom muito escuro simulando o mar */
+      fill: #090e17;
       stroke: #1e293b;
       stroke-width: 1px;
     }
@@ -71,7 +71,7 @@
   <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
       
-      <!-- LOGO APRIMORADA -->
+      <!-- LOGO -->
       <div class="flex items-center gap-3">
         <div class="w-11 h-11 rounded-full bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.3)] border border-white/20">
           <i data-lucide="earth" class="w-6 h-6 text-slate-950 drop-shadow-sm"></i>
@@ -162,12 +162,14 @@
       <div id="progressBar" class="bg-gradient-to-r from-emerald-500 to-cyan-400 h-2 rounded-full transition-all duration-300 w-0"></div>
     </div>
 
-    <!-- CAMPO DE DIGITAÇÃO SEM RESPOSTAS -->
+    <!-- CAMPO DE DIGITAÇÃO -->
     <div class="relative w-full">
       <div class="relative flex items-center">
-        <div class="absolute left-4.5 flex items-center pointer-events-none">
+        <!-- Ícone movido para a direita com left-6 -->
+        <div class="absolute left-6 flex items-center pointer-events-none">
           <i data-lucide="search" class="w-5 h-5 text-slate-400"></i>
         </div>
+        <!-- Padding alterado para pl-16 para criar o espaço adequado -->
         <input 
           id="countryInput"
           type="text" 
@@ -175,8 +177,8 @@
           autocomplete="off" 
           autocorrect="off" 
           spellcheck="false"
-          placeholder="Clique em 'Começar' para iniciar sua jornada..." 
-          class="w-full pl-14 pr-28 py-3.5 bg-slate-900 border border-slate-800 focus:border-brand-500 rounded-xl text-base font-medium placeholder-slate-500 text-white outline-none transition disabled:opacity-50 disabled:cursor-not-allowed shadow-inner"
+          placeholder="Digite o nome de um país..." 
+          class="w-full pl-16 pr-28 py-3.5 bg-slate-900 border border-slate-800 focus:border-brand-500 rounded-xl text-base font-medium placeholder-slate-500 text-white outline-none transition disabled:opacity-50 disabled:cursor-not-allowed shadow-inner"
         >
         <span id="typingFeedback" class="absolute right-4 text-xs font-bold px-2 py-1 rounded bg-slate-800 text-slate-400">
           Aguardando
@@ -199,7 +201,6 @@
       <div class="w-full overflow-hidden flex items-center justify-center relative rounded-xl" id="mapWrapper">
         <svg id="worldMapSvg" viewBox="0 0 960 480" class="w-full h-auto max-h-[500px] cursor-grab active:cursor-grabbing"></svg>
         
-        <!-- Botão Flutuante de Resetar Globo -->
         <button id="resetZoomBtn" class="absolute bottom-4 right-4 bg-slate-800/90 backdrop-blur text-slate-300 px-3 py-2 rounded-lg text-xs font-bold border border-slate-700 hover:bg-slate-700 hover:text-white transition-all duration-300 opacity-0 pointer-events-none shadow-lg flex items-center gap-1.5 z-10">
           <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Resetar Globo
         </button>
@@ -253,13 +254,19 @@
         </div>
       </div>
 
-      <div class="flex gap-3 w-full">
-        <button id="modalReviewBtn" class="flex-1 py-2.5 rounded-xl font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 transition text-sm">
-          Ver Mapa
+      <div class="flex flex-col gap-3 w-full">
+        <button id="whatsappShareBtn" class="w-full py-3 rounded-xl font-bold bg-[#25D366] hover:bg-[#20bd5a] text-white transition text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#25D366]/20">
+          <svg xmlns="http://www.w3.org/200w/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-circle"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+          Compartilhar Resultado
         </button>
-        <button id="modalRestartBtn" class="flex-1 py-2.5 rounded-xl font-semibold bg-brand-600 hover:bg-brand-500 text-white transition text-sm">
-          Jogar Novamente
-        </button>
+        <div class="flex gap-3 w-full">
+          <button id="modalReviewBtn" class="flex-1 py-2.5 rounded-xl font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 transition text-sm">
+            Ver Mapa
+          </button>
+          <button id="modalRestartBtn" class="flex-1 py-2.5 rounded-xl font-semibold bg-brand-600 hover:bg-brand-500 text-white transition text-sm">
+            Jogar Novamente
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -474,7 +481,7 @@
       { id: "548", name: "Vanuatu", continent: "Oceania", syn: ["vanuatu"] }
     ];
 
-    // DICIONÁRIO DE TERRITÓRIOS FAMOSOS
+    // DICIONÁRIO DE TERRITÓRIOS
     const TERRITORIES_DB = {
       "304": { owner: "208", name: "Groenlândia", ownerName: "Dinamarca" },
       "630": { owner: "840", name: "Porto Rico", ownerName: "Estados Unidos" },
@@ -494,6 +501,7 @@
     let timerInterval = null;
     let guessedCountries = new Set();
     let isMuted = false;
+    let countriesGeoGlobal = []; // Variável para armazenar dados dos países para rotação auto
 
     // DOM Elements
     const gameActionBtn = document.getElementById('gameActionBtn');
@@ -546,7 +554,6 @@
       return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "").trim();
     }
 
-    // Renderizar Tabelas
     function renderContinentTables() {
       continentsContainer.innerHTML = '';
       const continentsConfig = [
@@ -589,7 +596,7 @@
       updateCounters();
     }
 
-    // VARIÁVEIS DO GLOBO 3D D3.js
+    // MAPA 3D D3.js
     let svgContainer, mapGroup, projection, svgPath;
     const INITIAL_SCALE = 220;
 
@@ -597,7 +604,6 @@
       svgContainer = d3.select("#worldMapSvg");
       mapGroup = svgContainer.append("g");
 
-      // Projeção Ortográfica (Globo 3D)
       projection = d3.geoOrthographic()
         .scale(INITIAL_SCALE)
         .translate([480, 240])
@@ -606,13 +612,12 @@
         
       svgPath = d3.geoPath().projection(projection);
 
-      // Círculo do Oceano
       const ocean = mapGroup.append("circle")
         .attr("cx", 480).attr("cy", 240)
         .attr("r", INITIAL_SCALE)
         .attr("class", "ocean");
 
-      // Comportamento de Girar ao Arrastar (Drag)
+      // Girar (Drag)
       let rotate0, coords0;
       const dragBehavior = d3.drag()
         .on('start', (event) => {
@@ -625,7 +630,6 @@
                rotate0[0] + (event.x - coords0[0]) * k,
                rotate0[1] - (event.y - coords0[1]) * k
            ];
-           // Limita inclinação para não virar de ponta cabeça
            rotate[1] = Math.max(-90, Math.min(90, rotate[1]));
            projection.rotate(rotate);
            mapGroup.selectAll("path.map-country").attr("d", svgPath);
@@ -634,7 +638,7 @@
 
       svgContainer.call(dragBehavior);
 
-      // Comportamento de Zoom pelo Scroll (Wheel)
+      // Zoom (Scroll)
       svgContainer.on("wheel", (event) => {
         event.preventDefault();
         const zoomFactor = event.deltaY < 0 ? 1.1 : 0.9;
@@ -647,15 +651,15 @@
         checkResetButtonVisibility();
       });
 
-      // Carregamento dos Países
+      // Carregar Países
       fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
         .then(res => res.json())
         .then(world => {
-          const countriesGeo = topojson.feature(world, world.objects.countries).features
-            .filter(d => String(d.id).padStart(3, '0') !== '010'); // Ignorar Antártida no 110m
+          countriesGeoGlobal = topojson.feature(world, world.objects.countries).features
+            .filter(d => String(d.id).padStart(3, '0') !== '010');
 
           mapGroup.selectAll(".map-country")
-            .data(countriesGeo)
+            .data(countriesGeoGlobal)
             .enter()
             .append("path")
             .attr("d", svgPath)
@@ -670,17 +674,11 @@
               const foundCountry = COUNTRIES_DB.find(c => c.id === code);
               const foundTerritory = TERRITORIES_DB[code];
 
-              // É País soberano
               if (foundCountry) {
                 const countryIdx = COUNTRIES_DB.indexOf(foundCountry);
-                if (guessedCountries.has(countryIdx) || isGameOver) {
-                  mapTooltip.innerText = foundCountry.name;
-                } else {
-                  mapTooltip.innerText = "???";
-                }
-              } 
-              // É Território mapeado
-              else if (foundTerritory) {
+                if (guessedCountries.has(countryIdx) || isGameOver) mapTooltip.innerText = foundCountry.name;
+                else mapTooltip.innerText = "???";
+              } else if (foundTerritory) {
                 const ownerCountry = COUNTRIES_DB.find(c => c.id === foundTerritory.owner);
                 const ownerIdx = ownerCountry ? COUNTRIES_DB.indexOf(ownerCountry) : -1;
                 if ((ownerIdx !== -1 && guessedCountries.has(ownerIdx)) || isGameOver) {
@@ -695,11 +693,29 @@
             .on("mouseout", () => {
               mapTooltip.innerText = "Arraste para girar / Clique para aproximar";
             })
-            .on("click", (event, d) => clickedCountryZoom(event, d)); // Zoom e foco ao clicar
+            .on("click", (event, d) => clickedCountryZoom(event, d));
         });
     }
 
-    // Zoom animado para o país clicado
+    // Girar e centralizar para um país especifíco (Usado no input)
+    function autoRotateToCountry(countryCode) {
+      if (countriesGeoGlobal.length === 0) return;
+      const feature = countriesGeoGlobal.find(f => String(f.id).padStart(3, '0') === countryCode);
+      if (!feature) return;
+
+      const centroid = d3.geoCentroid(feature);
+      const targetRotate = [-centroid[0], -centroid[1]];
+
+      d3.transition().duration(800).tween("rotate", () => {
+        const r = d3.interpolate(projection.rotate(), targetRotate);
+        return (t) => {
+          projection.rotate(r(t));
+          mapGroup.selectAll("path.map-country").attr("d", svgPath);
+        };
+      }).on("end", checkResetButtonVisibility);
+    }
+
+    // Zoom animado no clique
     function clickedCountryZoom(event, d) {
       event.stopPropagation();
       const centroid = d3.geoCentroid(d);
@@ -707,7 +723,7 @@
       
       d3.transition().duration(800).tween("rotateAndZoom", () => {
         const r = d3.interpolate(projection.rotate(), targetRotate);
-        const s = d3.interpolate(projection.scale(), INITIAL_SCALE * 3.5); // Nível do zoom
+        const s = d3.interpolate(projection.scale(), INITIAL_SCALE * 3.5);
         return (t) => {
           projection.rotate(r(t)).scale(s(t));
           mapGroup.select(".ocean").attr("r", s(t));
@@ -716,7 +732,6 @@
       }).on("end", checkResetButtonVisibility);
     }
 
-    // Restaura visão original
     function resetGlobeVision() {
       d3.transition().duration(800).tween("reset", () => {
         const r = d3.interpolate(projection.rotate(), [0, 0]);
@@ -738,7 +753,6 @@
        }
     }
 
-    // Atualiza classes do Mapa (País e seus Territórios)
     function updateMapCountry(countryIndex, status) {
       const country = COUNTRIES_DB[countryIndex];
       if (!country || !country.id) return;
@@ -751,10 +765,7 @@
         }
       };
 
-      // Atualiza País principal
       updateClass(document.getElementById(`map-${country.id}`));
-      
-      // Atualiza os Territórios que pertencem a ele
       document.querySelectorAll(`.map-country[data-owner="${country.id}"]`).forEach(tEl => {
         updateClass(tEl);
       });
@@ -870,7 +881,7 @@
       gameOverModal.classList.remove('hidden');
     }
 
-    // Input principal
+    // Digitação e Auto-Rotação
     countryInput.addEventListener('input', (e) => {
       if (!isPlaying) return;
       const rawVal = e.target.value;
@@ -905,6 +916,9 @@
           }
 
           updateMapCountry(foundIndex, 'guessed');
+          
+          // Gira o globo para o país acertado
+          autoRotateToCountry(country.id);
 
           lastGuessedDisplay.innerText = country.name;
           countryInput.value = '';
@@ -961,6 +975,23 @@
     gameActionBtn.addEventListener('click', () => {
       if (!isPlaying) startGame();
       else if (confirm("Deseja realmente desistir e revelar todas as respostas no mapa e nas tabelas?")) endGame(false, "Desistência");
+    });
+
+    // Compartilhar no WhatsApp
+    document.getElementById('whatsappShareBtn').addEventListener('click', () => {
+      const score = guessedCountries.size;
+      const pct = Math.round((score / 196) * 100);
+      let emoji = "😭";
+      if (pct >= 20 && pct < 40) emoji = "🥲";
+      else if (pct >= 40 && pct < 60) emoji = "🙂";
+      else if (pct >= 60 && pct < 80) emoji = "🤩";
+      else if (pct >= 80 && pct < 100) emoji = "🤯";
+      else if (pct === 100) emoji = "👑🌍";
+      
+      const gameUrl = window.location.href; // Captura a URL atual do jogador (ex: GitHub Pages)
+      const text = `🌍 Joguei o Volta ao Mundo e acertei ${score}/196 países (${pct}%)! ${emoji}\n\nSerá que você consegue me vencer? Jogue em: ${gameUrl}`;
+      const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+      window.open(whatsappUrl, '_blank');
     });
 
     document.getElementById('modalReviewBtn').addEventListener('click', () => gameOverModal.classList.add('hidden'));
