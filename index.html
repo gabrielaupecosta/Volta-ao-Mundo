@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Volta ao Mundo - O Desafio dos 198 Países</title>
+  <title>Volta ao Mundo - O Desafio dos 196 Países</title>
   
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -22,50 +22,51 @@
     tailwind.config = {
       theme: {
         extend: {
-          fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
-          colors: {
-            brand: {
-              50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a',
-            }
-          }
+          fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] }
         }
       }
     }
   </script>
 
   <style>
+    /* Scrollbar geral */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #0f172a; }
-    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 9999px; }
-    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    ::-webkit-scrollbar-track { background: #09090b; } /* zinc-950 */
+    ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 9999px; } /* zinc-700 */
+    ::-webkit-scrollbar-thumb:hover { background: #52525b; }
     
+    /* Scrollbar invisível para container horizontal */
+    .hide-scrollbars::-webkit-scrollbar { display: none; }
+    .hide-scrollbars { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Estilo do Mapa 3D */
     .map-country {
-      fill: #1e293b;
-      stroke: #334155;
+      fill: #18181b; /* zinc-900 */
+      stroke: #27272a; /* zinc-800 */
       stroke-width: 0.6px;
       transition: fill 0.25s ease, stroke 0.25s ease;
       cursor: pointer;
     }
     .map-country:hover {
-      stroke: #60a5fa;
+      stroke: #a1a1aa; /* zinc-400 */
       stroke-width: 1.5px;
     }
     .map-country.guessed {
-      fill: #10b981 !important;
+      fill: #10b981 !important; /* emerald-500 */
       stroke: #059669 !important;
     }
     .map-country.missed {
-      fill: #ef4444 !important;
+      fill: #ef4444 !important; /* red-500 */
       stroke: #b91c1c !important;
     }
     
     .map-marker {
-      fill: #334155; 
-      stroke: #64748b;
+      fill: #18181b; 
+      stroke: #52525b;
       stroke-width: 1.5px;
     }
     .map-marker:hover {
-      fill: #60a5fa;
+      fill: #a1a1aa;
       stroke: #ffffff;
     }
     .map-marker.guessed {
@@ -78,8 +79,8 @@
     }
 
     .ocean {
-      fill: #090e17;
-      stroke: #1e293b;
+      fill: #000000; /* Preto absoluto */
+      stroke: #18181b;
       stroke-width: 1px;
     }
 
@@ -89,21 +90,24 @@
       box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
 
+    /* Totalizadores verde (vitória) */
+    .stat-card {
+      transition: all 0.5s ease;
+    }
+    .stat-card.victory {
+      background-color: rgba(6, 78, 59, 0.3) !important; /* emerald-900 opacity */
+      border-color: rgba(16, 185, 129, 0.4) !important; /* emerald-500 */
+    }
+
     /* EASTER EGG: AVIÃO COM FAIXA ONDULANTE E VOO CONTÍNUO */
-    
-    /* Voo contínuo na horizontal */
     @keyframes flyPlaneX {
       0% { transform: translateX(-40vw); }
       100% { transform: translateX(120vw); }
     }
-    
-    /* Flutuação natural vertical simulando o vento */
     @keyframes flyPlaneY {
       0%, 100% { transform: translateY(0) rotate(0deg); }
       50% { transform: translateY(-20px) rotate(-1.5deg); }
     }
-
-    /* Torção da faixa acompanhando o vento */
     @keyframes waveBanner {
       0%, 100% { transform: skewY(0deg) rotate(0deg); }
       50% { transform: skewY(-4deg) rotate(2deg); }
@@ -114,35 +118,32 @@
       top: 12vh;
       left: 0;
       z-index: 9999;
-      animation: flyPlaneX 16s linear forwards; /* Cruzamento da tela em velocidade constante */
+      animation: flyPlaneX 16s linear forwards;
       pointer-events: none;
     }
-    
     .airplane-bobbing {
       display: flex;
       align-items: center;
-      animation: flyPlaneY 4s ease-in-out infinite; /* Balanço vertical do avião */
-      filter: drop-shadow(0px 15px 10px rgba(0,0,0,0.25));
+      animation: flyPlaneY 4s ease-in-out infinite;
+      filter: drop-shadow(0px 15px 10px rgba(0,0,0,0.4));
     }
-
     .airplane-banner-container {
       display: flex;
       align-items: center;
-      transform-origin: center right; /* Eixo preso na cauda do avião */
-      animation: waveBanner 1.5s ease-in-out infinite; /* Ondulação do tecido */
+      transform-origin: center right; 
+      animation: waveBanner 1.5s ease-in-out infinite; 
       margin-right: -4px;
     }
-
     .airplane-banner {
       background: #ffffff;
-      color: #064e3b;
+      color: #000000;
       padding: 6px 20px 6px 25px;
       font-weight: 900;
       text-transform: uppercase;
       letter-spacing: 2.5px;
       font-size: 0.95rem;
       border-radius: 2px;
-      clip-path: polygon(15px 0%, 100% 0%, 100% 100%, 15px 100%, 0% 50%); /* Rabo de andorinha no fim da faixa */
+      clip-path: polygon(15px 0%, 100% 0%, 100% 100%, 15px 100%, 0% 50%);
       box-shadow: inset -5px 0 10px rgba(0,0,0,0.05);
     }
 
@@ -160,45 +161,45 @@
       z-index: 9998;
       animation: rainDrop linear forwards;
       pointer-events: none;
-      filter: drop-shadow(0px 3px 5px rgba(0,0,0,0.2));
+      filter: drop-shadow(0px 3px 5px rgba(0,0,0,0.5));
     }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-emerald-500 selection:text-white">
+<body class="bg-black text-zinc-100 min-h-screen flex flex-col font-sans selection:bg-white selection:text-black">
 
   <!-- HEADER -->
-  <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-40">
+  <header class="border-b border-zinc-900 bg-black/90 backdrop-blur sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
       
       <!-- LOGO -->
       <div class="flex items-center gap-3">
-        <div class="w-11 h-11 rounded-full bg-gradient-to-br from-emerald-400 to-cyan-500 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.3)] border border-white/20">
-          <i data-lucide="earth" class="w-6 h-6 text-slate-950 drop-shadow-sm"></i>
+        <div class="w-11 h-11 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center shadow-lg">
+          <i data-lucide="earth" class="w-6 h-6 text-white"></i>
         </div>
         <div>
           <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
             Volta ao Mundo
-            <span class="text-xs px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-400 font-semibold border border-brand-500/30" id="headerCount">198 Países</span>
+            <span class="text-xs px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 font-semibold border border-zinc-700" id="headerCount">196 Países</span>
           </h1>
-          <p class="text-xs text-slate-400 hidden sm:block">Adivinhe todas as nações do planeta antes do tempo acabar</p>
+          <p class="text-xs text-zinc-500 hidden sm:block">Adivinhe todas as nações do planeta antes do tempo acabar</p>
         </div>
       </div>
 
       <!-- CONTROLES -->
       <div class="flex items-center gap-3">
-        <button id="toggleAudioBtn" class="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition" title="Alternar som">
+        <button id="toggleAudioBtn" class="p-2 text-zinc-400 hover:text-white rounded-lg hover:bg-zinc-900 transition" title="Alternar som">
           <i id="audioIcon" data-lucide="volume-2" class="w-5 h-5"></i>
         </button>
 
-        <div class="flex bg-slate-800 p-0.5 rounded-lg border border-slate-700 text-xs">
-          <button class="time-btn px-2.5 py-1.5 rounded-md font-semibold text-white bg-brand-600 transition" data-time="15">15 min</button>
-          <button class="time-btn px-2.5 py-1.5 rounded-md font-semibold text-slate-400 hover:text-white transition" data-time="30">30 min</button>
-          <button class="time-btn px-2.5 py-1.5 rounded-md font-semibold text-slate-400 hover:text-white transition" data-time="45">45 min</button>
-          <button class="time-btn px-2.5 py-1.5 rounded-md font-semibold text-slate-400 hover:text-white transition" data-time="60">1h</button>
-          <button class="time-btn px-2.5 py-1.5 rounded-md font-semibold text-slate-400 hover:text-white transition" data-time="0">Livre</button>
+        <div class="flex bg-zinc-900 p-0.5 rounded-lg border border-zinc-800 text-xs">
+          <button class="time-btn px-2.5 py-1.5 rounded-md font-semibold text-black bg-white shadow-sm transition" data-time="15">15 min</button>
+          <button class="time-btn px-2.5 py-1.5 rounded-md font-semibold text-zinc-400 hover:text-white transition" data-time="30">30 min</button>
+          <button class="time-btn px-2.5 py-1.5 rounded-md font-semibold text-zinc-400 hover:text-white transition" data-time="45">45 min</button>
+          <button class="time-btn px-2.5 py-1.5 rounded-md font-semibold text-zinc-400 hover:text-white transition" data-time="60">1h</button>
+          <button class="time-btn px-2.5 py-1.5 rounded-md font-semibold text-zinc-400 hover:text-white transition" data-time="0">Livre</button>
         </div>
 
-        <button id="gameActionBtn" class="px-4 py-2 rounded-lg font-bold text-sm bg-emerald-600 hover:bg-emerald-500 text-white shadow-md hover:shadow-emerald-500/20 transition flex items-center gap-1.5">
+        <button id="gameActionBtn" class="px-4 py-2 rounded-lg font-bold text-sm bg-emerald-600 hover:bg-emerald-500 text-white shadow-md transition flex items-center gap-1.5">
           <i data-lucide="play" class="w-4 h-4 fill-white"></i>
           <span>Começar</span>
         </button>
@@ -210,62 +211,62 @@
   <!-- CONTEÚDO PRINCIPAL -->
   <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-6">
 
-    <!-- CARDS DE ESTATÍSTICA -->
+    <!-- CARDS DE ESTATÍSTICA (TOTALIZADORES) -->
     <section class="grid grid-cols-2 md:grid-cols-4 gap-3">
-      <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl flex items-center justify-between shadow-sm">
+      <div id="card-score" class="stat-card bg-zinc-900 border border-zinc-800 p-4 rounded-xl flex items-center justify-between shadow-sm">
         <div>
-          <span class="text-xs font-semibold text-slate-400 block uppercase tracking-wider">Acertos</span>
+          <span class="text-xs font-semibold text-zinc-400 block uppercase tracking-wider">Acertos</span>
           <div class="text-2xl font-extrabold text-white mt-0.5">
-            <span id="scoreDisplay" class="text-brand-400">0</span>
-            <span class="text-slate-500 text-lg" id="totalScoreText">/ 198</span>
+            <span id="scoreDisplay">0</span>
+            <span class="text-zinc-600 text-lg" id="totalScoreText">/ 196</span>
           </div>
         </div>
-        <div class="w-10 h-10 rounded-lg bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-400">
+        <div class="w-10 h-10 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center text-white">
           <i data-lucide="check-circle-2" class="w-5 h-5"></i>
         </div>
       </div>
 
-      <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl flex items-center justify-between shadow-sm">
+      <div id="card-percent" class="stat-card bg-zinc-900 border border-zinc-800 p-4 rounded-xl flex items-center justify-between shadow-sm">
         <div>
-          <span class="text-xs font-semibold text-slate-400 block uppercase tracking-wider">Conclusão</span>
+          <span class="text-xs font-semibold text-zinc-400 block uppercase tracking-wider">Conclusão</span>
           <div class="text-2xl font-extrabold text-white mt-0.5" id="percentDisplay">0%</div>
         </div>
-        <div class="w-10 h-10 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+        <div class="w-10 h-10 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center text-white">
           <i data-lucide="pie-chart" class="w-5 h-5"></i>
         </div>
       </div>
 
-      <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl flex items-center justify-between shadow-sm">
+      <div id="card-timer" class="stat-card bg-zinc-900 border border-zinc-800 p-4 rounded-xl flex items-center justify-between shadow-sm">
         <div>
-          <span class="text-xs font-semibold text-slate-400 block uppercase tracking-wider" id="timerLabel">Tempo</span>
+          <span class="text-xs font-semibold text-zinc-400 block uppercase tracking-wider" id="timerLabel">Tempo</span>
           <div class="text-2xl font-mono font-bold text-white mt-0.5 tracking-tight" id="timerDisplay">15:00</div>
         </div>
-        <div class="w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
+        <div class="w-10 h-10 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center text-white">
           <i data-lucide="clock" class="w-5 h-5"></i>
         </div>
       </div>
 
-      <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl flex items-center justify-between overflow-hidden shadow-sm">
+      <div id="card-last" class="stat-card bg-zinc-900 border border-zinc-800 p-4 rounded-xl flex items-center justify-between overflow-hidden shadow-sm">
         <div class="truncate">
-          <span class="text-xs font-semibold text-slate-400 block uppercase tracking-wider">Último Acerto</span>
-          <div class="text-lg font-bold text-emerald-400 mt-1 truncate" id="lastGuessedDisplay">—</div>
+          <span class="text-xs font-semibold text-zinc-400 block uppercase tracking-wider">Último Acerto</span>
+          <div class="text-lg font-bold text-white mt-1 truncate" id="lastGuessedDisplay">—</div>
         </div>
-        <div class="w-10 h-10 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 shrink-0">
+        <div class="w-10 h-10 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center text-white shrink-0">
           <i data-lucide="compass" class="w-5 h-5"></i>
         </div>
       </div>
     </section>
 
     <!-- BARRA DE PROGRESSO -->
-    <div class="w-full bg-slate-900 rounded-full h-2 overflow-hidden border border-slate-800">
-      <div id="progressBar" class="bg-gradient-to-r from-emerald-500 to-cyan-400 h-2 rounded-full transition-all duration-300 w-0"></div>
+    <div class="w-full bg-zinc-900 rounded-full h-2 overflow-hidden border border-zinc-800">
+      <div id="progressBar" class="bg-zinc-300 h-2 rounded-full transition-all duration-300 w-0"></div>
     </div>
 
     <!-- CAMPO DE DIGITAÇÃO -->
     <div class="relative w-full">
       <div class="relative flex items-center">
         <div class="absolute left-6 flex items-center pointer-events-none">
-          <i data-lucide="search" class="w-5 h-5 text-slate-400"></i>
+          <i data-lucide="search" class="w-5 h-5 text-zinc-500"></i>
         </div>
         <input 
           id="countryInput"
@@ -275,22 +276,22 @@
           autocorrect="off" 
           spellcheck="false"
           placeholder="Digite o nome de um país..." 
-          class="w-full pl-16 pr-28 py-3.5 bg-slate-900 border border-slate-800 focus:border-brand-500 rounded-xl text-base font-medium placeholder-slate-500 text-white outline-none transition disabled:opacity-50 disabled:cursor-not-allowed shadow-inner"
+          class="w-full pl-16 pr-28 py-3.5 bg-zinc-900 border border-zinc-800 focus:border-zinc-500 rounded-xl text-base font-medium placeholder-zinc-500 text-white outline-none transition disabled:opacity-50 disabled:cursor-not-allowed shadow-inner"
         >
-        <span id="typingFeedback" class="absolute right-4 text-xs font-bold px-2 py-1 rounded bg-slate-800 text-slate-400">
+        <span id="typingFeedback" class="absolute right-4 text-xs font-bold px-2 py-1 rounded bg-zinc-800 text-zinc-400">
           Aguardando
         </span>
       </div>
     </div>
 
     <!-- GLOBO 3D INTERATIVO -->
-    <section class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 relative overflow-hidden shadow-lg group">
-      <div class="flex items-center justify-between pb-3 mb-2 border-b border-slate-800">
+    <section class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-5 relative overflow-hidden shadow-lg group">
+      <div class="flex items-center justify-between pb-3 mb-2 border-b border-zinc-800">
         <div class="flex items-center gap-2">
-          <i data-lucide="globe-2" class="w-4 h-4 text-cyan-400"></i>
-          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-300">Globo Terrestre Interativo</h2>
+          <i data-lucide="globe-2" class="w-4 h-4 text-white"></i>
+          <h2 class="text-sm font-bold uppercase tracking-wider text-zinc-300">Globo Terrestre Interativo</h2>
         </div>
-        <div id="mapTooltip" class="text-xs font-bold px-2.5 py-1 rounded bg-slate-800/80 border border-slate-700/50 text-slate-300 transition-all">
+        <div id="mapTooltip" class="text-xs font-bold px-2.5 py-1 rounded bg-black/80 border border-zinc-700/50 text-white transition-all">
           Arraste para girar / Clique para aproximar
         </div>
       </div>
@@ -298,69 +299,71 @@
       <div class="w-full overflow-hidden flex items-center justify-center relative rounded-xl" id="mapWrapper">
         <svg id="worldMapSvg" viewBox="0 0 960 480" class="w-full h-auto max-h-[500px] cursor-grab active:cursor-grabbing"></svg>
         
-        <button id="resetZoomBtn" class="absolute bottom-4 right-4 bg-slate-800/90 backdrop-blur text-slate-300 px-3 py-2 rounded-lg text-xs font-bold border border-slate-700 hover:bg-slate-700 hover:text-white transition-all duration-300 opacity-0 pointer-events-none shadow-lg flex items-center gap-1.5 z-10">
+        <button id="resetZoomBtn" class="absolute bottom-4 right-4 bg-zinc-800/90 backdrop-blur text-white px-3 py-2 rounded-lg text-xs font-bold border border-zinc-700 hover:bg-white hover:text-black transition-all duration-300 opacity-0 pointer-events-none shadow-lg flex items-center gap-1.5 z-10">
           <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Resetar Globo
         </button>
       </div>
     </section>
 
     <!-- NAVEGAÇÃO DE CONTINENTES / ABAS -->
-    <div class="flex items-center gap-2 overflow-x-auto pb-1 border-b border-slate-800" id="continentTabs">
-      <button class="continent-tab px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-brand-600 text-white transition flex items-center gap-2" data-continent="all">
-        Todos <span class="text-xs bg-slate-900/50 px-1.5 py-0.5 rounded-full" id="count-all">0/198</span>
+    <div class="flex items-center gap-2 overflow-x-auto pb-1 hide-scrollbars" id="continentTabs">
+      <button class="continent-tab px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-white text-black transition flex items-center gap-2" data-continent="all">
+        Visão Geral
       </button>
-      <button class="continent-tab px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-slate-900 text-slate-400 hover:text-white transition flex items-center gap-2" data-continent="Americas">
-        Américas <span class="text-xs bg-slate-800 px-1.5 py-0.5 rounded-full" id="count-americas">0/35</span>
+      <button class="continent-tab px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800 hover:border-zinc-600 transition flex items-center gap-2" data-continent="Africa">
+        África <span class="text-xs bg-zinc-800 px-1.5 py-0.5 rounded-full" id="count-africa-tab">0/54</span>
       </button>
-      <button class="continent-tab px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-slate-900 text-slate-400 hover:text-white transition flex items-center gap-2" data-continent="Europa">
-        Europa <span class="text-xs bg-slate-800 px-1.5 py-0.5 rounded-full" id="count-europa">0/45</span>
+      <button class="continent-tab px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800 hover:border-zinc-600 transition flex items-center gap-2" data-continent="Americas">
+        Américas <span class="text-xs bg-zinc-800 px-1.5 py-0.5 rounded-full" id="count-americas-tab">0/35</span>
       </button>
-      <button class="continent-tab px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-slate-900 text-slate-400 hover:text-white transition flex items-center gap-2" data-continent="Asia">
-        Ásia <span class="text-xs bg-slate-800 px-1.5 py-0.5 rounded-full" id="count-asia">0/48</span>
+      <button class="continent-tab px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800 hover:border-zinc-600 transition flex items-center gap-2" data-continent="Asia">
+        Ásia <span class="text-xs bg-zinc-800 px-1.5 py-0.5 rounded-full" id="count-asia-tab">0/48</span>
       </button>
-      <button class="continent-tab px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-slate-900 text-slate-400 hover:text-white transition flex items-center gap-2" data-continent="Africa">
-        África <span class="text-xs bg-slate-800 px-1.5 py-0.5 rounded-full" id="count-africa">0/54</span>
+      <button class="continent-tab px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800 hover:border-zinc-600 transition flex items-center gap-2" data-continent="Europa">
+        Europa <span class="text-xs bg-zinc-800 px-1.5 py-0.5 rounded-full" id="count-europa-tab">0/45</span>
       </button>
-      <button class="continent-tab px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-slate-900 text-slate-400 hover:text-white transition flex items-center gap-2" data-continent="Oceania">
-        Oceania <span class="text-xs bg-slate-800 px-1.5 py-0.5 rounded-full" id="count-oceania">0/14</span>
+      <button class="continent-tab px-3.5 py-2 rounded-lg text-sm font-semibold whitespace-nowrap bg-zinc-900 text-zinc-400 hover:text-white border border-zinc-800 hover:border-zinc-600 transition flex items-center gap-2" data-continent="Oceania">
+        Oceania <span class="text-xs bg-zinc-800 px-1.5 py-0.5 rounded-full" id="count-oceania-tab">0/14</span>
       </button>
     </div>
 
-    <!-- SEÇÕES DE TABELAS POR CONTINENTE -->
-    <div id="continentsContainer" class="flex flex-col gap-8 pb-16"></div>
+    <!-- SEÇÕES DE TABELAS POR CONTINENTE (LADO A LADO) -->
+    <div id="continentsContainer" class="flex overflow-x-auto gap-4 pb-16 snap-x hide-scrollbars items-start">
+      <!-- Injetado via JS -->
+    </div>
 
   </main>
 
   <!-- MODAL DE RESULTADO / FIM DE JOGO -->
-  <div id="gameOverModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-slate-900 border border-slate-800 max-w-md w-full rounded-2xl p-6 shadow-2xl text-center flex flex-col items-center">
-      <div id="modalIconContainer" class="w-16 h-16 rounded-2xl bg-brand-500/20 text-brand-400 border border-brand-500/30 flex items-center justify-center mb-4">
+  <div id="gameOverModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-zinc-900 border border-zinc-800 max-w-md w-full rounded-2xl p-6 shadow-2xl text-center flex flex-col items-center">
+      <div id="modalIconContainer" class="w-16 h-16 rounded-2xl bg-zinc-800 border border-zinc-700 flex items-center justify-center mb-4 text-white">
         <i data-lucide="trophy" class="w-8 h-8"></i>
       </div>
       <h3 id="modalTitle" class="text-2xl font-black text-white">Fim da Viagem!</h3>
-      <p id="modalSubtitle" class="text-slate-400 text-sm mt-1 mb-6">Confira o seu desempenho na Volta ao Mundo:</p>
+      <p id="modalSubtitle" class="text-zinc-400 text-sm mt-1 mb-6">Confira o seu desempenho na Volta ao Mundo:</p>
 
-      <div class="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 grid grid-cols-2 gap-4 mb-6">
+      <div class="w-full bg-black border border-zinc-800 rounded-xl p-4 grid grid-cols-2 gap-4 mb-6">
         <div>
-          <span class="text-xs text-slate-400 uppercase font-semibold">Total Acertado</span>
-          <div class="text-2xl font-bold text-white mt-0.5"><span id="modalScore">0</span> <span id="modalScoreTotal" class="text-slate-500 text-lg">/ 198</span></div>
+          <span class="text-xs text-zinc-500 uppercase font-semibold">Total Acertado</span>
+          <div class="text-2xl font-bold text-white mt-0.5"><span id="modalScore">0</span> <span class="text-zinc-600 text-lg">/ 196</span></div>
         </div>
         <div>
-          <span class="text-xs text-slate-400 uppercase font-semibold">Aproveitamento</span>
-          <div class="text-2xl font-bold text-brand-400 mt-0.5" id="modalPercent">0%</div>
+          <span class="text-xs text-zinc-500 uppercase font-semibold">Aproveitamento</span>
+          <div class="text-2xl font-bold text-white mt-0.5" id="modalPercent">0%</div>
         </div>
       </div>
 
       <div class="flex flex-col gap-3 w-full">
-        <button id="whatsappShareBtn" class="w-full py-3 rounded-xl font-bold bg-[#25D366] hover:bg-[#20bd5a] text-white transition text-sm flex items-center justify-center gap-2 shadow-lg shadow-[#25D366]/20">
+        <button id="whatsappShareBtn" class="w-full py-3 rounded-xl font-bold bg-[#25D366] hover:bg-[#20bd5a] text-black transition text-sm flex items-center justify-center gap-2 shadow-lg">
           <svg xmlns="http://www.w3.org/200w/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-circle"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
           Compartilhar Resultado
         </button>
         <div class="flex gap-3 w-full">
-          <button id="modalReviewBtn" class="flex-1 py-2.5 rounded-xl font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 transition text-sm">
+          <button id="modalReviewBtn" class="flex-1 py-2.5 rounded-xl font-semibold bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition text-sm">
             Ver Mapa
           </button>
-          <button id="modalRestartBtn" class="flex-1 py-2.5 rounded-xl font-semibold bg-brand-600 hover:bg-brand-500 text-white transition text-sm">
+          <button id="modalRestartBtn" class="flex-1 py-2.5 rounded-xl font-semibold bg-white hover:bg-zinc-200 text-black transition text-sm">
             Jogar Novamente
           </button>
         </div>
@@ -370,6 +373,7 @@
 
   <!-- SCRIPT DO JOGO -->
   <script>
+    // BASE DE DADOS 196 PAÍSES 
     const COUNTRIES_DB = [
       // AMÉRICAS (35)
       { id: "028", name: "Antígua e Barbuda", continent: "Americas", flag: "ag", syn: ["antigua e barbuda", "antigua barbuda", "antigua"] },
@@ -579,7 +583,7 @@
       { id: "548", name: "Vanuatu", continent: "Oceania", flag: "vu", syn: ["vanuatu"] }
     ];
 
-    const TOTAL_COUNTRIES = 198;
+    const TOTAL_COUNTRIES = 196;
 
     const MICRO_STATES_COORDS = [
       { id: "336", coords: [12.4534, 41.9029] },
@@ -695,52 +699,69 @@
       return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "").trim();
     }
 
-    // Easter Egg Animado - Avião Perfil e Chuva
+    // Easter Egg Animado
     function showPalestineEasterEgg() {
-      // 1. Avião com faixa animada
+      // Avião com Voo Contínuo
       const planeWrapper = document.createElement('div');
       planeWrapper.className = 'airplane-wrapper';
       planeWrapper.innerHTML = `
         <div class="airplane-bobbing">
           <div class="airplane-banner-container">
             <div class="airplane-banner">Palestina Livre</div>
-            <div style="width: 25px; height: 1.5px; background: #94a3b8; margin-top: 5px;"></div>
+            <div style="width: 25px; height: 1.5px; background: #52525b; margin-top: 5px;"></div>
           </div>
-          <div class="airplane-model" style="transform: translateY(2px);">
+          <div style="transform: translateY(2px);">
+            <!-- Avião Monomotor Customizado Estilo Referência -->
             <svg width="85" height="42" viewBox="0 0 100 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <ellipse cx="94" cy="25" rx="3" ry="18" fill="#cbd5e1" opacity="0.6">
+              <!-- Hélice em movimento -->
+              <ellipse cx="94" cy="25" rx="3" ry="18" fill="#d4d4d8" opacity="0.6">
                 <animate attributeName="ry" values="18;2;18" dur="0.1s" repeatCount="indefinite" />
               </ellipse>
+              <ellipse cx="94" cy="25" rx="2" ry="18" fill="#a1a1aa" opacity="0.3">
+                <animate attributeName="ry" values="2;18;2" dur="0.1s" repeatCount="indefinite" />
+              </ellipse>
+              <!-- Leme Horizontal Base (Vermelho) -->
               <path d="M5,26 L18,29 L14,32 L2,28 Z" fill="#b91c1c"/>
               <path d="M5,24 L18,27 L14,30 L2,26 Z" fill="#ef4444"/>
-              <path d="M15,22 L8,4 L22,18 Z" fill="#ef4444"/>
+              <!-- Leme Vertical Base (Amarelo) -->
+              <path d="M15,22 L8,4 L22,18 Z" fill="#f59e0b"/>
+              <path d="M15,22 L11,6 L22,18 Z" fill="#fbbf24"/>
+              <!-- Corpo Base (Amarelo Superior) -->
               <path d="M15,12 C15,5 25,5 25,22 L50,22 L55,16 L70,16 L75,22 L75,35 L35,35 L12,30 C8,28 12,18 15,12 Z" fill="#fbbf24"/>
+              <!-- Corpo Base (Vermelho Inferior - Barriga) -->
               <path d="M12,30 L35,35 L75,35 L75,26 L50,27 L45,31 L25,31 L8,27 Z" fill="#dc2626"/>
-              <path d="M75,22 L85,22 C90,22 90,35 85,35 L75,35 Z" fill="#6b7280"/>
-              <polygon points="57,17 68,17 72,21 57,21" fill="#a5f3fc"/>
-              <polygon points="46,17 54,17 54,21 46,21" fill="#a5f3fc"/>
-              <line x1="50" y1="12" x2="50" y2="22" stroke="#475569" stroke-width="2"/>
-              <line x1="60" y1="12" x2="55" y2="16" stroke="#475569" stroke-width="2"/>
+              <!-- Bico do Avião (Cinza escuro) -->
+              <path d="M75,22 L85,22 C90,22 90,35 85,35 L75,35 Z" fill="#71717a"/>
+              <!-- Vidros Cockpit (Ciano claro) -->
+              <polygon points="57,17 68,17 72,21 57,21" fill="#cffafe"/>
+              <polygon points="46,17 54,17 54,21 46,21" fill="#cffafe"/>
+              <!-- Asa Superior Vermelha flutuante -->
+              <line x1="50" y1="12" x2="50" y2="22" stroke="#52525b" stroke-width="2"/>
+              <line x1="60" y1="12" x2="55" y2="16" stroke="#52525b" stroke-width="2"/>
               <path d="M40,12 L65,12 C70,12 70,9 65,9 L40,9 C35,9 35,12 40,12 Z" fill="#dc2626"/>
+              <!-- Detalhe de Faixa Leme -->
               <path d="M8,26 L25,26 C28,26 28,29 25,29 L10,29 Z" fill="#dc2626"/>
-              <ellipse cx="86" cy="28.5" rx="1.5" ry="12" fill="#1f2937">
+              <!-- Eixo da hélice -->
+              <ellipse cx="86" cy="28.5" rx="1.5" ry="12" fill="#27272a">
                  <animate attributeName="ry" values="12;2;12" dur="0.05s" repeatCount="indefinite" />
               </ellipse>
-              <path d="M86,26.5 C90,26.5 90,30.5 86,30.5 Z" fill="#d1d5db"/>
-              <line x1="60" y1="45" x2="55" y2="35" stroke="#475569" stroke-width="2"/>
-              <line x1="60" y1="45" x2="65" y2="35" stroke="#475569" stroke-width="2"/>
-              <circle cx="60" cy="45" r="4.5" fill="#1f2937"/>
-              <circle cx="60" cy="45" r="2" fill="#9ca3af"/>
-              <circle cx="5" cy="28" r="1.5" fill="#475569"/>
+              <path d="M86,26.5 C90,26.5 90,30.5 86,30.5 Z" fill="#e4e4e7"/>
+              <!-- Trem de Pouso Principal -->
+              <line x1="60" y1="45" x2="55" y2="35" stroke="#3f3f46" stroke-width="2.5"/>
+              <line x1="60" y1="45" x2="65" y2="35" stroke="#3f3f46" stroke-width="2.5"/>
+              <circle cx="60" cy="45" r="5" fill="#27272a"/>
+              <circle cx="60" cy="45" r="2" fill="#a1a1aa"/>
+              <!-- Ponto do Cabo de Reboque -->
+              <circle cx="5" cy="28" r="1.5" fill="#52525b"/>
             </svg>
           </div>
         </div>
       `;
       document.body.appendChild(planeWrapper);
-      setTimeout(() => planeWrapper.remove(), 16000);
+      setTimeout(() => planeWrapper.remove(), 17000);
 
-      // 2. Chuva de Melancias Dinâmica
-      const amount = Math.min(guessedCountries.size, 198); 
+      // Chuva de Melancias Dinâmica (Proporcional aos acertos)
+      const amount = Math.min(guessedCountries.size, 196); 
       for(let i=0; i<amount; i++) {
         const wm = document.createElement('div');
         wm.className = 'watermelon-rain';
@@ -756,10 +777,10 @@
     function renderContinentTables() {
       continentsContainer.innerHTML = '';
       const continentsConfig = [
-        { key: 'Americas', title: 'Américas', total: 35 },
-        { key: 'Europa', title: 'Europa', total: 45 },
-        { key: 'Asia', title: 'Ásia', total: 48 },
         { key: 'Africa', title: 'África', total: 54 },
+        { key: 'Americas', title: 'Américas', total: 35 },
+        { key: 'Asia', title: 'Ásia', total: 48 },
+        { key: 'Europa', title: 'Europa', total: 45 },
         { key: 'Oceania', title: 'Oceania', total: 14 }
       ];
 
@@ -771,21 +792,21 @@
 
         const section = document.createElement('section');
         section.dataset.continent = conf.key;
-        section.className = "bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-sm";
+        section.className = "bg-zinc-900 border border-zinc-800 rounded-xl p-4 shadow-sm min-w-[280px] sm:min-w-[300px] flex-1 snap-center flex flex-col";
 
         section.innerHTML = `
-          <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
-            <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <div class="flex items-center justify-between pb-3 mb-3 border-b border-zinc-800 sticky top-0 z-10">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
               <span>${conf.title}</span>
-              <span class="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-semibold border border-slate-700/60" id="badge-${conf.key}">
+              <span class="text-xs px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-400 font-semibold border border-zinc-700/60" id="badge-${conf.key}">
                 0/${conf.total}
               </span>
             </h3>
           </div>
-          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
+          <div class="flex flex-col gap-2">
             ${list.map(item => `
-              <div id="cell-${item.originalIndex}" class="p-3 rounded-xl border border-slate-800/80 bg-slate-950/60 flex items-center justify-between min-h-[52px] transition-all">
-                <span class="country-label text-xs font-semibold text-slate-500 uppercase tracking-wider select-none truncate mr-2 flex-1">• • •</span>
+              <div id="cell-${item.originalIndex}" class="p-2.5 rounded-lg border border-zinc-800/80 bg-zinc-950/60 flex items-center justify-between transition-all">
+                <span class="country-label text-xs font-semibold text-zinc-500 uppercase tracking-wider select-none truncate mr-2 flex-1">• • •</span>
                 <img src="https://flagcdn.com/w40/${item.flag}.png" class="country-flag w-0 opacity-0 scale-50 transition-all duration-500 origin-right rounded-sm shadow-sm" alt="Bandeira">
               </div>
             `).join('')}
@@ -993,23 +1014,39 @@
         counts[c.continent]++;
       });
 
-      document.getElementById('count-all').innerText = `${counts.all}/${TOTAL_COUNTRIES}`;
-      document.getElementById('count-americas').innerText = `${counts.Americas}/35`;
-      document.getElementById('count-europa').innerText = `${counts.Europa}/45`;
-      document.getElementById('count-asia').innerText = `${counts.Asia}/48`;
-      document.getElementById('count-africa').innerText = `${counts.Africa}/54`;
-      document.getElementById('count-oceania').innerText = `${counts.Oceania}/14`;
-
-      const bA = document.getElementById('badge-Americas'); if (bA) bA.innerText = `${counts.Americas}/35`;
-      const bE = document.getElementById('badge-Europa'); if (bE) bE.innerText = `${counts.Europa}/45`;
-      const bAs = document.getElementById('badge-Asia'); if (bAs) bAs.innerText = `${counts.Asia}/48`;
-      const bAf = document.getElementById('badge-Africa'); if (bAf) bAf.innerText = `${counts.Africa}/54`;
-      const bO = document.getElementById('badge-Oceania'); if (bO) bO.innerText = `${counts.Oceania}/14`;
-
-      scoreDisplay.innerText = counts.all;
+      document.getElementById('scoreDisplay').innerText = counts.all;
       const pct = Math.round((counts.all / TOTAL_COUNTRIES) * 100);
-      percentDisplay.innerText = `${pct}%`;
-      progressBar.style.width = `${pct}%`;
+      document.getElementById('percentDisplay').innerText = `${pct}%`;
+      
+      // Barra de progresso visual
+      document.getElementById('progressBar').style.width = `${pct}%`;
+      
+      // Update header
+      document.getElementById('count-all').innerText = `${counts.all}/${TOTAL_COUNTRIES}`;
+      
+      // Update das abas
+      const bA = document.getElementById('count-americas-tab'); if (bA) bA.innerText = `${counts.Americas}/35`;
+      const bE = document.getElementById('count-europa-tab'); if (bE) bE.innerText = `${counts.Europa}/45`;
+      const bAs = document.getElementById('count-asia-tab'); if (bAs) bAs.innerText = `${counts.Asia}/48`;
+      const bAf = document.getElementById('count-africa-tab'); if (bAf) bAf.innerText = `${counts.Africa}/54`;
+      const bO = document.getElementById('count-oceania-tab'); if (bO) bO.innerText = `${counts.Oceania}/14`;
+
+      // Update dos cabeçalhos das colunas
+      const pA = document.getElementById('badge-Americas'); if (pA) pA.innerText = `${counts.Americas}/35`;
+      const pE = document.getElementById('badge-Europa'); if (pE) pE.innerText = `${counts.Europa}/45`;
+      const pAs = document.getElementById('badge-Asia'); if (pAs) pAs.innerText = `${counts.Asia}/48`;
+      const pAf = document.getElementById('badge-Africa'); if (pAf) pAf.innerText = `${counts.Africa}/54`;
+      const pO = document.getElementById('badge-Oceania'); if (pO) pO.innerText = `${counts.Oceania}/14`;
+
+      // Vitória (100%)
+      if (counts.all === TOTAL_COUNTRIES && !isGameOver) {
+        document.querySelectorAll('.stat-card').forEach(card => {
+           card.classList.add('victory');
+        });
+        document.getElementById('progressBar').classList.add('bg-emerald-500');
+        document.getElementById('progressBar').classList.remove('bg-zinc-300');
+        endGame(true, "Você Venceu!");
+      }
     }
 
     function formatTime(seconds) {
@@ -1027,6 +1064,10 @@
       
       document.querySelectorAll('.map-country').forEach(el => el.classList.remove('guessed', 'missed'));
       
+      document.querySelectorAll('.stat-card').forEach(card => card.classList.remove('victory'));
+      document.getElementById('progressBar').classList.remove('bg-emerald-500');
+      document.getElementById('progressBar').classList.add('bg-zinc-300');
+
       document.querySelectorAll('.country-flag').forEach(flag => {
         flag.className = "country-flag w-0 opacity-0 scale-50 transition-all duration-500 origin-right rounded-sm shadow-sm";
       });
@@ -1036,7 +1077,7 @@
       countryInput.placeholder = 'Digite o nome de um país...';
       countryInput.focus();
       typingFeedback.innerText = 'Digite';
-      typingFeedback.className = 'absolute right-4 text-xs font-bold px-2 py-1 rounded bg-slate-800 text-slate-400';
+      typingFeedback.className = 'absolute right-4 text-xs font-bold px-2 py-1 rounded bg-zinc-800 text-zinc-400';
 
       gameActionBtn.innerHTML = `<i data-lucide="flag" class="w-4 h-4 fill-white"></i> <span>Desistir</span>`;
       gameActionBtn.className = "px-4 py-2 rounded-lg font-bold text-sm bg-rose-600 hover:bg-rose-500 text-white shadow-md transition flex items-center gap-1.5";
@@ -1071,25 +1112,25 @@
       countryInput.value = '';
       countryInput.placeholder = 'Jogo finalizado!';
       
-      gameActionBtn.innerHTML = `<i data-lucide="play" class="w-4 h-4 fill-white"></i> <span>Novo Jogo</span>`;
-      gameActionBtn.className = "px-4 py-2 rounded-lg font-bold text-sm bg-emerald-600 hover:bg-emerald-500 text-white shadow-md transition flex items-center gap-1.5";
+      gameActionBtn.innerHTML = `<i data-lucide="play" class="w-4 h-4 fill-black"></i> <span class="text-black">Novo Jogo</span>`;
+      gameActionBtn.className = "px-4 py-2 rounded-lg font-bold text-sm bg-white hover:bg-zinc-200 text-black shadow-md transition flex items-center gap-1.5";
       lucide.createIcons();
 
       COUNTRIES_DB.forEach((c, idx) => {
         const cell = document.getElementById(`cell-${idx}`);
         if (!guessedCountries.has(idx)) {
           if (cell) {
-            cell.classList.remove('bg-slate-950/60', 'border-slate-800/80');
-            cell.classList.add('bg-rose-950/30', 'border-rose-800/50');
+            cell.classList.remove('bg-zinc-950/60', 'border-zinc-800/80');
+            cell.classList.add('bg-rose-950/20', 'border-rose-900/50');
             
             const lbl = cell.querySelector('.country-label');
             lbl.innerText = c.name;
-            lbl.classList.remove('text-slate-500');
+            lbl.classList.remove('text-zinc-500');
             lbl.classList.add('text-rose-400');
 
             const flag = cell.querySelector('.country-flag');
             flag.classList.remove('w-0', 'opacity-0', 'scale-50');
-            flag.classList.add('w-6', 'opacity-50', 'scale-100', 'grayscale'); 
+            flag.classList.add('w-7', 'opacity-50', 'scale-100', 'grayscale'); 
           }
           updateMapCountry(idx, 'missed');
         } else {
@@ -1097,8 +1138,8 @@
         }
       });
 
-      document.getElementById('modalTitle').innerText = victory ? "Parabéns, Você Conquistou o Globo!" : reason;
-      document.getElementById('modalSubtitle').innerText = victory ? `Você acertou todos os ${TOTAL_COUNTRIES} países do mundo!` : "Veja seu desempenho final na Volta ao Mundo:";
+      document.getElementById('modalTitle').innerText = victory ? "Parabéns, Você Venceu!" : reason;
+      document.getElementById('modalSubtitle').innerText = victory ? `Você encontrou todos os ${TOTAL_COUNTRIES} países da Terra!` : "Confira seu desempenho final no desafio:";
       document.getElementById('modalScore').innerText = guessedCountries.size;
       document.getElementById('modalPercent').innerText = `${Math.round((guessedCountries.size / TOTAL_COUNTRIES) * 100)}%`;
       gameOverModal.classList.remove('hidden');
@@ -1121,7 +1162,7 @@
       if (foundIndex !== -1) {
         if (guessedCountries.has(foundIndex)) {
           typingFeedback.innerText = 'Já digitado!';
-          typingFeedback.className = 'absolute right-4 text-xs font-bold px-2 py-1 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30';
+          typingFeedback.className = 'absolute right-4 text-xs font-bold px-2 py-1 rounded bg-zinc-800 text-zinc-300 border border-zinc-700';
           playSound('duplicate');
         } else {
           guessedCountries.add(foundIndex);
@@ -1133,17 +1174,17 @@
 
           const cell = document.getElementById(`cell-${foundIndex}`);
           if (cell) {
-            cell.classList.remove('bg-slate-950/60', 'border-slate-800/80');
-            cell.classList.add('bg-emerald-950/30', 'border-emerald-600/50');
+            cell.classList.remove('bg-zinc-950/60', 'border-zinc-800/80');
+            cell.classList.add('bg-emerald-950/30', 'border-emerald-900/50');
             
             const lbl = cell.querySelector('.country-label');
             lbl.innerText = country.name;
-            lbl.classList.remove('text-slate-500');
+            lbl.classList.remove('text-zinc-500');
             lbl.classList.add('text-emerald-400', 'font-bold');
 
             const flag = cell.querySelector('.country-flag');
             flag.classList.remove('w-0', 'opacity-0', 'scale-50');
-            flag.classList.add('w-6', 'opacity-100', 'scale-100'); 
+            flag.classList.add('w-7', 'opacity-100', 'scale-100'); 
           }
 
           updateMapCountry(foundIndex, 'guessed');
@@ -1152,11 +1193,9 @@
           lastGuessedDisplay.innerText = country.name;
           countryInput.value = '';
           typingFeedback.innerText = '+1 Acerto!';
-          typingFeedback.className = 'absolute right-4 text-xs font-bold px-2 py-1 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+          typingFeedback.className = 'absolute right-4 text-xs font-bold px-2 py-1 rounded bg-emerald-900/40 text-emerald-400 border border-emerald-500/30';
           playSound('hit');
           updateCounters();
-
-          if (guessedCountries.size === TOTAL_COUNTRIES) endGame(true, "Você Venceu!");
         }
       }
     });
@@ -1164,8 +1203,8 @@
     timeButtons.forEach(btn => {
       btn.addEventListener('click', () => {
         if (isPlaying) return;
-        timeButtons.forEach(b => b.className = "time-btn px-2.5 py-1.5 rounded-md font-semibold text-slate-400 hover:text-white transition");
-        btn.className = "time-btn px-2.5 py-1.5 rounded-md font-semibold text-white bg-brand-600 transition";
+        timeButtons.forEach(b => b.className = "time-btn px-2.5 py-1.5 rounded-md font-semibold text-zinc-400 hover:text-white transition");
+        btn.className = "time-btn px-2.5 py-1.5 rounded-md font-semibold text-black bg-white shadow-sm transition";
 
         selectedDurationMinutes = parseInt(btn.dataset.time, 10);
         if (selectedDurationMinutes > 0) {
@@ -1180,24 +1219,20 @@
 
     continentTabs.forEach(tab => {
       tab.addEventListener('click', () => {
-        continentTabs.forEach(t => {
-          t.classList.remove('bg-brand-600', 'text-white');
-          t.classList.add('bg-slate-900', 'text-slate-400');
-        });
-        tab.classList.add('bg-brand-600', 'text-white');
-        tab.classList.remove('bg-slate-900', 'text-slate-400');
-
         const continent = tab.dataset.continent;
-        document.querySelectorAll('#continentsContainer > section').forEach(sec => {
-          sec.style.display = (continent === 'all' || sec.dataset.continent === continent) ? 'block' : 'none';
-        });
+        if (continent === 'all') {
+          document.getElementById('continentsContainer').scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          const col = document.querySelector(`section[data-continent="${continent}"]`);
+          if(col) col.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
       });
     });
 
     toggleAudioBtn.addEventListener('click', () => {
       isMuted = !isMuted;
       audioIcon.setAttribute('data-lucide', isMuted ? 'volume-x' : 'volume-2');
-      toggleAudioBtn.classList.toggle('text-rose-400', isMuted);
+      toggleAudioBtn.classList.toggle('text-rose-500', isMuted);
       lucide.createIcons();
     });
 
@@ -1206,6 +1241,7 @@
       else if (confirm("Deseja realmente desistir e revelar todas as respostas no mapa e nas tabelas?")) endGame(false, "Desistência");
     });
 
+    // Compartilhar no WhatsApp - Textos Divertidos
     document.getElementById('whatsappShareBtn').addEventListener('click', () => {
       const score = guessedCountries.size;
       const pctVal = (score / TOTAL_COUNTRIES) * 100;
