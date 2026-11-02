@@ -47,11 +47,11 @@
       stroke-width: 1.5px;
     }
     /* Modo Sem Fronteiras */
-    .no-borders .map-country:not(.guessed):not(.missed):not(.pending) {
+    .no-borders .map-country:not(.guessed):not(.missed):not(.pending):not(.skipped) {
       stroke: #18181b !important;
       stroke-width: 0.3px !important;
     }
-    .no-borders .map-marker:not(.guessed):not(.missed):not(.pending) {
+    .no-borders .map-marker:not(.guessed):not(.missed):not(.pending):not(.skipped) {
       opacity: 0 !important;
       pointer-events: none;
     }
@@ -59,6 +59,10 @@
     .map-country.pending {
       fill: #f59e0b !important;
       stroke: #d97706 !important;
+    }
+    .map-country.skipped {
+      fill: #6366f1 !important;
+      stroke: #4f46e5 !important;
     }
     .map-country.guessed {
       fill: #10b981 !important; 
@@ -80,6 +84,10 @@
     }
     .map-marker.pending {
       fill: #f59e0b !important;
+      stroke: #ffffff !important;
+    }
+    .map-marker.skipped {
+      fill: #6366f1 !important;
       stroke: #ffffff !important;
     }
     .map-marker.guessed {
@@ -330,19 +338,22 @@
       </div>
       <button id="skipFlagBtn" disabled class="px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold border border-zinc-700 transition flex items-center gap-2 shrink-0">
         <i data-lucide="shuffle" class="w-4 h-4"></i>
-        <span>Trocar Bandeira</span>
+        <span id="skipFlagBtnText">Trocar Bandeira (5)</span>
       </button>
     </section>
 
-    <!-- PAINEL DE DICA ATIVA -->
-    <div id="hintBanner" class="hidden bg-zinc-900 border border-amber-500/40 rounded-xl px-4 py-3 items-center justify-between gap-4 shadow-md">
-      <div class="flex items-center gap-3 min-w-0">
-        <div class="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+    <!-- PAINEL DE DICA ATIVA (FORMATAÇÃO APRIMORADA) -->
+    <div id="hintBanner" class="hidden bg-zinc-900/95 border border-amber-500/40 rounded-xl px-4 py-3.5 items-center justify-between gap-4 shadow-lg">
+      <div class="flex items-center gap-3.5 min-w-0">
+        <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
           <i data-lucide="lightbulb" class="w-5 h-5"></i>
         </div>
-        <div class="min-w-0">
-          <span class="text-[11px] font-bold uppercase tracking-wider text-amber-400 block">Dica Geográfica</span>
-          <div class="text-sm text-zinc-100 font-medium flex items-center gap-3 flex-wrap" id="hintTextContent"></div>
+        <div class="min-w-0 flex flex-col gap-1">
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] font-extrabold uppercase tracking-wider text-amber-400">Dica Geográfica</span>
+            <span id="hintCategoryBadge" class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">Pista</span>
+          </div>
+          <div class="text-sm text-zinc-200 leading-relaxed" id="hintTextContent"></div>
         </div>
       </div>
       <button id="closeHintBtn" class="text-zinc-400 hover:text-white p-1.5 rounded-lg hover:bg-zinc-800 transition shrink-0" title="Fechar dica">
@@ -350,7 +361,7 @@
       </button>
     </div>
 
-    <!-- CAMPO DE DIGITAÇÃO + BOTÃO DE DICAS -->
+    <!-- CAMPO DE DIGITAÇÃO + BOTÕES DE DICA E PULAR -->
     <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full">
       <div class="relative flex-1 flex items-center">
         <div class="absolute left-6 flex items-center pointer-events-none">
@@ -370,6 +381,12 @@
           Aguardando
         </span>
       </div>
+
+      <!-- Botão de Pular País (Exclusivo do Modo Ordem Alfabética) -->
+      <button id="skipAlphaBtn" disabled class="hidden px-5 py-3.5 rounded-xl font-bold text-sm bg-zinc-900 hover:bg-zinc-800 text-indigo-400 border-2 border-zinc-800 hover:border-indigo-500/40 disabled:opacity-40 disabled:cursor-not-allowed transition items-center justify-center gap-2 shrink-0">
+        <i data-lucide="skip-forward" class="w-4 h-4"></i>
+        <span id="skipAlphaBtnText">Pular (5)</span>
+      </button>
 
       <!-- Botão de Dica -->
       <button id="useHintBtn" disabled class="px-5 py-3.5 rounded-xl font-bold text-sm bg-zinc-900 hover:bg-zinc-800 text-amber-400 border-2 border-zinc-800 hover:border-amber-500/40 disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center justify-center gap-2 shrink-0">
@@ -443,17 +460,20 @@
     </div>
   </div>
 
-  <!-- MODAL NATIVO DE CONFIGURAÇÕES DE DIFICULDADE -->
+  <!-- MODAL NATIVO DE CONFIGURAÇÕES DE DIFICULDADE (DINÂMICO POR MODO) -->
   <div id="settingsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-zinc-900 border border-zinc-800 max-w-lg w-full rounded-2xl p-6 shadow-2xl flex flex-col gap-5">
+    <div class="bg-zinc-900 border border-zinc-800 max-w-lg w-full rounded-2xl p-6 shadow-2xl flex flex-col gap-5 max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between pb-3 border-b border-zinc-800">
         <div class="flex items-center gap-2.5">
           <div class="w-9 h-9 rounded-xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-white">
             <i data-lucide="sliders-horizontal" class="w-5 h-5"></i>
           </div>
           <div>
-            <h3 class="text-lg font-extrabold text-white">Configurações de Dificuldade</h3>
-            <p class="text-xs text-zinc-400">Personalize a experiência e o nível de ajuda do jogo</p>
+            <div class="flex items-center gap-2">
+              <h3 class="text-lg font-extrabold text-white">Configurações</h3>
+              <span id="settingsActiveModeBadge" class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700">Modo Clássico</span>
+            </div>
+            <p class="text-xs text-zinc-400">Apenas opções compatíveis com o modo atual são exibidas</p>
           </div>
         </div>
         <button id="closeSettingsBtn" class="p-1.5 text-zinc-400 hover:text-white rounded-lg hover:bg-zinc-800 transition">
@@ -461,55 +481,100 @@
         </button>
       </div>
 
-      <div class="flex flex-col gap-4 text-sm">
-        <!-- Opção 1: Mostrar bandeiras antes dos palpites -->
-        <label class="flex items-center justify-between gap-4 p-3.5 rounded-xl bg-black/60 border border-zinc-800 cursor-pointer hover:border-zinc-700 transition">
+      <div class="flex flex-col gap-3.5 text-sm">
+        <!-- Opção 1: Mostrar bandeiras antes dos palpites (Oculta no Modo Bandeiras) -->
+        <label id="settingRowShowFlags" class="flex items-center justify-between gap-4 p-3.5 rounded-xl bg-black/60 border border-zinc-800 cursor-pointer hover:border-zinc-700 transition">
           <div>
             <span class="font-bold text-white block">Mostrar bandeiras antes dos palpites</span>
-            <span class="text-xs text-zinc-400">Exibe as bandeiras nas listas antes de acertar (exceto no Modo Bandeiras).</span>
+            <span class="text-xs text-zinc-400">Exibe as bandeiras nas listas antes de acertar os países.</span>
           </div>
           <input type="checkbox" id="settingShowFlags" class="w-5 h-5 accent-white rounded cursor-pointer shrink-0">
         </label>
 
-        <!-- Opção 2: Mostrar a capital dos países (Apenas Modo Clássico) -->
-        <label class="flex items-center justify-between gap-4 p-3.5 rounded-xl bg-black/60 border border-zinc-800 cursor-pointer hover:border-zinc-700 transition">
+        <!-- Opção 2: Mostrar a capital dos países (Exclusiva do Modo Clássico) -->
+        <label id="settingRowShowCapitals" class="flex items-center justify-between gap-4 p-3.5 rounded-xl bg-black/60 border border-zinc-800 cursor-pointer hover:border-zinc-700 transition">
           <div>
             <span class="font-bold text-white block">Mostrar a capital dos países</span>
-            <span class="text-xs text-zinc-400">Exibe a capital em cada bloco como ajuda (disponível apenas no Modo Clássico).</span>
+            <span class="text-xs text-zinc-400">Exibe a capital em cada bloco da tabela como ajuda visual.</span>
           </div>
           <input type="checkbox" id="settingShowCapitals" class="w-5 h-5 accent-white rounded cursor-pointer shrink-0">
         </label>
 
-        <!-- Opção 3: Mostrar fronteiras no mapa -->
-        <label class="flex items-center justify-between gap-4 p-3.5 rounded-xl bg-black/60 border border-zinc-800 cursor-pointer hover:border-zinc-700 transition">
+        <!-- Opção 3: Mostrar fronteiras no mapa (Todos os modos) -->
+        <label id="settingRowShowBorders" class="flex items-center justify-between gap-4 p-3.5 rounded-xl bg-black/60 border border-zinc-800 cursor-pointer hover:border-zinc-700 transition">
           <div>
             <span class="font-bold text-white block">Mostrar as fronteiras no mapa</span>
-            <span class="text-xs text-zinc-400">Desative para ocultar as divisas territoriais no globo até que o país seja acertado.</span>
+            <span class="text-xs text-zinc-400">Desative para ocultar as divisas territoriais no globo até acertar.</span>
           </div>
           <input type="checkbox" id="settingShowBorders" checked class="w-5 h-5 accent-white rounded cursor-pointer shrink-0">
         </label>
 
-        <!-- Opção 4: Permitir dicas -->
-        <div class="p-3.5 rounded-xl bg-black/60 border border-zinc-800 flex flex-col gap-3">
+        <!-- Opção 4: Permitir dicas (Todos os modos) -->
+        <div id="settingRowHints" class="p-3.5 rounded-xl bg-black/60 border border-zinc-800 flex flex-col gap-3">
           <label class="flex items-center justify-between gap-4 cursor-pointer">
             <div>
               <span class="font-bold text-white block">Permitir dicas durante a partida</span>
-              <span class="text-xs text-zinc-400">Sorteia dicas (1ª letra, capital, cidade famosa, personalidade ou bandeira).</span>
+              <span class="text-xs text-zinc-400">Sorteia pistas sobre o país (ou sobre a capital no Modo Hardcore).</span>
             </div>
             <input type="checkbox" id="settingAllowHints" checked class="w-5 h-5 accent-white rounded cursor-pointer shrink-0">
           </label>
 
-          <div id="hintCountSelectorRow" class="flex items-center justify-between pt-3 border-t border-zinc-800/80">
-            <span class="text-xs font-semibold text-zinc-300">Quantidade de dicas por jogo:</span>
-            <select id="settingMaxHints" class="bg-zinc-900 border border-zinc-700 text-white text-xs font-bold rounded-lg px-3 py-1.5 outline-none focus:border-white">
-              <option value="3">3 Dicas</option>
-              <option value="5" selected>5 Dicas</option>
-              <option value="10">10 Dicas</option>
-              <option value="15">15 Dicas</option>
-              <option value="999">Ilimitadas</option>
-            </select>
+          <div id="hintCountSelectorRow" class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-zinc-800/80">
+            <span class="text-xs font-semibold text-zinc-300">Quantidade de dicas:</span>
+            <div class="flex items-center gap-3">
+              <input type="number" id="settingMaxHintsInput" min="1" max="999" value="5" class="w-20 bg-zinc-900 border border-zinc-700 text-white text-xs font-bold rounded-lg px-3 py-1.5 outline-none focus:border-white text-center disabled:opacity-40">
+              <label class="flex items-center gap-1.5 text-xs font-semibold text-zinc-300 cursor-pointer select-none">
+                <input type="checkbox" id="settingHintsUnlimited" class="w-4 h-4 accent-white rounded cursor-pointer">
+                <span>Ilimitadas</span>
+              </label>
+            </div>
           </div>
         </div>
+
+        <!-- Opção 5: Pular País (Exclusiva do Modo Ordem Alfabética) -->
+        <div id="settingRowAlphaSkips" class="p-3.5 rounded-xl bg-black/60 border border-zinc-800 flex flex-col gap-3">
+          <label class="flex items-center justify-between gap-4 cursor-pointer">
+            <div>
+              <span class="font-bold text-white block">Permitir pular país na Ordem Alfabética</span>
+              <span class="text-xs text-zinc-400">Revela a resposta do país atual caso você trave e avança para o próximo.</span>
+            </div>
+            <input type="checkbox" id="settingAllowAlphaSkips" checked class="w-5 h-5 accent-white rounded cursor-pointer shrink-0">
+          </label>
+
+          <div id="alphaSkipCountRow" class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-zinc-800/80">
+            <span class="text-xs font-semibold text-zinc-300">Quantidade de pulos:</span>
+            <div class="flex items-center gap-3">
+              <input type="number" id="settingMaxAlphaSkipsInput" min="1" max="999" value="5" class="w-20 bg-zinc-900 border border-zinc-700 text-white text-xs font-bold rounded-lg px-3 py-1.5 outline-none focus:border-white text-center disabled:opacity-40">
+              <label class="flex items-center gap-1.5 text-xs font-semibold text-zinc-300 cursor-pointer select-none">
+                <input type="checkbox" id="settingAlphaSkipsUnlimited" class="w-4 h-4 accent-white rounded cursor-pointer">
+                <span>Ilimitados</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Opção 6: Trocar Bandeira (Exclusiva do Modo Bandeiras) -->
+        <div id="settingRowFlagSwaps" class="p-3.5 rounded-xl bg-black/60 border border-zinc-800 flex flex-col gap-3">
+          <label class="flex items-center justify-between gap-4 cursor-pointer">
+            <div>
+              <span class="font-bold text-white block">Permitir trocar a bandeira atual</span>
+              <span class="text-xs text-zinc-400">Permite sortear outra bandeira caso você não saiba a que está na tela.</span>
+            </div>
+            <input type="checkbox" id="settingAllowFlagSwaps" checked class="w-5 h-5 accent-white rounded cursor-pointer shrink-0">
+          </label>
+
+          <div id="flagSwapCountRow" class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-zinc-800/80">
+            <span class="text-xs font-semibold text-zinc-300">Quantidade de trocas:</span>
+            <div class="flex items-center gap-3">
+              <input type="number" id="settingMaxFlagSwapsInput" min="1" max="999" value="5" class="w-20 bg-zinc-900 border border-zinc-700 text-white text-xs font-bold rounded-lg px-3 py-1.5 outline-none focus:border-white text-center disabled:opacity-40">
+              <label class="flex items-center gap-1.5 text-xs font-semibold text-zinc-300 cursor-pointer select-none">
+                <input type="checkbox" id="settingFlagSwapsUnlimited" class="w-4 h-4 accent-white rounded cursor-pointer">
+                <span>Ilimitadas</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <button id="saveSettingsBtn" class="w-full py-2.5 rounded-xl font-bold bg-white hover:bg-zinc-200 text-black transition text-sm">
@@ -828,8 +893,8 @@
     };
 
     // CHAVES DE SALVAMENTO LOCAL
-    const STORAGE_STATE_KEY = 'voltaAoMundo_state_v2';
-    const STORAGE_SETTINGS_KEY = 'voltaAoMundo_settings_v2';
+    const STORAGE_STATE_KEY = 'voltaAoMundo_state_v3';
+    const STORAGE_SETTINGS_KEY = 'voltaAoMundo_settings_v3';
 
     // CONFIGURAÇÕES DO JOGADOR
     let gameSettings = {
@@ -837,7 +902,14 @@
       showCapitalsInClassic: false,
       showBordersOnMap: true,
       allowHints: true,
-      maxHints: 5
+      maxHints: 5,
+      hintsUnlimited: false,
+      allowAlphaSkips: true,
+      maxAlphaSkips: 5,
+      alphaSkipsUnlimited: false,
+      allowFlagSwaps: true,
+      maxFlagSwaps: 5,
+      flagSwapsUnlimited: false
     };
 
     // ESTADO DO JOGO
@@ -848,11 +920,14 @@
     let timeRemaining = 15 * 60;
     let timerInterval = null;
     let guessedCountries = new Set();
+    let skippedCountries = new Set(); // Países pulados no modo Ordem Alfabética
     let currentAlphaStep = 0;
     let pendingHardcoreCountryIdx = null;
     let currentFlagTargetIdx = null;
     let hintsRemaining = 5;
-    let pendingModeSwitch = null; // Armazena o novo modo enquanto exibe o resultado da partida anterior
+    let alphaSkipsRemaining = 5;
+    let flagSwapsRemaining = 5;
+    let pendingModeSwitch = null;
     let isMuted = false;
     let countriesGeoGlobal = []; 
 
@@ -884,7 +959,10 @@
     const settingsModal = document.getElementById('settingsModal');
     const useHintBtn = document.getElementById('useHintBtn');
     const hintBtnText = document.getElementById('hintBtnText');
+    const skipAlphaBtn = document.getElementById('skipAlphaBtn');
+    const skipAlphaBtnText = document.getElementById('skipAlphaBtnText');
     const hintBanner = document.getElementById('hintBanner');
+    const hintCategoryBadge = document.getElementById('hintCategoryBadge');
     const hintTextContent = document.getElementById('hintTextContent');
     const flagModeChallengeBox = document.getElementById('flagModeChallengeBox');
     const currentFlagImage = document.getElementById('currentFlagImage');
@@ -892,7 +970,14 @@
     const flagPromptTitle = document.getElementById('flagPromptTitle');
     const flagPromptSubtitle = document.getElementById('flagPromptSubtitle');
     const skipFlagBtn = document.getElementById('skipFlagBtn');
+    const skipFlagBtnText = document.getElementById('skipFlagBtnText');
     const autoSaveBadge = document.getElementById('autoSaveBadge');
+
+    // FUNÇÃO PARA OCULTAR O BANNER DE DICA
+    function hideHintBanner() {
+      hintBanner.classList.add('hidden');
+      hintBanner.classList.remove('flex');
+    }
 
     // MODAL DE CONFIRMAÇÃO NATIVO
     let confirmCallback = null;
@@ -985,10 +1070,13 @@
           selectedDurationMinutes,
           timeRemaining,
           guessedCountries: Array.from(guessedCountries),
+          skippedCountries: Array.from(skippedCountries),
           currentAlphaStep,
           pendingHardcoreCountryIdx,
           currentFlagTargetIdx,
           hintsRemaining,
+          alphaSkipsRemaining,
+          flagSwapsRemaining,
           lastGuessedText: lastGuessedDisplay.innerText,
           savedAt: Date.now()
         };
@@ -1010,41 +1098,108 @@
       if (isPlaying) saveGameProgress();
     });
 
-    // CONFIGURAÇÕES DE DIFICULDADE
+    // CONFIGURAÇÕES DE DIFICULDADE (OCULTA OPÇÕES QUE NÃO SE APLICAM AO MODO ATUAL)
     function syncSettingsModalInputs() {
+      const modeNames = {
+        classic: "Modo Clássico",
+        alphabetical: "Ordem Alfabética",
+        hardcore: "Modo Hardcore",
+        flags: "Modo Bandeiras"
+      };
+      document.getElementById('settingsActiveModeBadge').innerText = modeNames[currentGameMode] || "Modo Clássico";
+
+      // Visibilidade contextual por modo de jogo
+      document.getElementById('settingRowShowFlags').style.display = (currentGameMode === 'flags') ? 'none' : 'flex';
+      document.getElementById('settingRowShowCapitals').style.display = (currentGameMode === 'classic') ? 'flex' : 'none';
+      document.getElementById('settingRowAlphaSkips').style.display = (currentGameMode === 'alphabetical') ? 'flex' : 'none';
+      document.getElementById('settingRowFlagSwaps').style.display = (currentGameMode === 'flags') ? 'flex' : 'none';
+
+      // Valores dos campos
       document.getElementById('settingShowFlags').checked = gameSettings.showFlagsBeforeGuess;
       document.getElementById('settingShowCapitals').checked = gameSettings.showCapitalsInClassic;
       document.getElementById('settingShowBorders').checked = gameSettings.showBordersOnMap;
+
+      // Dicas
       document.getElementById('settingAllowHints').checked = gameSettings.allowHints;
-      document.getElementById('settingMaxHints').value = String(gameSettings.maxHints);
+      document.getElementById('settingMaxHintsInput').value = gameSettings.maxHints;
+      document.getElementById('settingHintsUnlimited').checked = gameSettings.hintsUnlimited;
+      document.getElementById('settingMaxHintsInput').disabled = gameSettings.hintsUnlimited;
       document.getElementById('hintCountSelectorRow').style.display = gameSettings.allowHints ? 'flex' : 'none';
+
+      // Pulos na Ordem Alfabética
+      document.getElementById('settingAllowAlphaSkips').checked = gameSettings.allowAlphaSkips;
+      document.getElementById('settingMaxAlphaSkipsInput').value = gameSettings.maxAlphaSkips;
+      document.getElementById('settingAlphaSkipsUnlimited').checked = gameSettings.alphaSkipsUnlimited;
+      document.getElementById('settingMaxAlphaSkipsInput').disabled = gameSettings.alphaSkipsUnlimited;
+      document.getElementById('alphaSkipCountRow').style.display = gameSettings.allowAlphaSkips ? 'flex' : 'none';
+
+      // Trocas no Modo Bandeiras
+      document.getElementById('settingAllowFlagSwaps').checked = gameSettings.allowFlagSwaps;
+      document.getElementById('settingMaxFlagSwapsInput').value = gameSettings.maxFlagSwaps;
+      document.getElementById('settingFlagSwapsUnlimited').checked = gameSettings.flagSwapsUnlimited;
+      document.getElementById('settingMaxFlagSwapsInput').disabled = gameSettings.flagSwapsUnlimited;
+      document.getElementById('flagSwapCountRow').style.display = gameSettings.allowFlagSwaps ? 'flex' : 'none';
     }
 
     function applyVisualSettings() {
-      // Fronteiras no mapa
       const mapSvg = document.getElementById('worldMapSvg');
       if (mapSvg) {
         mapSvg.classList.toggle('no-borders', !gameSettings.showBordersOnMap);
       }
 
-      // Botão de Dicas
       if (!gameSettings.allowHints) {
         useHintBtn.classList.add('hidden');
-        hintBanner.classList.add('hidden');
+        hideHintBanner();
       } else {
         useHintBtn.classList.remove('hidden');
-        updateHintButtonLabel();
       }
+
+      updateActionButtonsLabels();
     }
 
-    function updateHintButtonLabel() {
-      if (!gameSettings.allowHints) return;
-      if (gameSettings.maxHints >= 999) {
-        hintBtnText.innerText = `Dica (∞)`;
-        useHintBtn.disabled = !isPlaying;
+    function updateActionButtonsLabels() {
+      // Botão de Dica
+      if (gameSettings.allowHints) {
+        if (gameSettings.hintsUnlimited) {
+          hintBtnText.innerText = `Dica (∞)`;
+          useHintBtn.disabled = !isPlaying;
+        } else {
+          hintBtnText.innerText = `Dica (${hintsRemaining})`;
+          useHintBtn.disabled = !isPlaying || hintsRemaining <= 0;
+        }
+      }
+
+      // Botão de Pular (Modo Ordem Alfabética)
+      if (currentGameMode === 'alphabetical' && gameSettings.allowAlphaSkips) {
+        skipAlphaBtn.classList.remove('hidden');
+        skipAlphaBtn.classList.add('flex');
+        if (gameSettings.alphaSkipsUnlimited) {
+          skipAlphaBtnText.innerText = `Pular (∞)`;
+          skipAlphaBtn.disabled = !isPlaying || currentAlphaStep >= ALPHABETICAL_ORDER.length;
+        } else {
+          skipAlphaBtnText.innerText = `Pular (${alphaSkipsRemaining})`;
+          skipAlphaBtn.disabled = !isPlaying || alphaSkipsRemaining <= 0 || currentAlphaStep >= ALPHABETICAL_ORDER.length;
+        }
       } else {
-        hintBtnText.innerText = `Dica (${hintsRemaining})`;
-        useHintBtn.disabled = !isPlaying || hintsRemaining <= 0;
+        skipAlphaBtn.classList.add('hidden');
+        skipAlphaBtn.classList.remove('flex');
+      }
+
+      // Botão de Trocar Bandeira (Modo Bandeiras)
+      if (currentGameMode === 'flags') {
+        if (!gameSettings.allowFlagSwaps) {
+          skipFlagBtn.classList.add('hidden');
+        } else {
+          skipFlagBtn.classList.remove('hidden');
+          const remainingFlagsCount = TOTAL_COUNTRIES - guessedCountries.size;
+          if (gameSettings.flagSwapsUnlimited) {
+            skipFlagBtnText.innerText = `Trocar Bandeira (∞)`;
+            skipFlagBtn.disabled = !isPlaying || remainingFlagsCount <= 1;
+          } else {
+            skipFlagBtnText.innerText = `Trocar Bandeira (${flagSwapsRemaining})`;
+            skipFlagBtn.disabled = !isPlaying || flagSwapsRemaining <= 0 || remainingFlagsCount <= 1;
+          }
+        }
       }
     }
 
@@ -1060,18 +1215,48 @@
     document.getElementById('settingAllowHints').addEventListener('change', (e) => {
       document.getElementById('hintCountSelectorRow').style.display = e.target.checked ? 'flex' : 'none';
     });
+    document.getElementById('settingHintsUnlimited').addEventListener('change', (e) => {
+      document.getElementById('settingMaxHintsInput').disabled = e.target.checked;
+    });
+
+    document.getElementById('settingAllowAlphaSkips').addEventListener('change', (e) => {
+      document.getElementById('alphaSkipCountRow').style.display = e.target.checked ? 'flex' : 'none';
+    });
+    document.getElementById('settingAlphaSkipsUnlimited').addEventListener('change', (e) => {
+      document.getElementById('settingMaxAlphaSkipsInput').disabled = e.target.checked;
+    });
+
+    document.getElementById('settingAllowFlagSwaps').addEventListener('change', (e) => {
+      document.getElementById('flagSwapCountRow').style.display = e.target.checked ? 'flex' : 'none';
+    });
+    document.getElementById('settingFlagSwapsUnlimited').addEventListener('change', (e) => {
+      document.getElementById('settingMaxFlagSwapsInput').disabled = e.target.checked;
+    });
 
     document.getElementById('saveSettingsBtn').addEventListener('click', () => {
-      const prevMax = gameSettings.maxHints;
+      const prevMaxHints = gameSettings.maxHints;
+      const prevMaxSkips = gameSettings.maxAlphaSkips;
+      const prevMaxSwaps = gameSettings.maxFlagSwaps;
+
       gameSettings.showFlagsBeforeGuess = document.getElementById('settingShowFlags').checked;
       gameSettings.showCapitalsInClassic = document.getElementById('settingShowCapitals').checked;
       gameSettings.showBordersOnMap = document.getElementById('settingShowBorders').checked;
-      gameSettings.allowHints = document.getElementById('settingAllowHints').checked;
-      gameSettings.maxHints = parseInt(document.getElementById('settingMaxHints').value, 10);
 
-      if (!isPlaying || gameSettings.maxHints !== prevMax) {
-        hintsRemaining = gameSettings.maxHints;
-      }
+      gameSettings.allowHints = document.getElementById('settingAllowHints').checked;
+      gameSettings.maxHints = Math.max(1, parseInt(document.getElementById('settingMaxHintsInput').value, 10) || 5);
+      gameSettings.hintsUnlimited = document.getElementById('settingHintsUnlimited').checked;
+
+      gameSettings.allowAlphaSkips = document.getElementById('settingAllowAlphaSkips').checked;
+      gameSettings.maxAlphaSkips = Math.max(1, parseInt(document.getElementById('settingMaxAlphaSkipsInput').value, 10) || 5);
+      gameSettings.alphaSkipsUnlimited = document.getElementById('settingAlphaSkipsUnlimited').checked;
+
+      gameSettings.allowFlagSwaps = document.getElementById('settingAllowFlagSwaps').checked;
+      gameSettings.maxFlagSwaps = Math.max(1, parseInt(document.getElementById('settingMaxFlagSwapsInput').value, 10) || 5);
+      gameSettings.flagSwapsUnlimited = document.getElementById('settingFlagSwapsUnlimited').checked;
+
+      if (!isPlaying || gameSettings.maxHints !== prevMaxHints) hintsRemaining = gameSettings.maxHints;
+      if (!isPlaying || gameSettings.maxAlphaSkips !== prevMaxSkips) alphaSkipsRemaining = gameSettings.maxAlphaSkips;
+      if (!isPlaying || gameSettings.maxFlagSwaps !== prevMaxSwaps) flagSwapsRemaining = gameSettings.maxFlagSwaps;
 
       saveSettingsToStorage();
       applyVisualSettings();
@@ -1079,10 +1264,10 @@
       settingsModal.classList.add('hidden');
     });
 
-    // SISTEMA DE DICAS ALEATÓRIAS
+    // SISTEMA DE DICAS ALEATÓRIAS (FORMATAÇÃO CORRIGIDA E SUPORTE À CAPITAL NO MODO HARDCORE)
     function triggerRandomHint() {
       if (!isPlaying || !gameSettings.allowHints) return;
-      if (gameSettings.maxHints < 999 && hintsRemaining <= 0) return;
+      if (!gameSettings.hintsUnlimited && hintsRemaining <= 0) return;
 
       // Determinar o país-alvo da dica
       let targetIdx = null;
@@ -1097,7 +1282,7 @@
       } else {
         const remaining = [];
         for (let i = 0; i < TOTAL_COUNTRIES; i++) {
-          if (!guessedCountries.has(i)) remaining.push(i);
+          if (!guessedCountries.has(i) && !skippedCountries.has(i)) remaining.push(i);
         }
         if (remaining.length > 0) {
           targetIdx = remaining[Math.floor(Math.random() * remaining.length)];
@@ -1107,22 +1292,35 @@
       if (targetIdx === null || targetIdx === undefined) return;
       const country = COUNTRIES_DB[targetIdx];
 
-      // Se estiver no Modo Hardcore aguardando a capital do país
+      // CASO 1: Modo Hardcore na Etapa 2 (Adivinhando a Capital do país)
       if (currentGameMode === 'hardcore' && pendingHardcoreCountryIdx !== null) {
-        const capHintTypes = ['cap_letter', 'city', 'person'];
-        const chosen = capHintTypes[Math.floor(Math.random() * capHintTypes.length)];
-        const firstCapLetter = country.capital.charAt(0).toUpperCase();
+        const primaryCapital = country.capital.split('/')[0].trim();
+        const cleanCapLetters = primaryCapital.replace(/[^a-zA-ZÀ-ÿ]/g, '');
+        const firstLetter = primaryCapital.charAt(0).toUpperCase();
+        const lastLetter = primaryCapital.charAt(primaryCapital.length - 1).toLowerCase();
+        const prefix = primaryCapital.substring(0, Math.min(3, primaryCapital.length)).toUpperCase();
 
-        if (chosen === 'cap_letter') {
-          hintTextContent.innerHTML = `A capital de <strong>${country.name}</strong> começa com a letra <strong>"${firstCapLetter}"</strong>.`;
-        } else if (chosen === 'city') {
-          hintTextContent.innerHTML = `Outra cidade/local importante de <strong>${country.name}</strong> é <strong>${country.city}</strong>. A capital começa com <strong>"${firstCapLetter}"</strong>.`;
+        const capHintTypes = ['cap_initials', 'cap_structure', 'cap_context'];
+        const chosen = capHintTypes[Math.floor(Math.random() * capHintTypes.length)];
+
+        hintCategoryBadge.innerText = "Pista da Capital";
+        if (chosen === 'cap_initials') {
+          hintTextContent.innerHTML = `A capital de <strong class="text-white">${country.name}</strong> começa com as letras <span class="px-1.5 py-0.5 rounded bg-zinc-800 text-amber-300 font-mono font-bold">${prefix}...</span> e tem <strong class="text-white">${cleanCapLetters.length} letras</strong>.`;
+        } else if (chosen === 'cap_structure') {
+          hintTextContent.innerHTML = `A capital de <strong class="text-white">${country.name}</strong> começa com a letra <strong class="text-amber-300">"${firstLetter}"</strong> e termina com <strong class="text-amber-300">"${lastLetter}"</strong> (${cleanCapLetters.length} letras).`;
         } else {
-          hintTextContent.innerHTML = `Personalidade de <strong>${country.name}</strong>: <strong>${country.person}</strong>. A capital começa com <strong>"${firstCapLetter}"</strong>.`;
+          hintTextContent.innerHTML = `Além de <strong class="text-white">${country.city}</strong>, a capital oficial de <strong class="text-white">${country.name}</strong> começa com <strong class="text-amber-300">"${firstLetter}"</strong> (${prefix}...).`;
         }
-      } else {
-        // Categorias de dica disponíveis para descobrir o país
-        const availableTypes = ['letter', 'capital', 'city', 'person'];
+      } 
+      // CASO 2: Dica para adivinhar o País
+      else {
+        const availableTypes = ['letter', 'city', 'person'];
+        // Evita dar a capital se o nome da capital contiver o próprio nome do país (ex: Mônaco, Singapura, Cidade do México)
+        const normCountry = normalize(country.name);
+        const normCapital = normalize(country.capital);
+        if (!normCapital.includes(normCountry) && !normCountry.includes(normCapital)) {
+          availableTypes.push('capital');
+        }
         if (currentGameMode !== 'flags' && !gameSettings.showFlagsBeforeGuess) {
           availableTypes.push('flag');
         }
@@ -1133,22 +1331,27 @@
 
         if (chosenType === 'letter') {
           const prefix = country.name.substring(0, 2).toUpperCase();
-          hintTextContent.innerHTML = `País localizado em <strong>${contLabel}</strong> que começa com <strong>"${country.name.charAt(0).toUpperCase()}"</strong> (Iniciais: <strong>${prefix}...</strong>).`;
+          hintCategoryBadge.innerText = "Iniciais do País";
+          hintTextContent.innerHTML = `País localizado em <strong class="text-white">${contLabel}</strong> que começa com a letra <strong class="text-amber-300">"${country.name.charAt(0).toUpperCase()}"</strong> (Iniciais: <span class="px-1.5 py-0.5 rounded bg-zinc-800 text-amber-300 font-mono font-bold">${prefix}...</span>).`;
         } else if (chosenType === 'capital') {
-          hintTextContent.innerHTML = `País localizado em <strong>${contLabel}</strong> cuja capital é <strong>${country.capital}</strong>.`;
+          hintCategoryBadge.innerText = "Capital Nacional";
+          hintTextContent.innerHTML = `País localizado em <strong class="text-white">${contLabel}</strong> cuja capital é <strong class="text-amber-300">${country.capital}</strong>.`;
         } else if (chosenType === 'city') {
-          hintTextContent.innerHTML = `Uma cidade ou local famoso deste país (${contLabel}) é <strong>${country.city}</strong>.`;
+          hintCategoryBadge.innerText = "Cidade / Local Famoso";
+          hintTextContent.innerHTML = `Um local ou cidade famosa deste país (<strong class="text-white">${contLabel}</strong>) é <strong class="text-amber-300">${country.city}</strong>.`;
         } else if (chosenType === 'person') {
-          hintTextContent.innerHTML = `Uma personalidade famosa ligada a este país (${contLabel}): <strong>${country.person}</strong>.`;
+          hintCategoryBadge.innerText = "Personalidade";
+          hintTextContent.innerHTML = `Personalidade famosa ligada a este país (<strong class="text-white">${contLabel}</strong>): <strong class="text-amber-300">${country.person}</strong>.`;
         } else if (chosenType === 'flag') {
-          hintTextContent.innerHTML = `<span>Este país fica em <strong>${contLabel}</strong> e possui esta bandeira:</span> <img src="https://flagcdn.com/w80/${country.flag}.png" class="h-6 rounded shadow border border-zinc-700 inline-block" alt="Bandeira Dica">`;
+          hintCategoryBadge.innerText = "Bandeira Nacional";
+          hintTextContent.innerHTML = `<span class="inline-flex items-center gap-2.5 flex-wrap"><span>Este país fica em <strong class="text-white">${contLabel}</strong> e possui esta bandeira:</span> <img src="https://flagcdn.com/w80/${country.flag}.png" class="h-6 rounded shadow border border-zinc-700 inline-block" alt="Bandeira Dica"></span>`;
         }
       }
 
-      if (gameSettings.maxHints < 999) {
+      if (!gameSettings.hintsUnlimited) {
         hintsRemaining--;
       }
-      updateHintButtonLabel();
+      updateActionButtonsLabels();
       hintBanner.classList.remove('hidden');
       hintBanner.classList.add('flex');
       autoRotateToCountry(country.id);
@@ -1157,12 +1360,70 @@
     }
 
     useHintBtn.addEventListener('click', triggerRandomHint);
-    document.getElementById('closeHintBtn').addEventListener('click', () => {
-      hintBanner.classList.add('hidden');
-      hintBanner.classList.remove('flex');
-    });
+    document.getElementById('closeHintBtn').addEventListener('click', hideHintBanner);
 
-    // MODO BANDEIRAS (SORTEIO E CONTROLE)
+    // FUNÇÃO DE PULAR PAÍS NO MODO ORDEM ALFABÉTICA
+    function skipCurrentAlphabeticalCountry() {
+      if (!isPlaying || currentGameMode !== 'alphabetical') return;
+      if (!gameSettings.allowAlphaSkips) return;
+      if (!gameSettings.alphaSkipsUnlimited && alphaSkipsRemaining <= 0) return;
+      if (currentAlphaStep >= ALPHABETICAL_ORDER.length) return;
+
+      const targetItem = ALPHABETICAL_ORDER[currentAlphaStep];
+      skippedCountries.add(targetItem.originalIndex);
+
+      if (!gameSettings.alphaSkipsUnlimited) {
+        alphaSkipsRemaining--;
+      }
+
+      // Esconde qualquer dica aberta anteriormente
+      hideHintBanner();
+
+      // Atualiza célula na grade alfabética como revelada/pulada
+      const alphaCell = document.getElementById(`alpha-cell-${currentAlphaStep}`);
+      if (alphaCell) {
+        alphaCell.classList.remove('bg-zinc-900/50', 'border-zinc-800/70', 'border-white', 'ring-1', 'ring-white/40', 'bg-zinc-800/80');
+        alphaCell.classList.add('bg-indigo-950/30', 'border-indigo-500/50');
+        const lbl = alphaCell.querySelector('.alpha-label');
+        if (lbl) {
+          lbl.innerText = `${targetItem.name} (Pulou)`;
+          lbl.classList.remove('text-zinc-500', 'text-white');
+          lbl.classList.add('text-indigo-400', 'font-bold');
+        }
+        const flag = alphaCell.querySelector('.alpha-flag');
+        if (flag) {
+          flag.classList.remove('w-0', 'opacity-0', 'scale-50', 'opacity-80');
+          flag.classList.add('w-6', 'opacity-100', 'scale-100');
+        }
+      }
+
+      // Atualiza no mapa como revelado/pulado e gira o globo para mostrar onde fica
+      updateMapCountry(targetItem.originalIndex, 'skipped');
+      autoRotateToCountry(targetItem.id);
+
+      lastGuessedDisplay.innerText = `Pulou: ${targetItem.name}`;
+      typingFeedback.innerText = `Pulou: ${targetItem.name}`;
+      typingFeedback.className = 'absolute right-4 text-xs font-bold px-2.5 py-1 rounded bg-indigo-950/60 text-indigo-300 border border-indigo-500/40';
+      countryInput.value = '';
+      playSound('step');
+
+      currentAlphaStep++;
+      if (currentAlphaStep < ALPHABETICAL_ORDER.length) {
+        const nextChar = ALPHABETICAL_ORDER[currentAlphaStep].name.charAt(0).toUpperCase();
+        countryInput.placeholder = `Próximo: #${String(currentAlphaStep + 1).padStart(3, '0')} na ordem alfabética (Letra ${nextChar})...`;
+        modeExtraStatus.innerText = `Posição atual: #${String(currentAlphaStep + 1).padStart(3, '0')} / ${TOTAL_COUNTRIES}`;
+      }
+
+      highlightCurrentAlphaSlot();
+      updateActionButtonsLabels();
+      updateCounters();
+      saveGameProgress();
+      countryInput.focus();
+    }
+
+    skipAlphaBtn.addEventListener('click', skipCurrentAlphabeticalCountry);
+
+    // MODO BANDEIRAS (SORTEIO E CONTROLE DE TROCAS)
     function pickNextFlagTarget() {
       const remaining = [];
       for (let i = 0; i < TOTAL_COUNTRIES; i++) {
@@ -1172,7 +1433,6 @@
         currentFlagTargetIdx = null;
         return;
       }
-      // Se houver mais de 1 restante, evita repetir a mesma ao clicar em "Trocar"
       let candidates = remaining;
       if (remaining.length > 1 && currentFlagTargetIdx !== null) {
         candidates = remaining.filter(idx => idx !== currentFlagTargetIdx);
@@ -1195,7 +1455,6 @@
         flagPlaceholderText.classList.remove('hidden');
         flagPromptTitle.innerText = isGameOver ? "Partida Finalizada!" : 'Clique em "Começar" para revelar a 1ª bandeira';
         flagPromptSubtitle.innerText = "Você deverá digitar o país correspondente à bandeira sorteada.";
-        skipFlagBtn.disabled = true;
       } else {
         const country = COUNTRIES_DB[currentFlagTargetIdx];
         currentFlagImage.src = `https://flagcdn.com/w160/${country.flag}.png`;
@@ -1203,13 +1462,20 @@
         flagPlaceholderText.classList.add('hidden');
         flagPromptTitle.innerText = `De qual país é esta bandeira?`;
         flagPromptSubtitle.innerText = `Restam ${TOTAL_COUNTRIES - guessedCountries.size} bandeiras para adivinhar.`;
-        skipFlagBtn.disabled = (TOTAL_COUNTRIES - guessedCountries.size) <= 1;
       }
+      updateActionButtonsLabels();
     }
 
     skipFlagBtn.addEventListener('click', () => {
-      if (!isPlaying || currentGameMode !== 'flags') return;
+      if (!isPlaying || currentGameMode !== 'flags' || !gameSettings.allowFlagSwaps) return;
+      if (!gameSettings.flagSwapsUnlimited && flagSwapsRemaining <= 0) return;
+
+      if (!gameSettings.flagSwapsUnlimited) {
+        flagSwapsRemaining--;
+      }
+      hideHintBanner();
       pickNextFlagTarget();
+      updateActionButtonsLabels();
       saveGameProgress();
       countryInput.focus();
     });
@@ -1285,9 +1551,7 @@
         { key: 'Oceania', title: 'Oceania' }
       ];
 
-      // Verifica se as bandeiras devem aparecer antes do palpite (nunca no Modo Bandeiras)
       const preShowFlags = gameSettings.showFlagsBeforeGuess && currentGameMode !== 'flags';
-      // Verifica se a capital deve aparecer antes do palpite (apenas no Modo Clássico)
       const preShowCapitals = gameSettings.showCapitalsInClassic && currentGameMode === 'classic';
 
       continentsConfig.forEach(conf => {
@@ -1405,12 +1669,12 @@
       }
     }
 
-    // REAPLICA O ESTADO VISUAL DAS CÉLULAS E MAPA (USADO AO RESTAURAR SESSÃO OU MUDAR CONFIGURAÇÃO)
+    // REAPLICA O ESTADO VISUAL DAS CÉLULAS E MAPA
     function refreshBoardVisualState() {
       renderContinentTables();
       renderAlphabeticalScreen();
 
-      document.querySelectorAll('.map-country').forEach(el => el.classList.remove('guessed', 'missed', 'pending'));
+      document.querySelectorAll('.map-country').forEach(el => el.classList.remove('guessed', 'missed', 'pending', 'skipped'));
 
       guessedCountries.forEach(idx => {
         const country = COUNTRIES_DB[idx];
@@ -1439,24 +1703,42 @@
         updateMapCountry(idx, 'guessed');
       });
 
-      // Atualiza células acertadas no modo Ordem Alfabética
+      skippedCountries.forEach(idx => {
+        updateMapCountry(idx, 'skipped');
+      });
+
+      // Atualiza células acertadas ou puladas no modo Ordem Alfabética
       ALPHABETICAL_ORDER.forEach((item, globalOrderIdx) => {
+        const alphaCell = document.getElementById(`alpha-cell-${globalOrderIdx}`);
+        if (!alphaCell) return;
+
         if (guessedCountries.has(item.originalIndex)) {
-          const alphaCell = document.getElementById(`alpha-cell-${globalOrderIdx}`);
-          if (alphaCell) {
-            alphaCell.classList.remove('bg-zinc-900/50', 'border-zinc-800/70', 'border-white', 'ring-1', 'ring-white/40', 'bg-zinc-800/80');
-            alphaCell.classList.add('bg-emerald-950/30', 'border-emerald-900/50');
-            const lbl = alphaCell.querySelector('.alpha-label');
-            if (lbl) {
-              lbl.innerText = item.name;
-              lbl.classList.remove('text-zinc-500', 'text-white');
-              lbl.classList.add('text-emerald-400', 'font-bold');
-            }
-            const flag = alphaCell.querySelector('.alpha-flag');
-            if (flag) {
-              flag.classList.remove('w-0', 'opacity-0', 'scale-50', 'opacity-80');
-              flag.classList.add('w-6', 'opacity-100', 'scale-100');
-            }
+          alphaCell.classList.remove('bg-zinc-900/50', 'border-zinc-800/70', 'border-white', 'ring-1', 'ring-white/40', 'bg-zinc-800/80');
+          alphaCell.classList.add('bg-emerald-950/30', 'border-emerald-900/50');
+          const lbl = alphaCell.querySelector('.alpha-label');
+          if (lbl) {
+            lbl.innerText = item.name;
+            lbl.classList.remove('text-zinc-500', 'text-white');
+            lbl.classList.add('text-emerald-400', 'font-bold');
+          }
+          const flag = alphaCell.querySelector('.alpha-flag');
+          if (flag) {
+            flag.classList.remove('w-0', 'opacity-0', 'scale-50', 'opacity-80');
+            flag.classList.add('w-6', 'opacity-100', 'scale-100');
+          }
+        } else if (skippedCountries.has(item.originalIndex)) {
+          alphaCell.classList.remove('bg-zinc-900/50', 'border-zinc-800/70', 'border-white', 'ring-1', 'ring-white/40', 'bg-zinc-800/80');
+          alphaCell.classList.add('bg-indigo-950/30', 'border-indigo-500/50');
+          const lbl = alphaCell.querySelector('.alpha-label');
+          if (lbl) {
+            lbl.innerText = `${item.name} (Pulou)`;
+            lbl.classList.remove('text-zinc-500', 'text-white');
+            lbl.classList.add('text-indigo-400', 'font-bold');
+          }
+          const flag = alphaCell.querySelector('.alpha-flag');
+          if (flag) {
+            flag.classList.remove('w-0', 'opacity-0', 'scale-50', 'opacity-80');
+            flag.classList.add('w-6', 'opacity-100', 'scale-100');
           }
         }
       });
@@ -1486,11 +1768,14 @@
 
       highlightCurrentAlphaSlot();
       updateFlagChallengeUI();
+      updateActionButtonsLabels();
       updateCounters();
     }
 
     // ATUALIZAÇÃO VISUAL DOS MODOS
     function updateModeUI() {
+      hideHintBanner();
+
       modeTabs.forEach(tab => {
         if (tab.dataset.mode === currentGameMode) {
           tab.className = "mode-tab flex-1 sm:flex-initial px-3.5 py-2 rounded-lg text-xs font-bold bg-white text-black shadow-sm transition flex items-center justify-center gap-1.5";
@@ -1510,7 +1795,7 @@
         modeBadge.innerText = "Ordem Alfabética (A-Z)";
         modeBadge.className = "px-2.5 py-1 rounded-md bg-amber-400 text-black font-extrabold uppercase tracking-wider";
         modeDescription.innerText = "Adivinhe os países rigorosamente na ordem alfabética, começando pelo #001.";
-        modeExtraStatus.innerText = `Posição atual: #${String(currentAlphaStep + 1).padStart(3, '0')} / ${TOTAL_COUNTRIES}`;
+        modeExtraStatus.innerText = `Posição atual: #${String(Math.min(currentAlphaStep + 1, TOTAL_COUNTRIES)).padStart(3, '0')} / ${TOTAL_COUNTRIES}`;
         continentsContainer.classList.add('hidden');
         alphabeticalContainer.classList.remove('hidden');
       } else if (currentGameMode === 'hardcore') {
@@ -1631,7 +1916,7 @@
 
               if (foundCountry) {
                 const countryIdx = COUNTRIES_DB.indexOf(foundCountry);
-                if (guessedCountries.has(countryIdx) || isGameOver) {
+                if (guessedCountries.has(countryIdx) || skippedCountries.has(countryIdx) || isGameOver) {
                   mapTooltip.innerText = currentGameMode === 'hardcore'
                     ? `${foundCountry.name} (${foundCountry.capital})`
                     : foundCountry.name;
@@ -1643,7 +1928,7 @@
               } else if (foundTerritory) {
                 const ownerCountry = COUNTRIES_DB.find(c => c.id === foundTerritory.owner);
                 const ownerIdx = ownerCountry ? COUNTRIES_DB.indexOf(ownerCountry) : -1;
-                if ((ownerIdx !== -1 && guessedCountries.has(ownerIdx)) || isGameOver) {
+                if ((ownerIdx !== -1 && (guessedCountries.has(ownerIdx) || skippedCountries.has(ownerIdx))) || isGameOver) {
                   mapTooltip.innerText = `${foundTerritory.name} (${foundTerritory.ownerName})`;
                 } else {
                   mapTooltip.innerText = "???";
@@ -1657,7 +1942,6 @@
             })
             .on("click", (event, d) => clickedCountryZoom(event, d));
 
-          // Reaplica cores do mapa caso um jogo salvo tenha sido restaurado antes do fetch terminar
           refreshBoardVisualState();
         })
         .catch(() => {});
@@ -1723,10 +2007,11 @@
       
       const updateClass = (el) => {
         if (el) {
-          el.classList.remove('guessed', 'missed', 'pending');
+          el.classList.remove('guessed', 'missed', 'pending', 'skipped');
           if (status === 'guessed') el.classList.add('guessed');
           if (status === 'missed') el.classList.add('missed');
           if (status === 'pending') el.classList.add('pending');
+          if (status === 'skipped') el.classList.add('skipped');
         }
       };
 
@@ -1762,11 +2047,20 @@
         if (badge) badge.innerText = `${counts[key]}/${totals[key]}`;
       });
 
-      if (counts.all === TOTAL_COUNTRIES && !isGameOver && isPlaying) {
-        document.querySelectorAll('.stat-card').forEach(card => card.classList.add('victory'));
-        progressBar.classList.remove('bg-zinc-300');
-        progressBar.classList.add('bg-emerald-500');
-        endGame(true, "Você Venceu!");
+      // Condição de término da partida (todos acertados, ou no Modo Ordem Alfabética quando a fila chega ao fim)
+      const allProcessed = (currentGameMode === 'alphabetical')
+        ? (currentAlphaStep >= TOTAL_COUNTRIES)
+        : (counts.all === TOTAL_COUNTRIES);
+
+      if (allProcessed && !isGameOver && isPlaying) {
+        if (counts.all === TOTAL_COUNTRIES) {
+          document.querySelectorAll('.stat-card').forEach(card => card.classList.add('victory'));
+          progressBar.classList.remove('bg-zinc-300');
+          progressBar.classList.add('bg-emerald-500');
+          endGame(true, "Você Venceu!");
+        } else {
+          endGame(false, "Sequência Concluída!");
+        }
       }
     }
 
@@ -1803,15 +2097,16 @@
       isGameOver = false;
       pendingModeSwitch = null;
       guessedCountries.clear();
+      skippedCountries.clear();
       currentAlphaStep = 0;
       pendingHardcoreCountryIdx = null;
       currentFlagTargetIdx = null;
       hintsRemaining = gameSettings.maxHints;
+      alphaSkipsRemaining = gameSettings.maxAlphaSkips;
+      flagSwapsRemaining = gameSettings.maxFlagSwaps;
       lastGuessedDisplay.innerText = "—";
 
-      hintBanner.classList.add('hidden');
-      hintBanner.classList.remove('flex');
-
+      hideHintBanner();
       resetGlobeVision();
       document.querySelectorAll('.stat-card').forEach(card => card.classList.remove('victory'));
       progressBar.classList.remove('bg-emerald-500');
@@ -1838,7 +2133,7 @@
       }
 
       refreshBoardVisualState();
-      updateHintButtonLabel();
+      updateActionButtonsLabels();
 
       countryInput.focus();
       typingFeedback.innerText = 'Digite';
@@ -1867,13 +2162,15 @@
         selectedDurationMinutes = saved.selectedDurationMinutes ?? 15;
         timeRemaining = saved.timeRemaining ?? (selectedDurationMinutes * 60);
         guessedCountries = new Set(saved.guessedCountries || []);
+        skippedCountries = new Set(saved.skippedCountries || []);
         currentAlphaStep = saved.currentAlphaStep || 0;
         pendingHardcoreCountryIdx = saved.pendingHardcoreCountryIdx ?? null;
         currentFlagTargetIdx = saved.currentFlagTargetIdx ?? null;
         hintsRemaining = saved.hintsRemaining ?? gameSettings.maxHints;
+        alphaSkipsRemaining = saved.alphaSkipsRemaining ?? gameSettings.maxAlphaSkips;
+        flagSwapsRemaining = saved.flagSwapsRemaining ?? gameSettings.maxFlagSwaps;
         lastGuessedDisplay.innerText = saved.lastGuessedText || "—";
 
-        // Sincronizar botão de tempo
         timeButtons.forEach(b => {
           if (parseInt(b.dataset.time, 10) === selectedDurationMinutes) {
             b.className = "time-btn px-2 py-1.5 rounded-md font-semibold text-black bg-white shadow-sm transition";
@@ -1907,7 +2204,7 @@
         gameActionBtn.className = "px-4 py-2 rounded-lg font-bold text-sm bg-rose-600 hover:bg-rose-500 text-white shadow-md transition flex items-center gap-1.5";
 
         updateModeUI();
-        updateHintButtonLabel();
+        updateActionButtonsLabels();
         startTimerLoop();
         autoSaveBadge.classList.remove('hidden');
         autoSaveBadge.classList.add('flex');
@@ -1924,13 +2221,14 @@
       pendingHardcoreCountryIdx = null;
       clearInterval(timerInterval);
       clearSavedGameProgress();
+      hideHintBanner();
 
       countryInput.disabled = true;
       countryInput.value = '';
       countryInput.placeholder = 'Jogo finalizado!';
       countryInput.classList.remove('border-amber-500', 'focus:border-amber-400');
       countryInput.classList.add('border-zinc-800', 'focus:border-zinc-500');
-      updateHintButtonLabel();
+      updateActionButtonsLabels();
       updateFlagChallengeUI();
       
       gameActionBtn.innerHTML = `<i data-lucide="play" class="w-4 h-4 fill-black"></i> <span class="text-black">Novo Jogo</span>`;
@@ -1965,7 +2263,7 @@
               flag.classList.add('w-6', 'opacity-50', 'scale-100', 'grayscale'); 
             }
           }
-          updateMapCountry(idx, 'missed');
+          updateMapCountry(idx, skippedCountries.has(idx) ? 'skipped' : 'missed');
         } else {
           updateMapCountry(idx, 'guessed');
         }
@@ -1976,7 +2274,7 @@
         const alphaCell = document.getElementById(`alpha-cell-${globalOrderIdx}`);
         if (alphaCell) {
           alphaCell.classList.remove('border-white', 'ring-1', 'ring-white/40', 'bg-zinc-800/80');
-          if (!guessedCountries.has(item.originalIndex)) {
+          if (!guessedCountries.has(item.originalIndex) && !skippedCountries.has(item.originalIndex)) {
             alphaCell.classList.remove('bg-zinc-900/50', 'border-zinc-800/70');
             alphaCell.classList.add('bg-rose-950/20', 'border-rose-900/50');
             const lbl = alphaCell.querySelector('.alpha-label');
@@ -2004,7 +2302,7 @@
       document.getElementById('modalTitle').innerText = victory ? "Parabéns, Você Venceu!" : reason;
       document.getElementById('modalSubtitle').innerText = pendingModeSwitch 
         ? `Confira seu resultado no ${modeNames[currentGameMode]} antes de mudar para ${modeNames[pendingModeSwitch]}:`
-        : (victory ? `Você completou todos os ${TOTAL_COUNTRIES} países!` : "Confira seu desempenho final no desafio:");
+        : (victory ? `Você acertou todos os ${TOTAL_COUNTRIES} países!` : "Confira seu desempenho final no desafio:");
       document.getElementById('modalScore').innerText = guessedCountries.size;
       document.getElementById('modalPercent').innerText = `${Math.round((guessedCountries.size / TOTAL_COUNTRIES) * 100)}%`;
 
@@ -2021,10 +2319,13 @@
       gameOverModal.classList.remove('hidden');
     }
 
-    // MARCAR ACERTO COMPLETO DE UM PAÍS
+    // MARCAR ACERTO COMPLETO DE UM PAÍS (E OCULTAR DICA AUTOMATICAMENTE)
     function registerCountrySuccess(foundIndex, customLastText = null) {
       guessedCountries.add(foundIndex);
       const country = COUNTRIES_DB[foundIndex];
+
+      // Oculta automaticamente qualquer dica que estivesse aberta
+      hideHintBanner();
 
       if (normalize(country.name) === "palestina") {
         showPalestineEasterEgg();
@@ -2135,6 +2436,7 @@
             modeExtraStatus.innerText = `Posição atual: #${String(currentAlphaStep + 1).padStart(3, '0')} / ${TOTAL_COUNTRIES}`;
           }
           highlightCurrentAlphaSlot();
+          updateActionButtonsLabels();
           saveGameProgress();
         } else {
           const otherMatch = COUNTRIES_DB.find(c => normalize(c.name) === val || c.syn.some(s => normalize(s) === val));
@@ -2168,6 +2470,9 @@
             } else {
               pendingHardcoreCountryIdx = foundIndex;
               const country = COUNTRIES_DB[foundIndex];
+
+              // Esconde qualquer dica sobre o país ao avançar para a etapa da capital
+              hideHintBanner();
 
               const cell = document.getElementById(`cell-${foundIndex}`);
               if (cell) {
@@ -2260,7 +2565,7 @@
       }
     });
 
-    // TROCA DE ABAS DE MODO DE JOGO (COM MODAL NATIVO E EXIBIÇÃO DE RESULTADO ANTES DE MUDAR)
+    // TROCA DE ABAS DE MODO DE JOGO
     modeTabs.forEach(tab => {
       tab.addEventListener('click', () => {
         const targetMode = tab.dataset.mode;
@@ -2288,6 +2593,7 @@
 
         isGameOver = false;
         guessedCountries.clear();
+        skippedCountries.clear();
         currentAlphaStep = 0;
         pendingHardcoreCountryIdx = null;
         currentFlagTargetIdx = null;
@@ -2367,7 +2673,7 @@
       window.open(whatsappUrl, '_blank');
     });
 
-    // BOTÕES DO MODAL DE RESULTADO (FINALIZA A TRANSIÇÃO DE MODO SE HOUVER)
+    // BOTÕES DO MODAL DE RESULTADO
     document.getElementById('modalReviewBtn').addEventListener('click', () => {
       gameOverModal.classList.add('hidden');
       if (pendingModeSwitch) {
@@ -2375,6 +2681,7 @@
         pendingModeSwitch = null;
         isGameOver = false;
         guessedCountries.clear();
+        skippedCountries.clear();
         currentAlphaStep = 0;
         pendingHardcoreCountryIdx = null;
         currentFlagTargetIdx = null;
@@ -2390,6 +2697,7 @@
         pendingModeSwitch = null;
         isGameOver = false;
         guessedCountries.clear();
+        skippedCountries.clear();
         currentAlphaStep = 0;
         pendingHardcoreCountryIdx = null;
         currentFlagTargetIdx = null;
