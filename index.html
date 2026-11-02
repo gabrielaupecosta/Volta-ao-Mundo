@@ -39,13 +39,23 @@
       fill: #18181b; 
       stroke: #27272a; 
       stroke-width: 0.6px;
-      transition: fill 0.25s ease, stroke 0.25s ease;
+      transition: fill 0.25s ease, stroke 0.25s ease, opacity 0.25s ease;
       cursor: pointer;
     }
     .map-country:hover {
       stroke: #a1a1aa; 
       stroke-width: 1.5px;
     }
+    /* Modo Sem Fronteiras */
+    .no-borders .map-country:not(.guessed):not(.missed):not(.pending) {
+      stroke: #18181b !important;
+      stroke-width: 0.3px !important;
+    }
+    .no-borders .map-marker:not(.guessed):not(.missed):not(.pending) {
+      opacity: 0 !important;
+      pointer-events: none;
+    }
+
     .map-country.pending {
       fill: #f59e0b !important;
       stroke: #d97706 !important;
@@ -88,7 +98,7 @@
     }
 
     .country-flag {
-      transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       border-radius: 2px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
@@ -188,34 +198,44 @@
         </div>
       </div>
 
-      <!-- ABAS DE MODOS DE JOGO -->
-      <nav class="flex bg-zinc-900 p-1 rounded-xl border border-zinc-800 gap-1 order-3 lg:order-2 w-full lg:w-auto justify-center">
-        <button class="mode-tab flex-1 lg:flex-initial px-4 py-2 rounded-lg text-xs font-bold bg-white text-black shadow-sm transition flex items-center justify-center gap-2" data-mode="classic">
+      <!-- ABAS DE MODOS DE JOGO (4 MODOS) -->
+      <nav class="flex flex-wrap bg-zinc-900 p-1 rounded-xl border border-zinc-800 gap-1 order-3 xl:order-2 w-full xl:w-auto justify-center">
+        <button class="mode-tab flex-1 sm:flex-initial px-3.5 py-2 rounded-lg text-xs font-bold bg-white text-black shadow-sm transition flex items-center justify-center gap-1.5" data-mode="classic">
           <i data-lucide="globe" class="w-4 h-4"></i>
-          <span>Modo Clássico</span>
+          <span>Clássico</span>
         </button>
-        <button class="mode-tab flex-1 lg:flex-initial px-4 py-2 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition flex items-center justify-center gap-2" data-mode="alphabetical">
+        <button class="mode-tab flex-1 sm:flex-initial px-3.5 py-2 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition flex items-center justify-center gap-1.5" data-mode="alphabetical">
           <i data-lucide="arrow-down-a-z" class="w-4 h-4"></i>
           <span>Ordem Alfabética</span>
         </button>
-        <button class="mode-tab flex-1 lg:flex-initial px-4 py-2 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition flex items-center justify-center gap-2" data-mode="hardcore">
+        <button class="mode-tab flex-1 sm:flex-initial px-3.5 py-2 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition flex items-center justify-center gap-1.5" data-mode="hardcore">
           <i data-lucide="flame" class="w-4 h-4"></i>
-          <span>Modo Hardcore</span>
+          <span>Hardcore</span>
+        </button>
+        <button class="mode-tab flex-1 sm:flex-initial px-3.5 py-2 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition flex items-center justify-center gap-1.5" data-mode="flags">
+          <i data-lucide="flag" class="w-4 h-4"></i>
+          <span>Bandeiras</span>
         </button>
       </nav>
 
       <!-- CONTROLES -->
-      <div class="flex items-center gap-3 order-2 lg:order-3">
-        <button id="toggleAudioBtn" class="p-2 text-zinc-400 hover:text-white rounded-lg hover:bg-zinc-900 transition" title="Alternar som">
-          <i id="audioIcon" data-lucide="volume-2" class="w-5 h-5"></i>
+      <div class="flex items-center gap-2.5 order-2 xl:order-3">
+        <!-- Botão de Configurações -->
+        <button id="openSettingsBtn" class="p-2 text-zinc-400 hover:text-white rounded-lg bg-zinc-900 border border-zinc-800 hover:border-zinc-700 transition flex items-center gap-1.5 text-xs font-semibold px-3" title="Configurações de Dificuldade">
+          <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Configurar</span>
+        </button>
+
+        <button id="toggleAudioBtn" class="p-2 text-zinc-400 hover:text-white rounded-lg bg-zinc-900 border border-zinc-800 hover:border-zinc-700 transition" title="Alternar som">
+          <i id="audioIcon" data-lucide="volume-2" class="w-4 h-4"></i>
         </button>
 
         <div class="flex bg-zinc-900 p-0.5 rounded-lg border border-zinc-800 text-xs">
-          <button class="time-btn px-2.5 py-1.5 rounded-md font-semibold text-black bg-white shadow-sm transition" data-time="15">15 min</button>
-          <button class="time-btn px-2.5 py-1.5 rounded-md font-semibold text-zinc-400 hover:text-white transition" data-time="30">30 min</button>
-          <button class="time-btn px-2.5 py-1.5 rounded-md font-semibold text-zinc-400 hover:text-white transition" data-time="45">45 min</button>
-          <button class="time-btn px-2.5 py-1.5 rounded-md font-semibold text-zinc-400 hover:text-white transition" data-time="60">1h</button>
-          <button class="time-btn px-2.5 py-1.5 rounded-md font-semibold text-zinc-400 hover:text-white transition" data-time="0">Livre</button>
+          <button class="time-btn px-2 py-1.5 rounded-md font-semibold text-black bg-white shadow-sm transition" data-time="15">15m</button>
+          <button class="time-btn px-2 py-1.5 rounded-md font-semibold text-zinc-400 hover:text-white transition" data-time="30">30m</button>
+          <button class="time-btn px-2 py-1.5 rounded-md font-semibold text-zinc-400 hover:text-white transition" data-time="45">45m</button>
+          <button class="time-btn px-2 py-1.5 rounded-md font-semibold text-zinc-400 hover:text-white transition" data-time="60">1h</button>
+          <button class="time-btn px-2 py-1.5 rounded-md font-semibold text-zinc-400 hover:text-white transition" data-time="0">Livre</button>
         </div>
 
         <button id="gameActionBtn" class="px-4 py-2 rounded-lg font-bold text-sm bg-emerald-600 hover:bg-emerald-500 text-white shadow-md transition flex items-center gap-1.5">
@@ -236,7 +256,12 @@
         <span id="modeBadge" class="px-2.5 py-1 rounded-md bg-white text-black font-extrabold uppercase tracking-wider">Clássico</span>
         <span id="modeDescription" class="text-zinc-300 font-medium">Adivinhe todos os países do mundo em qualquer ordem.</span>
       </div>
-      <div id="modeExtraStatus" class="font-bold text-zinc-400"></div>
+      <div class="flex items-center gap-3">
+        <span id="autoSaveBadge" class="text-[11px] text-emerald-400 font-semibold hidden items-center gap-1">
+          <i data-lucide="check" class="w-3.5 h-3.5"></i> Progresso salvo
+        </span>
+        <div id="modeExtraStatus" class="font-bold text-zinc-400"></div>
+      </div>
     </div>
 
     <!-- CARDS DE ESTATÍSTICA (TOTALIZADORES) -->
@@ -290,9 +315,44 @@
       <div id="progressBar" class="bg-zinc-300 h-2 rounded-full transition-all duration-300 w-0"></div>
     </div>
 
-    <!-- CAMPO DE DIGITAÇÃO -->
-    <div class="relative w-full">
-      <div class="relative flex items-center">
+    <!-- PAINEL EXCLUSIVO DO MODO BANDEIRAS -->
+    <section id="flagModeChallengeBox" class="hidden bg-zinc-900 border border-zinc-800 rounded-2xl p-5 flex-col sm:flex-row items-center justify-between gap-6 shadow-lg">
+      <div class="flex flex-col sm:flex-row items-center gap-5">
+        <div class="w-36 h-24 rounded-xl bg-black border border-zinc-800 flex items-center justify-center p-2 shadow-inner overflow-hidden shrink-0">
+          <img id="currentFlagImage" src="" alt="Bandeira Desafio" class="max-h-full max-w-full object-contain rounded shadow-md hidden">
+          <span id="flagPlaceholderText" class="text-xs text-zinc-600 font-bold uppercase tracking-wider text-center">Inicie o jogo</span>
+        </div>
+        <div class="text-center sm:text-left">
+          <span class="text-xs font-bold uppercase tracking-wider text-zinc-400 block">Desafio das Bandeiras</span>
+          <h3 class="text-lg font-extrabold text-white mt-0.5" id="flagPromptTitle">Clique em "Começar" para revelar a 1ª bandeira</h3>
+          <p class="text-xs text-zinc-400 mt-1" id="flagPromptSubtitle">Adivinhe a qual país pertence a bandeira exibida ao lado.</p>
+        </div>
+      </div>
+      <button id="skipFlagBtn" disabled class="px-4 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 disabled:opacity-40 disabled:cursor-not-allowed text-white text-xs font-bold border border-zinc-700 transition flex items-center gap-2 shrink-0">
+        <i data-lucide="shuffle" class="w-4 h-4"></i>
+        <span>Trocar Bandeira</span>
+      </button>
+    </section>
+
+    <!-- PAINEL DE DICA ATIVA -->
+    <div id="hintBanner" class="hidden bg-zinc-900 border border-amber-500/40 rounded-xl px-4 py-3 items-center justify-between gap-4 shadow-md">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+          <i data-lucide="lightbulb" class="w-5 h-5"></i>
+        </div>
+        <div class="min-w-0">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-amber-400 block">Dica Geográfica</span>
+          <div class="text-sm text-zinc-100 font-medium flex items-center gap-3 flex-wrap" id="hintTextContent"></div>
+        </div>
+      </div>
+      <button id="closeHintBtn" class="text-zinc-400 hover:text-white p-1.5 rounded-lg hover:bg-zinc-800 transition shrink-0" title="Fechar dica">
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+
+    <!-- CAMPO DE DIGITAÇÃO + BOTÃO DE DICAS -->
+    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full">
+      <div class="relative flex-1 flex items-center">
         <div class="absolute left-6 flex items-center pointer-events-none">
           <i data-lucide="search" class="w-5 h-5 text-zinc-500"></i>
         </div>
@@ -310,10 +370,16 @@
           Aguardando
         </span>
       </div>
+
+      <!-- Botão de Dica -->
+      <button id="useHintBtn" disabled class="px-5 py-3.5 rounded-xl font-bold text-sm bg-zinc-900 hover:bg-zinc-800 text-amber-400 border-2 border-zinc-800 hover:border-amber-500/40 disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center justify-center gap-2 shrink-0">
+        <i data-lucide="lightbulb" class="w-4 h-4"></i>
+        <span id="hintBtnText">Dica (5)</span>
+      </button>
     </div>
 
     <!-- GLOBO 3D INTERATIVO -->
-    <section class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-5 relative overflow-hidden shadow-lg group">
+    <section id="globeSection" class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-5 relative overflow-hidden shadow-lg group">
       <div class="flex items-center justify-between pb-3 mb-2 border-b border-zinc-800">
         <div class="flex items-center gap-2">
           <i data-lucide="globe-2" class="w-4 h-4 text-white"></i>
@@ -333,12 +399,12 @@
       </div>
     </section>
 
-    <!-- TELA 1 E 3: 5 COLUNAS DOS CONTINENTES LADO A LADO NO PC (SEM SCROLLBAR) -->
+    <!-- 5 COLUNAS DOS CONTINENTES LADO A LADO NO PC (SEM SCROLLBAR) -->
     <div id="continentsContainer" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3 pb-16 items-start">
       <!-- Gerado dinamicamente via JS -->
     </div>
 
-    <!-- TELA 2: MODO ORDEM ALFABÉTICA (A-Z) -->
+    <!-- TELA DO MODO ORDEM ALFABÉTICA (A-Z) -->
     <div id="alphabeticalContainer" class="hidden pb-16">
       <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-5 shadow-sm">
         <div class="flex flex-wrap items-center justify-between gap-2 pb-3 mb-4 border-b border-zinc-800">
@@ -357,6 +423,100 @@
     </div>
 
   </main>
+
+  <!-- MODAL NATIVO DE CONFIRMAÇÃO (DESISTIR / MUDAR DE JOGO) -->
+  <div id="confirmModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-zinc-900 border border-zinc-800 max-w-md w-full rounded-2xl p-6 shadow-2xl text-center flex flex-col items-center">
+      <div class="w-14 h-14 rounded-2xl bg-zinc-800 border border-zinc-700 flex items-center justify-center mb-4 text-amber-400">
+        <i data-lucide="alert-triangle" class="w-7 h-7"></i>
+      </div>
+      <h3 id="confirmModalTitle" class="text-xl font-extrabold text-white">Confirmar Ação</h3>
+      <p id="confirmModalMessage" class="text-zinc-400 text-sm mt-2 mb-6">Tem certeza que deseja realizar esta ação?</p>
+      <div class="flex gap-3 w-full">
+        <button id="confirmCancelBtn" class="flex-1 py-2.5 rounded-xl font-semibold bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition text-sm">
+          Cancelar
+        </button>
+        <button id="confirmAcceptBtn" class="flex-1 py-2.5 rounded-xl font-bold bg-rose-600 hover:bg-rose-500 text-white transition text-sm">
+          Confirmar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL NATIVO DE CONFIGURAÇÕES DE DIFICULDADE -->
+  <div id="settingsModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-zinc-900 border border-zinc-800 max-w-lg w-full rounded-2xl p-6 shadow-2xl flex flex-col gap-5">
+      <div class="flex items-center justify-between pb-3 border-b border-zinc-800">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-white">
+            <i data-lucide="sliders-horizontal" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-extrabold text-white">Configurações de Dificuldade</h3>
+            <p class="text-xs text-zinc-400">Personalize a experiência e o nível de ajuda do jogo</p>
+          </div>
+        </div>
+        <button id="closeSettingsBtn" class="p-1.5 text-zinc-400 hover:text-white rounded-lg hover:bg-zinc-800 transition">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="flex flex-col gap-4 text-sm">
+        <!-- Opção 1: Mostrar bandeiras antes dos palpites -->
+        <label class="flex items-center justify-between gap-4 p-3.5 rounded-xl bg-black/60 border border-zinc-800 cursor-pointer hover:border-zinc-700 transition">
+          <div>
+            <span class="font-bold text-white block">Mostrar bandeiras antes dos palpites</span>
+            <span class="text-xs text-zinc-400">Exibe as bandeiras nas listas antes de acertar (exceto no Modo Bandeiras).</span>
+          </div>
+          <input type="checkbox" id="settingShowFlags" class="w-5 h-5 accent-white rounded cursor-pointer shrink-0">
+        </label>
+
+        <!-- Opção 2: Mostrar a capital dos países (Apenas Modo Clássico) -->
+        <label class="flex items-center justify-between gap-4 p-3.5 rounded-xl bg-black/60 border border-zinc-800 cursor-pointer hover:border-zinc-700 transition">
+          <div>
+            <span class="font-bold text-white block">Mostrar a capital dos países</span>
+            <span class="text-xs text-zinc-400">Exibe a capital em cada bloco como ajuda (disponível apenas no Modo Clássico).</span>
+          </div>
+          <input type="checkbox" id="settingShowCapitals" class="w-5 h-5 accent-white rounded cursor-pointer shrink-0">
+        </label>
+
+        <!-- Opção 3: Mostrar fronteiras no mapa -->
+        <label class="flex items-center justify-between gap-4 p-3.5 rounded-xl bg-black/60 border border-zinc-800 cursor-pointer hover:border-zinc-700 transition">
+          <div>
+            <span class="font-bold text-white block">Mostrar as fronteiras no mapa</span>
+            <span class="text-xs text-zinc-400">Desative para ocultar as divisas territoriais no globo até que o país seja acertado.</span>
+          </div>
+          <input type="checkbox" id="settingShowBorders" checked class="w-5 h-5 accent-white rounded cursor-pointer shrink-0">
+        </label>
+
+        <!-- Opção 4: Permitir dicas -->
+        <div class="p-3.5 rounded-xl bg-black/60 border border-zinc-800 flex flex-col gap-3">
+          <label class="flex items-center justify-between gap-4 cursor-pointer">
+            <div>
+              <span class="font-bold text-white block">Permitir dicas durante a partida</span>
+              <span class="text-xs text-zinc-400">Sorteia dicas (1ª letra, capital, cidade famosa, personalidade ou bandeira).</span>
+            </div>
+            <input type="checkbox" id="settingAllowHints" checked class="w-5 h-5 accent-white rounded cursor-pointer shrink-0">
+          </label>
+
+          <div id="hintCountSelectorRow" class="flex items-center justify-between pt-3 border-t border-zinc-800/80">
+            <span class="text-xs font-semibold text-zinc-300">Quantidade de dicas por jogo:</span>
+            <select id="settingMaxHints" class="bg-zinc-900 border border-zinc-700 text-white text-xs font-bold rounded-lg px-3 py-1.5 outline-none focus:border-white">
+              <option value="3">3 Dicas</option>
+              <option value="5" selected>5 Dicas</option>
+              <option value="10">10 Dicas</option>
+              <option value="15">15 Dicas</option>
+              <option value="999">Ilimitadas</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <button id="saveSettingsBtn" class="w-full py-2.5 rounded-xl font-bold bg-white hover:bg-zinc-200 text-black transition text-sm">
+        Salvar e Aplicar
+      </button>
+    </div>
+  </div>
 
   <!-- MODAL DE RESULTADO / FIM DE JOGO -->
   <div id="gameOverModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
@@ -397,219 +557,218 @@
 
   <!-- SCRIPT DO JOGO -->
   <script>
-    // BASE DE DADOS COMPLETA COM CAPITAIS E SINÔNIMOS
+    // BASE DE DADOS COMPLETA (197 PAÍSES COM CAPITAIS, CIDADES E PERSONALIDADES PARA DICAS)
     const COUNTRIES_DB = [
       // AMÉRICAS (35)
-      { id: "028", name: "Antígua e Barbuda", continent: "Americas", flag: "ag", syn: ["antigua e barbuda", "antigua barbuda", "antigua"], capital: "Saint John's", capSyn: ["saint johns", "st johns", "sao joao"] },
-      { id: "032", name: "Argentina", continent: "Americas", flag: "ar", syn: ["argentina"], capital: "Buenos Aires", capSyn: ["buenos aires"] },
-      { id: "044", name: "Bahamas", continent: "Americas", flag: "bs", syn: ["bahamas"], capital: "Nassau", capSyn: ["nassau"] },
-      { id: "052", name: "Barbados", continent: "Americas", flag: "bb", syn: ["barbados"], capital: "Bridgetown", capSyn: ["bridgetown"] },
-      { id: "084", name: "Belize", continent: "Americas", flag: "bz", syn: ["belize"], capital: "Belmopan", capSyn: ["belmopan"] },
-      { id: "068", name: "Bolívia", continent: "Americas", flag: "bo", syn: ["bolivia"], capital: "La Paz / Sucre", capSyn: ["la paz", "sucre"] },
-      { id: "076", name: "Brasil", continent: "Americas", flag: "br", syn: ["brasil", "brazil"], capital: "Brasília", capSyn: ["brasilia"] },
-      { id: "124", name: "Canadá", continent: "Americas", flag: "ca", syn: ["canada"], capital: "Ottawa", capSyn: ["ottawa", "otava"] },
-      { id: "152", name: "Chile", continent: "Americas", flag: "cl", syn: ["chile"], capital: "Santiago", capSyn: ["santiago", "santiago do chile"] },
-      { id: "170", name: "Colômbia", continent: "Americas", flag: "co", syn: ["colombia"], capital: "Bogotá", capSyn: ["bogota"] },
-      { id: "188", name: "Costa Rica", continent: "Americas", flag: "cr", syn: ["costa rica"], capital: "San José", capSyn: ["san jose", "sao jose"] },
-      { id: "192", name: "Cuba", continent: "Americas", flag: "cu", syn: ["cuba"], capital: "Havana", capSyn: ["havana", "la habana"] },
-      { id: "212", name: "Dominica", continent: "Americas", flag: "dm", syn: ["dominica"], capital: "Roseau", capSyn: ["roseau"] },
-      { id: "222", name: "El Salvador", continent: "Americas", flag: "sv", syn: ["el salvador", "salvador"], capital: "San Salvador", capSyn: ["san salvador", "sao salvador"] },
-      { id: "218", name: "Equador", continent: "Americas", flag: "ec", syn: ["equador", "ecuador"], capital: "Quito", capSyn: ["quito"] },
-      { id: "840", name: "Estados Unidos", continent: "Americas", flag: "us", syn: ["estados unidos", "eua", "usa"], capital: "Washington, D.C.", capSyn: ["washington", "washington dc"] },
-      { id: "308", name: "Granada", continent: "Americas", flag: "gd", syn: ["granada"], capital: "Saint George's", capSyn: ["saint georges", "st georges", "sao jorge"] },
-      { id: "320", name: "Guatemala", continent: "Americas", flag: "gt", syn: ["guatemala"], capital: "Cidade da Guatemala", capSyn: ["cidade da guatemala", "guatemala"] },
-      { id: "328", name: "Guiana", continent: "Americas", flag: "gy", syn: ["guiana", "guyana"], capital: "Georgetown", capSyn: ["georgetown"] },
-      { id: "332", name: "Haiti", continent: "Americas", flag: "ht", syn: ["haiti"], capital: "Porto Príncipe", capSyn: ["porto principe", "port au prince"] },
-      { id: "340", name: "Honduras", continent: "Americas", flag: "hn", syn: ["honduras"], capital: "Tegucigalpa", capSyn: ["tegucigalpa"] },
-      { id: "388", name: "Jamaica", continent: "Americas", flag: "jm", syn: ["jamaica"], capital: "Kingston", capSyn: ["kingston"] },
-      { id: "484", name: "México", continent: "Americas", flag: "mx", syn: ["mexico"], capital: "Cidade do México", capSyn: ["cidade do mexico", "mexico"] },
-      { id: "558", name: "Nicarágua", continent: "Americas", flag: "ni", syn: ["nicaragua"], capital: "Manágua", capSyn: ["managua"] },
-      { id: "591", name: "Panamá", continent: "Americas", flag: "pa", syn: ["panama"], capital: "Cidade do Panamá", capSyn: ["cidade do panama", "panama"] },
-      { id: "600", name: "Paraguai", continent: "Americas", flag: "py", syn: ["paraguai", "paraguay"], capital: "Assunção", capSyn: ["assuncao", "asuncion"] },
-      { id: "604", name: "Peru", continent: "Americas", flag: "pe", syn: ["peru"], capital: "Lima", capSyn: ["lima"] },
-      { id: "214", name: "República Dominicana", continent: "Americas", flag: "do", syn: ["republica dominicana", "rep dominicana"], capital: "Santo Domingo", capSyn: ["santo domingo", "sao domingos"] },
-      { id: "662", name: "Santa Lúcia", continent: "Americas", flag: "lc", syn: ["santa lucia"], capital: "Castries", capSyn: ["castries"] },
-      { id: "659", name: "São Cristóvão e Névis", continent: "Americas", flag: "kn", syn: ["sao cristovao e nevis", "sao cristovao", "st kitts"], capital: "Basseterre", capSyn: ["basseterre"] },
-      { id: "670", name: "São Vicente e Granadinas", continent: "Americas", flag: "vc", syn: ["sao vicente e granadinas", "sao vicente"], capital: "Kingstown", capSyn: ["kingstown"] },
-      { id: "740", name: "Suriname", continent: "Americas", flag: "sr", syn: ["suriname"], capital: "Paramaribo", capSyn: ["paramaribo"] },
-      { id: "780", name: "Trinidad e Tobago", continent: "Americas", flag: "tt", syn: ["trinidad e tobago", "trinidad"], capital: "Porto de Espanha", capSyn: ["porto de espanha", "port of spain"] },
-      { id: "858", name: "Uruguai", continent: "Americas", flag: "uy", syn: ["uruguai", "uruguay"], capital: "Montevidéu", capSyn: ["montevideu", "montevideo"] },
-      { id: "862", name: "Venezuela", continent: "Americas", flag: "ve", syn: ["venezuela"], capital: "Caracas", capSyn: ["caracas"] },
+      { id: "028", name: "Antígua e Barbuda", continent: "Americas", flag: "ag", syn: ["antigua e barbuda", "antigua barbuda", "antigua"], capital: "Saint John's", capSyn: ["saint johns", "st johns", "sao joao"], city: "English Harbour", person: "Viv Richards (Atleta de Críquete)" },
+      { id: "032", name: "Argentina", continent: "Americas", flag: "ar", syn: ["argentina"], capital: "Buenos Aires", capSyn: ["buenos aires"], city: "Córdoba / Rosário", person: "Lionel Messi / Jorge Luis Borges" },
+      { id: "044", name: "Bahamas", continent: "Americas", flag: "bs", syn: ["bahamas"], capital: "Nassau", capSyn: ["nassau"], city: "Freeport", person: "Shaunae Miller-Uibo (Velocista)" },
+      { id: "052", name: "Barbados", continent: "Americas", flag: "bb", syn: ["barbados"], capital: "Bridgetown", capSyn: ["bridgetown"], city: "Speightstown", person: "Rihanna (Cantora)" },
+      { id: "084", name: "Belize", continent: "Americas", flag: "bz", syn: ["belize"], capital: "Belmopan", capSyn: ["belmopan"], city: "Cidade de Belize", person: "Simone Biles (Ascendência/Cidadania)" },
+      { id: "068", name: "Bolívia", continent: "Americas", flag: "bo", syn: ["bolivia"], capital: "La Paz / Sucre", capSyn: ["la paz", "sucre"], city: "Santa Cruz de la Sierra", person: "Andrés de Santa Cruz" },
+      { id: "076", name: "Brasil", continent: "Americas", flag: "br", syn: ["brasil", "brazil"], capital: "Brasília", capSyn: ["brasilia"], city: "São Paulo / Rio de Janeiro", person: "Pelé / Machado de Assis" },
+      { id: "124", name: "Canadá", continent: "Americas", flag: "ca", syn: ["canada"], capital: "Ottawa", capSyn: ["ottawa", "otava"], city: "Toronto / Montreal", person: "Céline Dion / Keanu Reeves" },
+      { id: "152", name: "Chile", continent: "Americas", flag: "cl", syn: ["chile"], capital: "Santiago", capSyn: ["santiago", "santiago do chile"], city: "Valparaíso", person: "Pablo Neruda / Gabriela Mistral" },
+      { id: "170", name: "Colômbia", continent: "Americas", flag: "co", syn: ["colombia"], capital: "Bogotá", capSyn: ["bogota"], city: "Medellín / Cartagena", person: "Gabriel García Márquez / Shakira" },
+      { id: "188", name: "Costa Rica", continent: "Americas", flag: "cr", syn: ["costa rica"], capital: "San José", capSyn: ["san jose", "sao jose"], city: "Alajuela / Cartago", person: "Keylor Navas (Futebolista)" },
+      { id: "192", name: "Cuba", continent: "Americas", flag: "cu", syn: ["cuba"], capital: "Havana", capSyn: ["havana", "la habana"], city: "Santiago de Cuba", person: "José Martí / Celia Cruz" },
+      { id: "212", name: "Dominica", continent: "Americas", flag: "dm", syn: ["dominica"], capital: "Roseau", capSyn: ["roseau"], city: "Portsmouth", person: "Jean Rhys (Escritora)" },
+      { id: "222", name: "El Salvador", continent: "Americas", flag: "sv", syn: ["el salvador", "salvador"], capital: "San Salvador", capSyn: ["san salvador", "sao salvador"], city: "Santa Ana", person: "Óscar Romero" },
+      { id: "218", name: "Equador", continent: "Americas", flag: "ec", syn: ["equador", "ecuador"], capital: "Quito", capSyn: ["quito"], city: "Guayaquil / Cuenca", person: "Oswaldo Guayasamín (Pintor)" },
+      { id: "840", name: "Estados Unidos", continent: "Americas", flag: "us", syn: ["estados unidos", "eua", "usa"], capital: "Washington, D.C.", capSyn: ["washington", "washington dc"], city: "Nova York / Los Angeles", person: "Martin Luther King Jr. / Michael Jackson" },
+      { id: "308", name: "Granada", continent: "Americas", flag: "gd", syn: ["granada"], capital: "Saint George's", capSyn: ["saint georges", "st georges", "sao jorge"], city: "Gouyave", person: "Kirani James (Campeão Olímpico)" },
+      { id: "320", name: "Guatemala", continent: "Americas", flag: "gt", syn: ["guatemala"], capital: "Cidade da Guatemala", capSyn: ["cidade da guatemala", "guatemala"], city: "Antigua Guatemala", person: "Rigoberta Menchú (Nobel da Paz)" },
+      { id: "328", name: "Guiana", continent: "Americas", flag: "gy", syn: ["guiana", "guyana"], capital: "Georgetown", capSyn: ["georgetown"], city: "Linden", person: "Eddy Grant (Músico)" },
+      { id: "332", name: "Haiti", continent: "Americas", flag: "ht", syn: ["haiti"], capital: "Porto Príncipe", capSyn: ["porto principe", "port au prince"], city: "Cap-Haïtien", person: "Toussaint Louverture / Wyclef Jean" },
+      { id: "340", name: "Honduras", continent: "Americas", flag: "hn", syn: ["honduras"], capital: "Tegucigalpa", capSyn: ["tegucigalpa"], city: "San Pedro Sula", person: "Francisco Morazán" },
+      { id: "388", name: "Jamaica", continent: "Americas", flag: "jm", syn: ["jamaica"], capital: "Kingston", capSyn: ["kingston"], city: "Montego Bay", person: "Bob Marley / Usain Bolt" },
+      { id: "484", name: "México", continent: "Americas", flag: "mx", syn: ["mexico"], capital: "Cidade do México", capSyn: ["cidade do mexico", "mexico"], city: "Guadalajara / Cancún", person: "Frida Kahlo / Roberto Gómez Bolaños" },
+      { id: "558", name: "Nicarágua", continent: "Americas", flag: "ni", syn: ["nicaragua"], capital: "Manágua", capSyn: ["managua"], city: "León / Granada", person: "Rubén Darío (Poeta)" },
+      { id: "591", name: "Panamá", continent: "Americas", flag: "pa", syn: ["panama"], capital: "Cidade do Panamá", capSyn: ["cidade do panama", "panama"], city: "Colón", person: "Rubén Blades / Roberto Durán" },
+      { id: "600", name: "Paraguai", continent: "Americas", flag: "py", syn: ["paraguai", "paraguay"], capital: "Assunção", capSyn: ["assuncao", "asuncion"], city: "Ciudad del Este", person: "Augusto Roa Bastos (Escritor)" },
+      { id: "604", name: "Peru", continent: "Americas", flag: "pe", syn: ["peru"], capital: "Lima", capSyn: ["lima"], city: "Cusco / Arequipa", person: "César Vallejo / Mario Vargas Llosa" },
+      { id: "214", name: "República Dominicana", continent: "Americas", flag: "do", syn: ["republica dominicana", "rep dominicana"], capital: "Santo Domingo", capSyn: ["santo domingo", "sao domingos"], city: "Punta Cana / Santiago", person: "Juan Luis Guerra (Músico)" },
+      { id: "662", name: "Santa Lúcia", continent: "Americas", flag: "lc", syn: ["santa lucia"], capital: "Castries", capSyn: ["castries"], city: "Soufrière", person: "Derek Walcott (Nobel de Literatura)" },
+      { id: "659", name: "São Cristóvão e Névis", continent: "Americas", flag: "kn", syn: ["sao cristovao e nevis", "sao cristovao", "st kitts"], capital: "Basseterre", capSyn: ["basseterre"], city: "Charlestown", person: "Kim Collins (Velocista)" },
+      { id: "670", name: "São Vicente e Granadinas", continent: "Americas", flag: "vc", syn: ["sao vicente e granadinas", "sao vicente"], capital: "Kingstown", capSyn: ["kingstown"], city: "Bequia", person: "Ralph Gonsalves" },
+      { id: "740", name: "Suriname", continent: "Americas", flag: "sr", syn: ["suriname"], capital: "Paramaribo", capSyn: ["paramaribo"], city: "Nieuw Nickerie", person: "Clarence Seedorf (Nascido em Paramaribo)" },
+      { id: "780", name: "Trinidad e Tobago", continent: "Americas", flag: "tt", syn: ["trinidad e tobago", "trinidad"], capital: "Porto de Espanha", capSyn: ["porto de espanha", "port of spain"], city: "San Fernando", person: "V. S. Naipaul (Nobel de Literatura)" },
+      { id: "858", name: "Uruguai", continent: "Americas", flag: "uy", syn: ["uruguai", "uruguay"], capital: "Montevidéu", capSyn: ["montevideu", "montevideo"], city: "Punta del Este / Colônia", person: "Eduardo Galeano / Luis Suárez" },
+      { id: "862", name: "Venezuela", continent: "Americas", flag: "ve", syn: ["venezuela"], capital: "Caracas", capSyn: ["caracas"], city: "Maracaibo / Valência", person: "Simón Bolívar" },
 
       // EUROPA (46)
-      { id: "008", name: "Albânia", continent: "Europa", flag: "al", syn: ["albania"], capital: "Tirana", capSyn: ["tirana"] },
-      { id: "276", name: "Alemanha", continent: "Europa", flag: "de", syn: ["alemanha", "germany"], capital: "Berlim", capSyn: ["berlim", "berlin"] },
-      { id: "020", name: "Andorra", continent: "Europa", flag: "ad", syn: ["andorra"], capital: "Andorra-a-Velha", capSyn: ["andorra a velha", "andorra la vella", "andorra"] },
-      { id: "040", name: "Áustria", continent: "Europa", flag: "at", syn: ["austria"], capital: "Viena", capSyn: ["viena", "vienna"] },
-      { id: "056", name: "Bélgica", continent: "Europa", flag: "be", syn: ["belgica", "belgium"], capital: "Bruxelas", capSyn: ["bruxelas", "brussels"] },
-      { id: "112", name: "Bielorrússia", continent: "Europa", flag: "by", syn: ["bielorrussia", "bielorussia", "belarus"], capital: "Minsk", capSyn: ["minsk", "minsque"] },
-      { id: "070", name: "Bósnia e Herzegovina", continent: "Europa", flag: "ba", syn: ["bosnia e herzegovina", "bosnia"], capital: "Sarajevo", capSyn: ["sarajevo", "saraievo"] },
-      { id: "100", name: "Bulgária", continent: "Europa", flag: "bg", syn: ["bulgaria"], capital: "Sófia", capSyn: ["sofia"] },
-      { id: "196", name: "Chipre", continent: "Europa", flag: "cy", syn: ["chipre", "cyprus"], capital: "Nicósia", capSyn: ["nicosia"] },
-      { id: "191", name: "Croácia", continent: "Europa", flag: "hr", syn: ["croacia", "croatia"], capital: "Zagreb", capSyn: ["zagreb", "zagrebe"] },
-      { id: "208", name: "Dinamarca", continent: "Europa", flag: "dk", syn: ["dinamarca", "denmark"], capital: "Copenhague", capSyn: ["copenhague", "copenhaga", "copenhagen"] },
-      { id: "703", name: "Eslováquia", continent: "Europa", flag: "sk", syn: ["eslovaquia", "slovakia"], capital: "Bratislava", capSyn: ["bratislava"] },
-      { id: "705", name: "Eslovênia", continent: "Europa", flag: "si", syn: ["eslovenia", "slovenia"], capital: "Liubliana", capSyn: ["liubliana", "ljubljana"] },
-      { id: "724", name: "Espanha", continent: "Europa", flag: "es", syn: ["espanha", "spain"], capital: "Madri", capSyn: ["madri", "madrid"] },
-      { id: "233", name: "Estônia", continent: "Europa", flag: "ee", syn: ["estonia"], capital: "Tallinn", capSyn: ["tallinn", "talim", "talin"] },
-      { id: "246", name: "Finlândia", continent: "Europa", flag: "fi", syn: ["finlandia", "finland"], capital: "Helsinque", capSyn: ["helsinque", "helsinquia", "helsinki"] },
-      { id: "250", name: "França", continent: "Europa", flag: "fr", syn: ["franca", "france"], capital: "Paris", capSyn: ["paris"] },
-      { id: "300", name: "Grécia", continent: "Europa", flag: "gr", syn: ["grecia", "greece"], capital: "Atenas", capSyn: ["atenas", "athens"] },
-      { id: "348", name: "Hungria", continent: "Europa", flag: "hu", syn: ["hungria", "hungary"], capital: "Budapeste", capSyn: ["budapeste", "budapest"] },
-      { id: "372", name: "Irlanda", continent: "Europa", flag: "ie", syn: ["irlanda", "ireland"], capital: "Dublin", capSyn: ["dublin", "dublim"] },
-      { id: "352", name: "Islândia", continent: "Europa", flag: "is", syn: ["islandia", "iceland"], capital: "Reykjavík", capSyn: ["reykjavik", "reiquiavique", "reikjavik"] },
-      { id: "380", name: "Itália", continent: "Europa", flag: "it", syn: ["italia", "italy"], capital: "Roma", capSyn: ["roma", "rome"] },
-      { id: "383", name: "Kosovo", continent: "Europa", flag: "xk", syn: ["kosovo", "cosovo"], capital: "Pristina", capSyn: ["pristina"] },
-      { id: "428", name: "Letônia", continent: "Europa", flag: "lv", syn: ["letonia", "latvia"], capital: "Riga", capSyn: ["riga"] },
-      { id: "438", name: "Liechtenstein", continent: "Europa", flag: "li", syn: ["liechtenstein"], capital: "Vaduz", capSyn: ["vaduz"] },
-      { id: "440", name: "Lituânia", continent: "Europa", flag: "lt", syn: ["lituania", "lithuania"], capital: "Vilnius", capSyn: ["vilnius", "vilna"] },
-      { id: "442", name: "Luxemburgo", continent: "Europa", flag: "lu", syn: ["luxemburgo", "luxembourg"], capital: "Luxemburgo", capSyn: ["luxemburgo", "cidade de luxemburgo"] },
-      { id: "807", name: "Macedônia do Norte", continent: "Europa", flag: "mk", syn: ["macedonia do norte", "macedonia"], capital: "Escópia", capSyn: ["escopia", "skopje"] },
-      { id: "470", name: "Malta", continent: "Europa", flag: "mt", syn: ["malta"], capital: "Valeta", capSyn: ["valeta", "valletta", "la valletta"] },
-      { id: "498", name: "Moldávia", continent: "Europa", flag: "md", syn: ["moldavia", "moldova"], capital: "Chisinau", capSyn: ["chisinau", "quisinev"] },
-      { id: "492", name: "Mônaco", continent: "Europa", flag: "mc", syn: ["monaco"], capital: "Mônaco", capSyn: ["monaco", "cidade de monaco", "monte carlo"] },
-      { id: "499", name: "Montenegro", continent: "Europa", flag: "me", syn: ["montenegro"], capital: "Podgorica", capSyn: ["podgorica"] },
-      { id: "578", name: "Noruega", continent: "Europa", flag: "no", syn: ["noruega", "norway"], capital: "Oslo", capSyn: ["oslo"] },
-      { id: "528", name: "Países Baixos", continent: "Europa", flag: "nl", syn: ["paises baixos", "holanda", "netherlands"], capital: "Amsterdã", capSyn: ["amsterda", "amsterdam", "amesterdao", "haia"] },
-      { id: "616", name: "Polônia", continent: "Europa", flag: "pl", syn: ["polonia", "poland"], capital: "Varsóvia", capSyn: ["varsovia", "warsaw"] },
-      { id: "620", name: "Portugal", continent: "Europa", flag: "pt", syn: ["portugal"], capital: "Lisboa", capSyn: ["lisboa", "lisbon"] },
-      { id: "826", name: "Reino Unido", continent: "Europa", flag: "gb", syn: ["reino unido", "inglaterra", "uk", "gra bretanha"], capital: "Londres", capSyn: ["londres", "london"] },
-      { id: "203", name: "República Tcheca", continent: "Europa", flag: "cz", syn: ["republica tcheca", "tchequia", "chequia"], capital: "Praga", capSyn: ["praga", "prague"] },
-      { id: "642", name: "Romênia", continent: "Europa", flag: "ro", syn: ["romenia", "romania"], capital: "Bucareste", capSyn: ["bucareste", "bucharest"] },
-      { id: "643", name: "Rússia", continent: "Europa", flag: "ru", syn: ["russia"], capital: "Moscou", capSyn: ["moscou", "moscovo", "moscow"] },
-      { id: "674", name: "San Marino", continent: "Europa", flag: "sm", syn: ["san marino"], capital: "San Marino", capSyn: ["san marino", "sao marinho"] },
-      { id: "688", name: "Sérvia", continent: "Europa", flag: "rs", syn: ["servia", "serbia"], capital: "Belgrado", capSyn: ["belgrado", "belgrade"] },
-      { id: "752", name: "Suécia", continent: "Europa", flag: "se", syn: ["suecia", "sweden"], capital: "Estocolmo", capSyn: ["estocolmo", "stockholm"] },
-      { id: "756", name: "Suíça", continent: "Europa", flag: "ch", syn: ["suica", "switzerland"], capital: "Berna", capSyn: ["berna", "bern"] },
-      { id: "804", name: "Ucrânia", continent: "Europa", flag: "ua", syn: ["ucrania", "ukraine"], capital: "Kiev", capSyn: ["kiev", "kyiv", "quieve"] },
-      { id: "336", name: "Vaticano", continent: "Europa", flag: "va", syn: ["vaticano", "santa se"], capital: "Cidade do Vaticano", capSyn: ["cidade do vaticano", "vaticano"] },
+      { id: "008", name: "Albânia", continent: "Europa", flag: "al", syn: ["albania"], capital: "Tirana", capSyn: ["tirana"], city: "Durrës / Berat", person: "Ismail Kadare (Escritor)" },
+      { id: "276", name: "Alemanha", continent: "Europa", flag: "de", syn: ["alemanha", "germany"], capital: "Berlim", capSyn: ["berlim", "berlin"], city: "Munique / Hamburgo", person: "Albert Einstein / Ludwig van Beethoven" },
+      { id: "020", name: "Andorra", continent: "Europa", flag: "ad", syn: ["andorra"], capital: "Andorra-a-Velha", capSyn: ["andorra a velha", "andorra la vella", "andorra"], city: "Escaldes-Engordany", person: "Albert Villaró (Escritor)" },
+      { id: "040", name: "Áustria", continent: "Europa", flag: "at", syn: ["austria"], capital: "Viena", capSyn: ["viena", "vienna"], city: "Salzburgo / Graz", person: "Wolfgang Amadeus Mozart / Sigmund Freud" },
+      { id: "056", name: "Bélgica", continent: "Europa", flag: "be", syn: ["belgica", "belgium"], capital: "Bruxelas", capSyn: ["bruxelas", "brussels"], city: "Bruges / Antuérpia", person: "Hergé (Criador de Tintim) / René Magritte" },
+      { id: "112", name: "Bielorrússia", continent: "Europa", flag: "by", syn: ["bielorrussia", "bielorussia", "belarus"], capital: "Minsk", capSyn: ["minsk", "minsque"], city: "Brest / Gomel", person: "Svetlana Alexijevich (Nobel de Literatura)" },
+      { id: "070", name: "Bósnia e Herzegovina", continent: "Europa", flag: "ba", syn: ["bosnia e herzegovina", "bosnia"], capital: "Sarajevo", capSyn: ["sarajevo", "saraievo"], city: "Mostar", person: "Ivo Andrić / Edin Džeko" },
+      { id: "100", name: "Bulgária", continent: "Europa", flag: "bg", syn: ["bulgaria"], capital: "Sófia", capSyn: ["sofia"], city: "Plovdiv / Varna", person: "Hristo Stoichkov (Futebolista)" },
+      { id: "196", name: "Chipre", continent: "Europa", flag: "cy", syn: ["chipre", "cyprus"], capital: "Nicósia", capSyn: ["nicosia"], city: "Limassol / Pafos", person: "Marcos Baghdatis (Tenista)" },
+      { id: "191", name: "Croácia", continent: "Europa", flag: "hr", syn: ["croacia", "croatia"], capital: "Zagreb", capSyn: ["zagreb", "zagrebe"], city: "Dubrovnik / Split", person: "Luka Modrić" },
+      { id: "208", name: "Dinamarca", continent: "Europa", flag: "dk", syn: ["dinamarca", "denmark"], capital: "Copenhague", capSyn: ["copenhague", "copenhaga", "copenhagen"], city: "Aarhus / Odense", person: "Hans Christian Andersen (Escritor)" },
+      { id: "703", name: "Eslováquia", continent: "Europa", flag: "sk", syn: ["eslovaquia", "slovakia"], capital: "Bratislava", capSyn: ["bratislava"], city: "Košice", person: "Peter Sagan (Ciclista)" },
+      { id: "705", name: "Eslovênia", continent: "Europa", flag: "si", syn: ["eslovenia", "slovenia"], capital: "Liubliana", capSyn: ["liubliana", "ljubljana"], city: "Maribor / Bled", person: "Luka Dončić / Slavoj Žižek" },
+      { id: "724", name: "Espanha", continent: "Europa", flag: "es", syn: ["espanha", "spain"], capital: "Madri", capSyn: ["madri", "madrid"], city: "Barcelona / Sevilha", person: "Miguel de Cervantes / Pablo Picasso" },
+      { id: "233", name: "Estônia", continent: "Europa", flag: "ee", syn: ["estonia"], capital: "Tallinn", capSyn: ["tallinn", "talim", "talin"], city: "Tartu", person: "Arvo Pärt (Compositor)" },
+      { id: "246", name: "Finlândia", continent: "Europa", flag: "fi", syn: ["finlandia", "finland"], capital: "Helsinque", capSyn: ["helsinque", "helsinquia", "helsinki"], city: "Tampere / Rovaniemi", person: "Jean Sibelius / Kimi Räikkönen" },
+      { id: "250", name: "França", continent: "Europa", flag: "fr", syn: ["franca", "france"], capital: "Paris", capSyn: ["paris"], city: "Lyon / Marselha", person: "Victor Hugo / Claude Monet" },
+      { id: "300", name: "Grécia", continent: "Europa", flag: "gr", syn: ["grecia", "greece"], capital: "Atenas", capSyn: ["atenas", "athens"], city: "Tessalônica / Santorini", person: "Sócrates / Aristóteles" },
+      { id: "348", name: "Hungria", continent: "Europa", flag: "hu", syn: ["hungria", "hungary"], capital: "Budapeste", capSyn: ["budapeste", "budapest"], city: "Debrecen", person: "Ferenc Puskás / Ernő Rubik" },
+      { id: "372", name: "Irlanda", continent: "Europa", flag: "ie", syn: ["irlanda", "ireland"], capital: "Dublin", capSyn: ["dublin", "dublim"], city: "Cork / Galway", person: "James Joyce / Hozier / Bono" },
+      { id: "352", name: "Islândia", continent: "Europa", flag: "is", syn: ["islandia", "iceland"], capital: "Reykjavík", capSyn: ["reykjavik", "reiquiavique", "reikjavik"], city: "Akureyri", person: "Björk / Of Monsters and Men" },
+      { id: "380", name: "Itália", continent: "Europa", flag: "it", syn: ["italia", "italy"], capital: "Roma", capSyn: ["roma", "rome"], city: "Milão / Veneza / Florença", person: "Leonardo da Vinci / Galileu Galilei" },
+      { id: "383", name: "Kosovo", continent: "Europa", flag: "xk", syn: ["kosovo", "cosovo"], capital: "Pristina", capSyn: ["pristina"], city: "Prizren", person: "Majlinda Kelmendi (Judoca Campeã Olímpica)" },
+      { id: "428", name: "Letônia", continent: "Europa", flag: "lv", syn: ["letonia", "latvia"], capital: "Riga", capSyn: ["riga"], city: "Jūrmala", person: "Mikhail Baryshnikov (Nascido em Riga)" },
+      { id: "438", name: "Liechtenstein", continent: "Europa", flag: "li", syn: ["liechtenstein"], capital: "Vaduz", capSyn: ["vaduz"], city: "Schaan", person: "Hanni Wenzel (Esquiadora)" },
+      { id: "440", name: "Lituânia", continent: "Europa", flag: "lt", syn: ["lituania", "lithuania"], capital: "Vilnius", capSyn: ["vilnius", "vilna"], city: "Kaunas", person: "Arvydas Sabonis (Lenda do Basquete)" },
+      { id: "442", name: "Luxemburgo", continent: "Europa", flag: "lu", syn: ["luxemburgo", "luxembourg"], capital: "Luxemburgo", capSyn: ["luxemburgo", "cidade de luxemburgo"], city: "Esch-sur-Alzette", person: "Andy Schleck (Ciclista)" },
+      { id: "807", name: "Macedônia do Norte", continent: "Europa", flag: "mk", syn: ["macedonia do norte", "macedonia"], capital: "Escópia", capSyn: ["escopia", "skopje"], city: "Ohrid", person: "Madre Teresa (Nascida em Escópia)" },
+      { id: "470", name: "Malta", continent: "Europa", flag: "mt", syn: ["malta"], capital: "Valeta", capSyn: ["valeta", "valletta", "la valletta"], city: "Mdina / Sliema", person: "Joseph Calleja (Tenor)" },
+      { id: "498", name: "Moldávia", continent: "Europa", flag: "md", syn: ["moldavia", "moldova"], capital: "Chisinau", capSyn: ["chisinau", "quisinev"], city: "Tiraspol / Bălți", person: "Grigore Vieru (Poeta)" },
+      { id: "492", name: "Mônaco", continent: "Europa", flag: "mc", syn: ["monaco"], capital: "Mônaco", capSyn: ["monaco", "cidade de monaco", "monte carlo"], city: "Monte Carlo", person: "Charles Leclerc (Piloto de F1)" },
+      { id: "499", name: "Montenegro", continent: "Europa", flag: "me", syn: ["montenegro"], capital: "Podgorica", capSyn: ["podgorica"], city: "Kotor / Budva", person: "Stevan Jovetić (Futebolista)" },
+      { id: "578", name: "Noruega", continent: "Europa", flag: "no", syn: ["noruega", "norway"], capital: "Oslo", capSyn: ["oslo"], city: "Bergen / Tromsø", person: "Edvard Munch / Magnus Carlsen" },
+      { id: "528", name: "Países Baixos", continent: "Europa", flag: "nl", syn: ["paises baixos", "holanda", "netherlands"], capital: "Amsterdã", capSyn: ["amsterda", "amsterdam", "amesterdao", "haia"], city: "Roterdã / Haia", person: "Vincent van Gogh / Johan Cruyff" },
+      { id: "616", name: "Polônia", continent: "Europa", flag: "pl", syn: ["polonia", "poland"], capital: "Varsóvia", capSyn: ["varsovia", "warsaw"], city: "Cracóvia / Gdańsk", person: "Marie Curie / Frédéric Chopin" },
+      { id: "620", name: "Portugal", continent: "Europa", flag: "pt", syn: ["portugal"], capital: "Lisboa", capSyn: ["lisboa", "lisbon"], city: "Porto / Coimbra", person: "Fernando Pessoa / MARO / Cristiano Ronaldo" },
+      { id: "826", name: "Reino Unido", continent: "Europa", flag: "gb", syn: ["reino unido", "inglaterra", "uk", "gra bretanha"], capital: "Londres", capSyn: ["londres", "london"], city: "Edimburgo / Manchester / Liverpool", person: "William Shakespeare / Isaac Newton" },
+      { id: "203", name: "República Tcheca", continent: "Europa", flag: "cz", syn: ["republica tcheca", "tchequia", "chequia"], capital: "Praga", capSyn: ["praga", "prague"], city: "Brno / Plzeň", person: "Franz Kafka / Milan Kundera" },
+      { id: "642", name: "Romênia", continent: "Europa", flag: "ro", syn: ["romenia", "romania"], capital: "Bucareste", capSyn: ["bucareste", "bucharest"], city: "Brașov / Cluj-Napoca", person: "Nadia Comăneci (Ginasta)" },
+      { id: "643", name: "Rússia", continent: "Europa", flag: "ru", syn: ["russia"], capital: "Moscou", capSyn: ["moscou", "moscovo", "moscow"], city: "São Petersburgo", person: "Fiódor Dostoiévski / Liev Tolstói" },
+      { id: "674", name: "San Marino", continent: "Europa", flag: "sm", syn: ["san marino"], capital: "San Marino", capSyn: ["san marino", "sao marinho"], city: "Serravalle", person: "Manuel Poggiali (Campeão de Motovelocidade)" },
+      { id: "688", name: "Sérvia", continent: "Europa", flag: "rs", syn: ["servia", "serbia"], capital: "Belgrado", capSyn: ["belgrado", "belgrade"], city: "Novi Sad", person: "Novak Djokovic / Nikola Tesla" },
+      { id: "752", name: "Suécia", continent: "Europa", flag: "se", syn: ["suecia", "sweden"], capital: "Estocolmo", capSyn: ["estocolmo", "stockholm"], city: "Gotemburgo / Malmö", person: "Alfred Nobel / Ingmar Bergman" },
+      { id: "756", name: "Suíça", continent: "Europa", flag: "ch", syn: ["suica", "switzerland"], capital: "Berna", capSyn: ["berna", "bern"], city: "Zurique / Genebra", person: "Roger Federer / Jean-Jacques Rousseau" },
+      { id: "804", name: "Ucrânia", continent: "Europa", flag: "ua", syn: ["ucrania", "ukraine"], capital: "Kiev", capSyn: ["kiev", "kyiv", "quieve"], city: "Lviv / Odessa", person: "Andriy Shevchenko / Taras Shevchenko" },
+      { id: "336", name: "Vaticano", continent: "Europa", flag: "va", syn: ["vaticano", "santa se"], capital: "Cidade do Vaticano", capSyn: ["cidade do vaticano", "vaticano"], city: "Praça de São Pedro", person: "Papa Francisco" },
 
       // ÁSIA (48)
-      { id: "004", name: "Afeganistão", continent: "Asia", flag: "af", syn: ["afeganistao", "afghanistan"], capital: "Cabul", capSyn: ["cabul", "kabul"] },
-      { id: "682", name: "Arábia Saudita", continent: "Asia", flag: "sa", syn: ["arabia saudita", "arabia"], capital: "Riad", capSyn: ["riad", "riade", "riyadh"] },
-      { id: "051", name: "Armênia", continent: "Asia", flag: "am", syn: ["armenia"], capital: "Yerevan", capSyn: ["yerevan", "erevan", "ierevan"] },
-      { id: "031", name: "Azerbaijão", continent: "Asia", flag: "az", syn: ["azerbaijao", "azerbaijan"], capital: "Baku", capSyn: ["baku", "bacu"] },
-      { id: "048", name: "Bahrein", continent: "Asia", flag: "bh", syn: ["bahrein", "bahrain"], capital: "Manama", capSyn: ["manama"] },
-      { id: "050", name: "Bangladesh", continent: "Asia", flag: "bd", syn: ["bangladesh"], capital: "Daca", capSyn: ["daca", "dhaka"] },
-      { id: "096", name: "Brunei", continent: "Asia", flag: "bn", syn: ["brunei"], capital: "Bandar Seri Begawan", capSyn: ["bandar seri begawan", "bandar"] },
-      { id: "064", name: "Butão", continent: "Asia", flag: "bt", syn: ["butao", "bhutan"], capital: "Thimphu", capSyn: ["thimphu", "timbu", "timphu"] },
-      { id: "116", name: "Camboja", continent: "Asia", flag: "kh", syn: ["camboja", "cambodia"], capital: "Phnom Penh", capSyn: ["phnom penh", "pnom pen"] },
-      { id: "634", name: "Catar", continent: "Asia", flag: "qa", syn: ["catar", "qatar"], capital: "Doha", capSyn: ["doha"] },
-      { id: "398", name: "Cazaquistão", continent: "Asia", flag: "kz", syn: ["cazaquistao", "kazakhstan"], capital: "Astana", capSyn: ["astana", "nursultan", "nur sultan"] },
-      { id: "156", name: "China", continent: "Asia", flag: "cn", syn: ["china"], capital: "Pequim", capSyn: ["pequim", "beijing"] },
-      { id: "408", name: "Coreia do Norte", continent: "Asia", flag: "kp", syn: ["coreia do norte"], capital: "Pyongyang", capSyn: ["pyongyang", "pionguiangue"] },
-      { id: "410", name: "Coreia do Sul", continent: "Asia", flag: "kr", syn: ["coreia do sul", "coreia"], capital: "Seul", capSyn: ["seul", "seoul"] },
-      { id: "784", name: "Emirados Árabes Unidos", continent: "Asia", flag: "ae", syn: ["emirados arabes unidos", "eau", "emirados arabes", "emirados"], capital: "Abu Dhabi", capSyn: ["abu dhabi", "abu dabi"] },
-      { id: "608", name: "Filipinas", continent: "Asia", flag: "ph", syn: ["filipinas", "philippines"], capital: "Manila", capSyn: ["manila"] },
-      { id: "268", name: "Geórgia", continent: "Asia", flag: "ge", syn: ["georgia"], capital: "Tbilisi", capSyn: ["tbilisi", "tbilissi", "tiflis"] },
-      { id: "887", name: "Iêmen", continent: "Asia", flag: "ye", syn: ["iemen", "yemen"], capital: "Sana", capSyn: ["sana", "sanaa"] },
-      { id: "356", name: "Índia", continent: "Asia", flag: "in", syn: ["india"], capital: "Nova Délhi", capSyn: ["nova delhi", "nova deli", "new delhi", "deli"] },
-      { id: "360", name: "Indonésia", continent: "Asia", flag: "id", syn: ["indonesia"], capital: "Jacarta", capSyn: ["jacarta", "jakarta", "nusantara"] },
-      { id: "364", name: "Irã", continent: "Asia", flag: "ir", syn: ["ira", "iran"], capital: "Teerã", capSyn: ["teera", "teerao", "tehran"] },
-      { id: "368", name: "Iraque", continent: "Asia", flag: "iq", syn: ["iraque", "iraq"], capital: "Bagdá", capSyn: ["bagda", "bagdade", "baghdad"] },
-      { id: "376", name: "Israel", continent: "Asia", flag: "il", syn: ["israel"], capital: "Jerusalém", capSyn: ["jerusalem", "tel aviv"] },
-      { id: "392", name: "Japão", continent: "Asia", flag: "jp", syn: ["japao", "japan"], capital: "Tóquio", capSyn: ["toquio", "tokyo"] },
-      { id: "400", name: "Jordânia", continent: "Asia", flag: "jo", syn: ["jordania", "jordan"], capital: "Amã", capSyn: ["ama", "amman"] },
-      { id: "414", name: "Kuwait", continent: "Asia", flag: "kw", syn: ["kuwait"], capital: "Cidade do Kuwait", capSyn: ["cidade do kuwait", "kuwait", "coveite"] },
-      { id: "418", name: "Laos", continent: "Asia", flag: "la", syn: ["laos"], capital: "Vientiane", capSyn: ["vientiane", "vienciana"] },
-      { id: "422", name: "Líbano", continent: "Asia", flag: "lb", syn: ["libano", "lebanon"], capital: "Beirute", capSyn: ["beirute", "beirut"] },
-      { id: "458", name: "Malásia", continent: "Asia", flag: "my", syn: ["malasia", "malaysia"], capital: "Kuala Lumpur", capSyn: ["kuala lumpur", "putrajaya"] },
-      { id: "462", name: "Maldivas", continent: "Asia", flag: "mv", syn: ["maldivas"], capital: "Malé", capSyn: ["male"] },
-      { id: "104", name: "Mianmar", continent: "Asia", flag: "mm", syn: ["mianmar", "birmania", "myanmar"], capital: "Nepiedó", capSyn: ["nepiedo", "naypyidaw", "nay pyi taw", "rangum", "yangon"] },
-      { id: "496", name: "Mongólia", continent: "Asia", flag: "mn", syn: ["mongolia"], capital: "Ulaanbaatar", capSyn: ["ulaanbaatar", "ulan bator"] },
-      { id: "524", name: "Nepal", continent: "Asia", flag: "np", syn: ["nepal"], capital: "Catmandu", capSyn: ["catmandu", "kathmandu"] },
-      { id: "512", name: "Omã", continent: "Asia", flag: "om", syn: ["oma", "oman"], capital: "Mascate", capSyn: ["mascate", "muscat"] },
-      { id: "275", name: "Palestina", continent: "Asia", flag: "ps", syn: ["palestina"], capital: "Ramallah / Jerusalém Oriental", capSyn: ["ramallah", "ramala", "jerusalem oriental", "jerusalem"] },
-      { id: "586", name: "Paquistão", continent: "Asia", flag: "pk", syn: ["paquistao", "pakistan"], capital: "Islamabad", capSyn: ["islamabad", "islamabade"] },
-      { id: "417", name: "Quirguistão", continent: "Asia", flag: "kg", syn: ["quirguistao", "kyrgyzstan"], capital: "Bisqueque", capSyn: ["bisqueque", "bishkek"] },
-      { id: "702", name: "Singapura", continent: "Asia", flag: "sg", syn: ["singapura", "singapore"], capital: "Singapura", capSyn: ["singapura", "cingapura", "singapore"] },
-      { id: "760", name: "Síria", continent: "Asia", flag: "sy", syn: ["siria", "syria"], capital: "Damasco", capSyn: ["damasco", "damascus"] },
-      { id: "144", name: "Sri Lanka", continent: "Asia", flag: "lk", syn: ["sri lanka"], capital: "Colombo / Kotte", capSyn: ["colombo", "kotte", "sri jayawardenepura kotte"] },
-      { id: "762", name: "Tadjiquistão", continent: "Asia", flag: "tj", syn: ["tadjiquistao", "tajikistan"], capital: "Dushanbe", capSyn: ["dushanbe", "duchambe"] },
-      { id: "764", name: "Tailândia", continent: "Asia", flag: "th", syn: ["tailandia", "thailand"], capital: "Bangkok", capSyn: ["bangkok", "banguecoque", "bangcoc"] },
-      { id: "158", name: "Taiwan", continent: "Asia", flag: "tw", syn: ["taiwan"], capital: "Taipé", capSyn: ["taipe", "taipei"] },
-      { id: "626", name: "Timor-Leste", continent: "Asia", flag: "tl", syn: ["timor-leste", "timor leste", "timor"], capital: "Díli", capSyn: ["dili"] },
-      { id: "795", name: "Turquemenistão", continent: "Asia", flag: "tm", syn: ["turquemenistao", "turkmenistan"], capital: "Asgabate", capSyn: ["asgabate", "ashgabat"] },
-      { id: "792", name: "Turquia", continent: "Asia", flag: "tr", syn: ["turquia", "turkey"], capital: "Ancara", capSyn: ["ancara", "ankara"] },
-      { id: "860", name: "Uzbequistão", continent: "Asia", flag: "uz", syn: ["uzbequistao", "uzbekistan"], capital: "Tashkent", capSyn: ["tashkent", "tasquente"] },
-      { id: "704", name: "Vietnã", continent: "Asia", flag: "vn", syn: ["vietna", "vietnam"], capital: "Hanói", capSyn: ["hanoi"] },
+      { id: "004", name: "Afeganistão", continent: "Asia", flag: "af", syn: ["afeganistao", "afghanistan"], capital: "Cabul", capSyn: ["cabul", "kabul"], city: "Herat / Kandahar", person: "Khaled Hosseini (Escritor)" },
+      { id: "682", name: "Arábia Saudita", continent: "Asia", flag: "sa", syn: ["arabia saudita", "arabia"], capital: "Riad", capSyn: ["riad", "riade", "riyadh"], city: "Jidá / Meca", person: "Yasser Al-Qahtani" },
+      { id: "051", name: "Armênia", continent: "Asia", flag: "am", syn: ["armenia"], capital: "Yerevan", capSyn: ["yerevan", "erevan", "ierevan"], city: "Gyumri", person: "Serj Tankian (System of a Down) / Aram Khachaturian" },
+      { id: "031", name: "Azerbaijão", continent: "Asia", flag: "az", syn: ["azerbaijao", "azerbaijan"], capital: "Baku", capSyn: ["baku", "bacu"], city: "Ganja", person: "Garry Kasparov (Nascido em Baku)" },
+      { id: "048", name: "Bahrein", continent: "Asia", flag: "bh", syn: ["bahrein", "bahrain"], capital: "Manama", capSyn: ["manama"], city: "Muharraq / Circuito de Sakhir", person: "Maryam Yusuf Jamal (Medalhista Olímpica)" },
+      { id: "050", name: "Bangladesh", continent: "Asia", flag: "bd", syn: ["bangladesh"], capital: "Daca", capSyn: ["daca", "dhaka"], city: "Chittagong", person: "Muhammad Yunus (Nobel da Paz)" },
+      { id: "096", name: "Brunei", continent: "Asia", flag: "bn", syn: ["brunei"], capital: "Bandar Seri Begawan", capSyn: ["bandar seri begawan", "bandar"], city: "Kuala Belait", person: "Hassanal Bolkiah" },
+      { id: "064", name: "Butão", continent: "Asia", flag: "bt", syn: ["butao", "bhutan"], capital: "Thimphu", capSyn: ["thimphu", "timbu", "timphu"], city: "Paro", person: "Jigme Khesar Namgyel Wangchuck" },
+      { id: "116", name: "Camboja", continent: "Asia", flag: "kh", syn: ["camboja", "cambodia"], capital: "Phnom Penh", capSyn: ["phnom penh", "pnom pen"], city: "Siem Reap (Angkor Wat)", person: "Rithy Panh (Cineasta)" },
+      { id: "634", name: "Catar", continent: "Asia", flag: "qa", syn: ["catar", "qatar"], capital: "Doha", capSyn: ["doha"], city: "Lusail / Al Wakrah", person: "Mutaz Essa Barshim (Campeão Olímpico)" },
+      { id: "398", name: "Cazaquistão", continent: "Asia", flag: "kz", syn: ["cazaquistao", "kazakhstan"], capital: "Astana", capSyn: ["astana", "nursultan", "nur sultan"], city: "Almaty", person: "Gennady Golovkin / Elena Rybakina" },
+      { id: "156", name: "China", continent: "Asia", flag: "cn", syn: ["china"], capital: "Pequim", capSyn: ["pequim", "beijing"], city: "Xangai / Hong Kong", person: "Confúcio / Jackie Chan" },
+      { id: "408", name: "Coreia do Norte", continent: "Asia", flag: "kp", syn: ["coreia do norte"], capital: "Pyongyang", capSyn: ["pyongyang", "pionguiangue"], city: "Kaesong", person: "An Kum-ae (Campeã Olímpica de Judô)" },
+      { id: "410", name: "Coreia do Sul", continent: "Asia", flag: "kr", syn: ["coreia do sul", "coreia"], capital: "Seul", capSyn: ["seul", "seoul"], city: "Busan / Incheon", person: "Bong Joon-ho / Son Heung-min" },
+      { id: "784", name: "Emirados Árabes Unidos", continent: "Asia", flag: "ae", syn: ["emirados arabes unidos", "eau", "emirados arabes", "emirados"], capital: "Abu Dhabi", capSyn: ["abu dhabi", "abu dabi"], city: "Dubai / Sharjah", person: "Hazza Al Mansouri (Astronauta)" },
+      { id: "608", name: "Filipinas", continent: "Asia", flag: "ph", syn: ["filipinas", "philippines"], capital: "Manila", capSyn: ["manila"], city: "Cebu / Quezon City", person: "Manny Pacquiao / José Rizal" },
+      { id: "268", name: "Geórgia", continent: "Asia", flag: "ge", syn: ["georgia"], capital: "Tbilisi", capSyn: ["tbilisi", "tbilissi", "tiflis"], city: "Batumi / Kutaisi", person: "Khvicha Kvaratskhelia" },
+      { id: "887", name: "Iêmen", continent: "Asia", flag: "ye", syn: ["iemen", "yemen"], capital: "Sana", capSyn: ["sana", "sanaa"], city: "Áden / Ilha de Socotra", person: "Tawakkol Karman (Nobel da Paz)" },
+      { id: "356", name: "Índia", continent: "Asia", flag: "in", syn: ["india"], capital: "Nova Délhi", capSyn: ["nova delhi", "nova deli", "new delhi", "deli"], city: "Mumbai / Agra (Taj Mahal)", person: "Mahatma Gandhi / Rabindranath Tagore" },
+      { id: "360", name: "Indonésia", continent: "Asia", flag: "id", syn: ["indonesia"], capital: "Jacarta", capSyn: ["jacarta", "jakarta", "nusantara"], city: "Bali / Surabaya", person: "Pramoedya Ananta Toer (Escritor)" },
+      { id: "364", name: "Irã", continent: "Asia", flag: "ir", syn: ["ira", "iran"], capital: "Teerã", capSyn: ["teera", "teerao", "tehran"], city: "Isfahan / Shiraz", person: "Abbas Kiarostami / Omar Khayyam" },
+      { id: "368", name: "Iraque", continent: "Asia", flag: "iq", syn: ["iraque", "iraq"], capital: "Bagdá", capSyn: ["bagda", "bagdade", "baghdad"], city: "Basra / Erbil", person: "Zaha Hadid (Arquiteta)" },
+      { id: "376", name: "Israel", continent: "Asia", flag: "il", syn: ["israel"], capital: "Jerusalém", capSyn: ["jerusalem", "tel aviv"], city: "Tel Aviv / Haifa", person: "Amos Oz / Natalie Portman" },
+      { id: "392", name: "Japão", continent: "Asia", flag: "jp", syn: ["japao", "japan"], capital: "Tóquio", capSyn: ["toquio", "tokyo"], city: "Quioto / Osaka", person: "Hayao Miyazaki / Haruki Murakami" },
+      { id: "400", name: "Jordânia", continent: "Asia", flag: "jo", syn: ["jordania", "jordan"], capital: "Amã", capSyn: ["ama", "amman"], city: "Petra / Aqaba", person: "Rainha Rania" },
+      { id: "414", name: "Kuwait", continent: "Asia", flag: "kw", syn: ["kuwait"], capital: "Cidade do Kuwait", capSyn: ["cidade do kuwait", "kuwait", "coveite"], city: "Al Ahmadi", person: "Fehaid Al-Deehani (Campeão Olímpico)" },
+      { id: "418", name: "Laos", continent: "Asia", flag: "la", syn: ["laos"], capital: "Vientiane", capSyn: ["vientiane", "vienciana"], city: "Luang Prabang", person: "Kaysone Phomvihane" },
+      { id: "422", name: "Líbano", continent: "Asia", flag: "lb", syn: ["libano", "lebanon"], capital: "Beirute", capSyn: ["beirute", "beirut"], city: "Biblos / Trípoli", person: "Khalil Gibran / Fairuz" },
+      { id: "458", name: "Malásia", continent: "Asia", flag: "my", syn: ["malasia", "malaysia"], capital: "Kuala Lumpur", capSyn: ["kuala lumpur", "putrajaya"], city: "Penang / Malaca", person: "Michelle Yeoh (Atriz vencedora do Oscar)" },
+      { id: "462", name: "Maldivas", continent: "Asia", flag: "mv", syn: ["maldivas"], capital: "Malé", capSyn: ["male"], city: "Addu City", person: "Mohamed Nasheed" },
+      { id: "104", name: "Mianmar", continent: "Asia", flag: "mm", syn: ["mianmar", "birmania", "myanmar"], capital: "Nepiedó", capSyn: ["nepiedo", "naypyidaw", "nay pyi taw", "rangum", "yangon"], city: "Yangon (Rangum) / Mandalay", person: "Aung San Suu Kyi / U Thant" },
+      { id: "496", name: "Mongólia", continent: "Asia", flag: "mn", syn: ["mongolia"], capital: "Ulaanbaatar", capSyn: ["ulaanbaatar", "ulan bator"], city: "Erdenet", person: "Gengis Khan" },
+      { id: "524", name: "Nepal", continent: "Asia", flag: "np", syn: ["nepal"], capital: "Catmandu", capSyn: ["catmandu", "kathmandu"], city: "Pokhara / Monte Everest", person: "Tenzing Norgay (Alpinista)" },
+      { id: "512", name: "Omã", continent: "Asia", flag: "om", syn: ["oma", "oman"], capital: "Mascate", capSyn: ["mascate", "muscat"], city: "Salalah / Nizwa", person: "Jokha Alharthi (Escritora)" },
+      { id: "275", name: "Palestina", continent: "Asia", flag: "ps", syn: ["palestina"], capital: "Ramallah / Jerusalém Oriental", capSyn: ["ramallah", "ramala", "jerusalem oriental", "jerusalem"], city: "Belém / Gaza / Jericó", person: "Mahmoud Darwish (Poeta) / Edward Said" },
+      { id: "586", name: "Paquistão", continent: "Asia", flag: "pk", syn: ["paquistao", "pakistan"], capital: "Islamabad", capSyn: ["islamabad", "islamabade"], city: "Karachi / Lahore", person: "Malala Yousafzai (Nobel da Paz)" },
+      { id: "417", name: "Quirguistão", continent: "Asia", flag: "kg", syn: ["quirguistao", "kyrgyzstan"], capital: "Bisqueque", capSyn: ["bisqueque", "bishkek"], city: "Osh", person: "Chingiz Aitmatov (Escritor)" },
+      { id: "702", name: "Singapura", continent: "Asia", flag: "sg", syn: ["singapura", "singapore"], capital: "Singapura", capSyn: ["singapura", "cingapura", "singapore"], city: "Marina Bay", person: "Joseph Schooling (Campeão Olímpico)" },
+      { id: "760", name: "Síria", continent: "Asia", flag: "sy", syn: ["siria", "syria"], capital: "Damasco", capSyn: ["damasco", "damascus"], city: "Alepo / Palmira", person: "Nizar Qabbani (Poeta)" },
+      { id: "144", name: "Sri Lanka", continent: "Asia", flag: "lk", syn: ["sri lanka"], capital: "Colombo / Kotte", capSyn: ["colombo", "kotte", "sri jayawardenepura kotte"], city: "Kandy / Galle", person: "Michael Ondaatje (Escritor)" },
+      { id: "762", name: "Tadjiquistão", continent: "Asia", flag: "tj", syn: ["tadjiquistao", "tajikistan"], capital: "Dushanbe", capSyn: ["dushanbe", "duchambe"], city: "Khujand", person: "Dilshod Nazarov (Campeão Olímpico)" },
+      { id: "764", name: "Tailândia", continent: "Asia", flag: "th", syn: ["tailandia", "thailand"], capital: "Bangkok", capSyn: ["bangkok", "banguecoque", "bangcoc"], city: "Chiang Mai / Phuket", person: "Apichatpong Weerasethakul (Cineasta)" },
+      { id: "158", name: "Taiwan", continent: "Asia", flag: "tw", syn: ["taiwan"], capital: "Taipé", capSyn: ["taipe", "taipei"], city: "Kaohsiung / Taichung", person: "Ang Lee (Cineasta vencedor do Oscar)" },
+      { id: "626", name: "Timor-Leste", continent: "Asia", flag: "tl", syn: ["timor-leste", "timor leste", "timor"], capital: "Díli", capSyn: ["dili"], city: "Baucau", person: "José Ramos-Horta / Xanana Gusmão" },
+      { id: "795", name: "Turquemenistão", continent: "Asia", flag: "tm", syn: ["turquemenistao", "turkmenistan"], capital: "Asgabate", capSyn: ["asgabate", "ashgabat"], city: "Türkmenabat / Cratera de Darvaza", person: "Magtymguly Pyragy (Poeta)" },
+      { id: "792", name: "Turquia", continent: "Asia", flag: "tr", syn: ["turquia", "turkey"], capital: "Ancara", capSyn: ["ancara", "ankara"], city: "Istambul / Capadócia", person: "Orhan Pamuk / Süleyman Erguner" },
+      { id: "860", name: "Uzbequistão", continent: "Asia", flag: "uz", syn: ["uzbequistao", "uzbekistan"], capital: "Tashkent", capSyn: ["tashkent", "tasquente"], city: "Samarcanda / Bukhara", person: "Al-Khwarizmi (Matemático)" },
+      { id: "704", name: "Vietnã", continent: "Asia", flag: "vn", syn: ["vietna", "vietnam"], capital: "Hanói", capSyn: ["hanoi"], city: "Cidade de Ho Chi Minh / Ha Long", person: "Ho Chi Minh / Thích Nhất Hạnh" },
 
       // ÁFRICA (54)
-      { id: "710", name: "África do Sul", continent: "Africa", flag: "za", syn: ["africa do sul"], capital: "Pretória / Cidade do Cabo", capSyn: ["pretoria", "cidade do cabo", "bloemfontein", "cape town"] },
-      { id: "024", name: "Angola", continent: "Africa", flag: "ao", syn: ["angola"], capital: "Luanda", capSyn: ["luanda"] },
-      { id: "012", name: "Argélia", continent: "Africa", flag: "dz", syn: ["argelia", "algeria"], capital: "Argel", capSyn: ["argel", "algiers"] },
-      { id: "204", name: "Benin", continent: "Africa", flag: "bj", syn: ["benin", "benim"], capital: "Porto Novo / Cotonou", capSyn: ["porto novo", "cotonou", "cotonu"] },
-      { id: "072", name: "Botsuana", continent: "Africa", flag: "bw", syn: ["botsuana", "botswana"], capital: "Gaborone", capSyn: ["gaborone"] },
-      { id: "854", name: "Burquina Faso", continent: "Africa", flag: "bf", syn: ["burquina faso", "burkina faso", "burkina"], capital: "Ouagadougou", capSyn: ["ouagadougou", "uagadugu"] },
-      { id: "108", name: "Burundi", continent: "Africa", flag: "bi", syn: ["burundi"], capital: "Gitega / Bujumbura", capSyn: ["gitega", "bujumbura"] },
-      { id: "132", name: "Cabo Verde", continent: "Africa", flag: "cv", syn: ["cabo verde"], capital: "Praia", capSyn: ["praia", "cidade da praia"] },
-      { id: "120", name: "Camarões", continent: "Africa", flag: "cm", syn: ["camaroes", "cameroon"], capital: "Yaoundé", capSyn: ["yaounde", "iaunde"] },
-      { id: "148", name: "Chade", continent: "Africa", flag: "td", syn: ["chade", "chad"], capital: "N'Djamena", capSyn: ["ndjamena", "jamena"] },
-      { id: "174", name: "Comores", continent: "Africa", flag: "km", syn: ["comores"], capital: "Moroni", capSyn: ["moroni"] },
-      { id: "178", name: "Congo-Brazzaville", continent: "Africa", flag: "cg", syn: ["congo-brazzaville", "congo", "republica do congo"], capital: "Brazzaville", capSyn: ["brazzaville", "brazavile"] },
-      { id: "384", name: "Costa do Marfim", continent: "Africa", flag: "ci", syn: ["costa do marfim"], capital: "Yamoussoukro / Abidjan", capSyn: ["yamoussoukro", "iamussucro", "abidjan", "abidja"] },
-      { id: "262", name: "Djibuti", continent: "Africa", flag: "dj", syn: ["djibuti", "djibouti"], capital: "Djibuti", capSyn: ["djibuti", "cidade de djibuti", "djibouti"] },
-      { id: "818", name: "Egito", continent: "Africa", flag: "eg", syn: ["egito", "egypt"], capital: "Cairo", capSyn: ["cairo"] },
-      { id: "232", name: "Eritreia", continent: "Africa", flag: "er", syn: ["eritreia", "eritrea"], capital: "Asmara", capSyn: ["asmara"] },
-      { id: "748", name: "Essuatíni", continent: "Africa", flag: "sz", syn: ["essuatini", "suazilandia", "eswatini"], capital: "Mbabane / Lobamba", capSyn: ["mbabane", "lobamba"] },
-      { id: "231", name: "Etiópia", continent: "Africa", flag: "et", syn: ["etiopia", "ethiopia"], capital: "Adis Abeba", capSyn: ["adis abeba", "addis ababa"] },
-      { id: "266", name: "Gabão", continent: "Africa", flag: "ga", syn: ["gabao", "gabon"], capital: "Libreville", capSyn: ["libreville", "librevile"] },
-      { id: "270", name: "Gâmbia", continent: "Africa", flag: "gm", syn: ["gambia"], capital: "Banjul", capSyn: ["banjul"] },
-      { id: "288", name: "Gana", continent: "Africa", flag: "gh", syn: ["gana", "ghana"], capital: "Acra", capSyn: ["acra", "accra"] },
-      { id: "324", name: "Guiné", continent: "Africa", flag: "gn", syn: ["guine", "guinea"], capital: "Conacri", capSyn: ["conacri", "conakry"] },
-      { id: "624", name: "Guiné-Bissau", continent: "Africa", flag: "gw", syn: ["guine-bissau", "guine bissau"], capital: "Bissau", capSyn: ["bissau"] },
-      { id: "226", name: "Guiné Equatorial", continent: "Africa", flag: "gq", syn: ["guine equatorial"], capital: "Malabo", capSyn: ["malabo", "ciudad de la paz", "oyala"] },
-      { id: "426", name: "Lesoto", continent: "Africa", flag: "ls", syn: ["lesoto", "lesotho"], capital: "Maseru", capSyn: ["maseru"] },
-      { id: "430", name: "Libéria", continent: "Africa", flag: "lr", syn: ["liberia"], capital: "Monróvia", capSyn: ["monrovia"] },
-      { id: "434", name: "Líbia", continent: "Africa", flag: "ly", syn: ["libia", "libya"], capital: "Trípoli", capSyn: ["tripoli"] },
-      { id: "450", name: "Madagascar", continent: "Africa", flag: "mg", syn: ["madagascar"], capital: "Antananarivo", capSyn: ["antananarivo"] },
-      { id: "454", name: "Malaui", continent: "Africa", flag: "mw", syn: ["malaui", "malawi"], capital: "Lilongwe", capSyn: ["lilongwe", "lilongue"] },
-      { id: "466", name: "Mali", continent: "Africa", flag: "ml", syn: ["mali"], capital: "Bamako", capSyn: ["bamako", "bamaco"] },
-      { id: "504", name: "Marrocos", continent: "Africa", flag: "ma", syn: ["marrocos", "morocco"], capital: "Rabat", capSyn: ["rabat", "rebate"] },
-      { id: "480", name: "Maurícia", continent: "Africa", flag: "mu", syn: ["mauricia", "mauricio"], capital: "Port Louis", capSyn: ["port louis", "porto luis"] },
-      { id: "478", name: "Mauritânia", continent: "Africa", flag: "mr", syn: ["mauritania"], capital: "Nouakchott", capSyn: ["nouakchott", "nuaquechote"] },
-      { id: "508", name: "Moçambique", continent: "Africa", flag: "mz", syn: ["mocambique", "mozambique"], capital: "Maputo", capSyn: ["maputo"] },
-      { id: "516", name: "Namíbia", continent: "Africa", flag: "na", syn: ["namibia"], capital: "Windhoek", capSyn: ["windhoek", "vinduque"] },
-      { id: "562", name: "Níger", continent: "Africa", flag: "ne", syn: ["niger"], capital: "Niamey", capSyn: ["niamey", "niamei"] },
-      { id: "566", name: "Nigéria", continent: "Africa", flag: "ng", syn: ["nigeria"], capital: "Abuja", capSyn: ["abuja"] },
-      { id: "404", name: "Quênia", continent: "Africa", flag: "ke", syn: ["quenia", "kenya"], capital: "Nairóbi", capSyn: ["nairobi"] },
-      { id: "140", name: "República Centro-Africana", continent: "Africa", flag: "cf", syn: ["republica centro-africana", "rca"], capital: "Bangui", capSyn: ["bangui"] },
-      { id: "180", name: "República Democrática do Congo", continent: "Africa", flag: "cd", syn: ["republica democratica do congo", "rd congo", "rdc", "congo-kinshasa", "zaire"], capital: "Kinshasa", capSyn: ["kinshasa", "quinchasa"] },
-      { id: "646", name: "Ruanda", continent: "Africa", flag: "rw", syn: ["ruanda", "rwanda"], capital: "Kigali", capSyn: ["kigali", "quigali"] },
-      { id: "678", name: "São Tomé e Príncipe", continent: "Africa", flag: "st", syn: ["sao tome e principe", "sao tome"], capital: "São Tomé", capSyn: ["sao tome"] },
-      { id: "686", name: "Senegal", continent: "Africa", flag: "sn", syn: ["senegal"], capital: "Dacar", capSyn: ["dacar", "dakar"] },
-      { id: "690", name: "Seicheles", continent: "Africa", flag: "sc", syn: ["seicheles", "seychelles"], capital: "Victoria", capSyn: ["victoria", "vitoria"] },
-      { id: "694", name: "Serra Leoa", continent: "Africa", flag: "sl", syn: ["serra leoa"], capital: "Freetown", capSyn: ["freetown"] },
-      { id: "706", name: "Somália", continent: "Africa", flag: "so", syn: ["somalia"], capital: "Mogadíscio", capSyn: ["mogadiscio", "mogadishu"] },
-      { id: "729", name: "Sudão", continent: "Africa", flag: "sd", syn: ["sudao", "sudan"], capital: "Cartum", capSyn: ["cartum", "khartoum"] },
-      { id: "728", name: "Sudão do Sul", continent: "Africa", flag: "ss", syn: ["sudao do sul"], capital: "Juba", capSyn: ["juba"] },
-      { id: "834", name: "Tanzânia", continent: "Africa", flag: "tz", syn: ["tanzania"], capital: "Dodoma", capSyn: ["dodoma", "dar es salaam"] },
-      { id: "768", name: "Togo", continent: "Africa", flag: "tg", syn: ["togo"], capital: " Lomé", capSyn: ["lome"] },
-      { id: "788", name: "Tunísia", continent: "Africa", flag: "tn", syn: ["tunisia"], capital: "Túnis", capSyn: ["tunis", "tunez"] },
-      { id: "800", name: "Uganda", continent: "Africa", flag: "ug", syn: ["uganda"], capital: "Kampala", capSyn: ["kampala", "campala"] },
-      { id: "894", name: "Zâmbia", continent: "Africa", flag: "zm", syn: ["zambia"], capital: "Lusaka", capSyn: ["lusaka", "lusaca"] },
-      { id: "716", name: "Zimbábue", continent: "Africa", flag: "zw", syn: ["zimbabue", "zimbabwe"], capital: "Harare", capSyn: ["harare"] },
+      { id: "710", name: "África do Sul", continent: "Africa", flag: "za", syn: ["africa do sul"], capital: "Pretória / Cidade do Cabo", capSyn: ["pretoria", "cidade do cabo", "bloemfontein", "cape town"], city: "Joanesburgo / Durban", person: "Nelson Mandela / Desmond Tutu" },
+      { id: "024", name: "Angola", continent: "Africa", flag: "ao", syn: ["angola"], capital: "Luanda", capSyn: ["luanda"], city: "Benguela / Huambo", person: "Agostinho Neto / Pepetela" },
+      { id: "012", name: "Argélia", continent: "Africa", flag: "dz", syn: ["argelia", "algeria"], capital: "Argel", capSyn: ["argel", "algiers"], city: "Orã / Constantina", person: "Albert Camus / Riyad Mahrez" },
+      { id: "204", name: "Benin", continent: "Africa", flag: "bj", syn: ["benin", "benim"], capital: "Porto Novo / Cotonou", capSyn: ["porto novo", "cotonou", "cotonu"], city: "Cotonou / Ouidah", person: "Angélique Kidjo (Cantora)" },
+      { id: "072", name: "Botsuana", continent: "Africa", flag: "bw", syn: ["botsuana", "botswana"], capital: "Gaborone", capSyn: ["gaborone"], city: "Maun (Delta do Okavango)", person: "Letsile Tebogo (Campeão Olímpico)" },
+      { id: "854", name: "Burquina Faso", continent: "Africa", flag: "bf", syn: ["burquina faso", "burkina faso", "burkina"], capital: "Ouagadougou", capSyn: ["ouagadougou", "uagadugu"], city: "Bobo-Dioulasso", person: "Thomas Sankara / Francis Kéré" },
+      { id: "108", name: "Burundi", continent: "Africa", flag: "bi", syn: ["burundi"], capital: "Gitega / Bujumbura", capSyn: ["gitega", "bujumbura"], city: "Bujumbura", person: "Vénuste Niyongabo (Campeão Olímpico)" },
+      { id: "132", name: "Cabo Verde", continent: "Africa", flag: "cv", syn: ["cabo verde"], capital: "Praia", capSyn: ["praia", "cidade da praia"], city: "Mindelo", person: "Cesária Évora (Cantora)" },
+      { id: "120", name: "Camarões", continent: "Africa", flag: "cm", syn: ["camaroes", "cameroon"], capital: "Yaoundé", capSyn: ["yaounde", "iaunde"], city: "Douala", person: "Samuel Eto'o / Roger Milla" },
+      { id: "148", name: "Chade", continent: "Africa", flag: "td", syn: ["chade", "chad"], capital: "N'Djamena", capSyn: ["ndjamena", "jamena"], city: "Moundou", person: "Mahamat-Saleh Haroun (Cineasta)" },
+      { id: "174", name: "Comores", continent: "Africa", flag: "km", syn: ["comores"], capital: "Moroni", capSyn: ["moroni"], city: "Mutsamudu", person: "El Fardou Ben Nabouhane" },
+      { id: "178", name: "Congo-Brazzaville", continent: "Africa", flag: "cg", syn: ["congo-brazzaville", "congo", "republica do congo"], capital: "Brazzaville", capSyn: ["brazzaville", "brazavile"], city: "Pointe-Noire", person: "Alain Mabanckou (Escritor)" },
+      { id: "384", name: "Costa do Marfim", continent: "Africa", flag: "ci", syn: ["costa do marfim"], capital: "Yamoussoukro / Abidjan", capSyn: ["yamoussoukro", "iamussucro", "abidjan", "abidja"], city: "Abidjan", person: "Didier Drogba / Alpha Blondy" },
+      { id: "262", name: "Djibuti", continent: "Africa", flag: "dj", syn: ["djibuti", "djibouti"], capital: "Djibuti", capSyn: ["djibuti", "cidade de djibuti", "djibouti"], city: "Tadjoura", person: "Abdourahman Waberi (Escritor)" },
+      { id: "818", name: "Egito", continent: "Africa", flag: "eg", syn: ["egito", "egypt"], capital: "Cairo", capSyn: ["cairo"], city: "Alexandria / Luxor", person: "Cleópatra / Mohamed Salah / Naguib Mahfouz" },
+      { id: "232", name: "Eritreia", continent: "Africa", flag: "er", syn: ["eritreia", "eritrea"], capital: "Asmara", capSyn: ["asmara"], city: "Massawa", person: "Biniam Girmay (Ciclista)" },
+      { id: "748", name: "Essuatíni", continent: "Africa", flag: "sz", syn: ["essuatini", "suazilandia", "eswatini"], capital: "Mbabane / Lobamba", capSyn: ["mbabane", "lobamba"], city: "Manzini", person: "Rei Sobhuza II" },
+      { id: "231", name: "Etiópia", continent: "Africa", flag: "et", syn: ["etiopia", "ethiopia"], capital: "Adis Abeba", capSyn: ["adis abeba", "addis ababa"], city: "Lalibela / Gondar", person: "Haile Gebrselassie / Abebe Bikila" },
+      { id: "266", name: "Gabão", continent: "Africa", flag: "ga", syn: ["gabao", "gabon"], capital: "Libreville", capSyn: ["libreville", "librevile"], city: "Port-Gentil", person: "Pierre-Emerick Aubameyang" },
+      { id: "270", name: "Gâmbia", continent: "Africa", flag: "gm", syn: ["gambia"], capital: "Banjul", capSyn: ["banjul"], city: "Serekunda", person: "Dawda Jawara" },
+      { id: "288", name: "Gana", continent: "Africa", flag: "gh", syn: ["gana", "ghana"], capital: "Acra", capSyn: ["acra", "accra"], city: "Kumasi", person: "Kofi Annan / Kwame Nkrumah" },
+      { id: "324", name: "Guiné", continent: "Africa", flag: "gn", syn: ["guine", "guinea"], capital: "Conacri", capSyn: ["conacri", "conakry"], city: "Kankan", person: "Mory Kanté (Músico)" },
+      { id: "624", name: "Guiné-Bissau", continent: "Africa", flag: "gw", syn: ["guine-bissau", "guine bissau"], capital: "Bissau", capSyn: ["bissau"], city: "Bafatá", person: "Amílcar Cabral" },
+      { id: "226", name: "Guiné Equatorial", continent: "Africa", flag: "gq", syn: ["guine equatorial"], capital: "Malabo", capSyn: ["malabo", "ciudad de la paz", "oyala"], city: "Bata", person: "Eric Moussambani (Nadador Olímpico)" },
+      { id: "426", name: "Lesoto", continent: "Africa", flag: "ls", syn: ["lesoto", "lesotho"], capital: "Maseru", capSyn: ["maseru"], city: "Teyateyaneng", person: "Moshoeshoe I" },
+      { id: "430", name: "Libéria", continent: "Africa", flag: "lr", syn: ["liberia"], capital: "Monróvia", capSyn: ["monrovia"], city: "Gbarnga", person: "George Weah / Ellen Johnson Sirleaf" },
+      { id: "434", name: "Líbia", continent: "Africa", flag: "ly", syn: ["libia", "libya"], capital: "Trípoli", capSyn: ["tripoli"], city: "Bengasi", person: "Omar Mukhtar" },
+      { id: "450", name: "Madagascar", continent: "Africa", flag: "mg", syn: ["madagascar"], capital: "Antananarivo", capSyn: ["antananarivo"], city: "Toamasina / Nosy Be", person: "Rainha Ranavalona" },
+      { id: "454", name: "Malaui", continent: "Africa", flag: "mw", syn: ["malaui", "malawi"], capital: "Lilongwe", capSyn: ["lilongwe", "lilongue"], city: "Blantyre", person: "William Kamkwamba (O Menino que Descobriu o Vento)" },
+      { id: "466", name: "Mali", continent: "Africa", flag: "ml", syn: ["mali"], capital: "Bamako", capSyn: ["bamako", "bamaco"], city: "Timbuktu", person: "Mansa Musa / Ali Farka Touré" },
+      { id: "504", name: "Marrocos", continent: "Africa", flag: "ma", syn: ["marrocos", "morocco"], capital: "Rabat", capSyn: ["rabat", "rebate"], city: "Casablanca / Marraquexe", person: "Ibn Battuta / Achraf Hakimi" },
+      { id: "480", name: "Maurícia", continent: "Africa", flag: "mu", syn: ["mauricia", "mauricio"], capital: "Port Louis", capSyn: ["port louis", "porto luis"], city: "Curepipe", person: "J. M. G. Le Clézio (Nobel de Literatura)" },
+      { id: "478", name: "Mauritânia", continent: "Africa", flag: "mr", syn: ["mauritania"], capital: "Nouakchott", capSyn: ["nouakchott", "nuaquechote"], city: "Nouadhibou / Chinguetti", person: "Abderrahmane Sissako (Cineasta)" },
+      { id: "508", name: "Moçambique", continent: "Africa", flag: "mz", syn: ["mocambique", "mozambique"], capital: "Maputo", capSyn: ["maputo"], city: "Beira / Nampula", person: "Mia Couto / Eusébio" },
+      { id: "516", name: "Namíbia", continent: "Africa", flag: "na", syn: ["namibia"], capital: "Windhoek", capSyn: ["windhoek", "vinduque"], city: "Swakopmund / Walvis Bay", person: "Frankie Fredericks (Velocista)" },
+      { id: "562", name: "Níger", continent: "Africa", flag: "ne", syn: ["niger"], capital: "Niamey", capSyn: ["niamey", "niamei"], city: "Agadez / Zinder", person: "Bombino (Músico Tuaregue)" },
+      { id: "566", name: "Nigéria", continent: "Africa", flag: "ng", syn: ["nigeria"], capital: "Abuja", capSyn: ["abuja"], city: "Lagos / Kano", person: "Chinua Achebe / Wole Soyinka / Fela Kuti" },
+      { id: "404", name: "Quênia", continent: "Africa", flag: "ke", syn: ["quenia", "kenya"], capital: "Nairóbi", capSyn: ["nairobi"], city: "Mombaça", person: "Eliud Kipchoge / Wangari Maathai" },
+      { id: "140", name: "República Centro-Africana", continent: "Africa", flag: "cf", syn: ["republica centro-africana", "rca"], capital: "Bangui", capSyn: ["bangui"], city: "Bimbo", person: "Barthélemy Boganda" },
+      { id: "180", name: "República Democrática do Congo", continent: "Africa", flag: "cd", syn: ["republica democratica do congo", "rd congo", "rdc", "congo-kinshasa", "zaire"], capital: "Kinshasa", capSyn: ["kinshasa", "quinchasa"], city: "Lubumbashi / Goma", person: "Patrice Lumumba / Denis Mukwege" },
+      { id: "646", name: "Ruanda", continent: "Africa", flag: "rw", syn: ["ruanda", "rwanda"], capital: "Kigali", capSyn: ["kigali", "quigali"], city: "Butare", person: "Scholastique Mukasonga (Escritora)" },
+      { id: "678", name: "São Tomé e Príncipe", continent: "Africa", flag: "st", syn: ["sao tome e principe", "sao tome"], capital: "São Tomé", capSyn: ["sao tome"], city: "Santo António", person: "Almada Negreiros (Artista)" },
+      { id: "686", name: "Senegal", continent: "Africa", flag: "sn", syn: ["senegal"], capital: "Dacar", capSyn: ["dacar", "dakar"], city: "Saint-Louis / Touba", person: "Léopold Sédar Senghor / Sadio Mané" },
+      { id: "690", name: "Seicheles", continent: "Africa", flag: "sc", syn: ["seicheles", "seychelles"], capital: "Victoria", capSyn: ["victoria", "vitoria"], city: "Ilha de Mahé / Praslin", person: "James Mancham" },
+      { id: "694", name: "Serra Leoa", continent: "Africa", flag: "sl", syn: ["serra leoa"], capital: "Freetown", capSyn: ["freetown"], city: "Bo / Kenema", person: "Ishmael Beah (Escritor)" },
+      { id: "706", name: "Somália", continent: "Africa", flag: "so", syn: ["somalia"], capital: "Mogadíscio", capSyn: ["mogadiscio", "mogadishu"], city: "Hargeisa / Kismayo", person: "Mo Farah / Nuruddin Farah" },
+      { id: "729", name: "Sudão", continent: "Africa", flag: "sd", syn: ["sudao", "sudan"], capital: "Cartum", capSyn: ["cartum", "khartoum"], city: "Omdurman / Porto Sudão", person: "Tayeb Salih (Escritor)" },
+      { id: "728", name: "Sudão do Sul", continent: "Africa", flag: "ss", syn: ["sudao do sul"], capital: "Juba", capSyn: ["juba"], city: "Wau / Malakal", person: "Luol Deng / Manute Bol (Basquetebolistas)" },
+      { id: "834", name: "Tanzânia", continent: "Africa", flag: "tz", syn: ["tanzania"], capital: "Dodoma", capSyn: ["dodoma", "dar es salaam"], city: "Dar es Salaam / Zanzibar", person: "Freddie Mercury (Nascido em Zanzibar) / Abdulrazak Gurnah" },
+      { id: "768", name: "Togo", continent: "Africa", flag: "tg", syn: ["togo"], capital: "Lomé", capSyn: ["lome"], city: "Sokodé", person: "Emmanuel Adebayor (Futebolista)" },
+      { id: "788", name: "Tunísia", continent: "Africa", flag: "tn", syn: ["tunisia"], capital: "Túnis", capSyn: ["tunis", "tunez"], city: "Cartago / Sousse", person: "Ibn Khaldun / Ons Jabeur" },
+      { id: "800", name: "Uganda", continent: "Africa", flag: "ug", syn: ["uganda"], capital: "Kampala", capSyn: ["kampala", "campala"], city: "Entebbe / Jinja", person: "Joshua Cheptegei (Recordista Mundial)" },
+      { id: "894", name: "Zâmbia", continent: "Africa", flag: "zm", syn: ["zambia"], capital: "Lusaka", capSyn: ["lusaka", "lusaca"], city: "Livingstone (Cataratas Vitória)", person: "Kenneth Kaunda" },
+      { id: "716", name: "Zimbábue", continent: "Africa", flag: "zw", syn: ["zimbabue", "zimbabwe"], capital: "Harare", capSyn: ["harare"], city: "Bulawayo", person: "Kirsty Coventry (Nadadora Campeã Olímpica)" },
 
       // OCEANIA (14)
-      { id: "036", name: "Austrália", continent: "Oceania", flag: "au", syn: ["australia"], capital: "Camberra", capSyn: ["camberra", "canberra"] },
-      { id: "242", name: "Fiji", continent: "Oceania", flag: "fj", syn: ["fiji"], capital: "Suva", capSyn: ["suva"] },
-      { id: "584", name: "Ilhas Marshall", continent: "Oceania", flag: "mh", syn: ["ilhas marshall", "marshall"], capital: "Majuro", capSyn: ["majuro"] },
-      { id: "090", name: "Ilhas Salomão", continent: "Oceania", flag: "sb", syn: ["ilhas salomao", "salomao"], capital: "Honiara", capSyn: ["honiara"] },
-      { id: "296", name: "Kiribati", continent: "Oceania", flag: "ki", syn: ["kiribati"], capital: "Tarawa", capSyn: ["tarawa", "taraua"] },
-      { id: "583", name: "Micronésia", continent: "Oceania", flag: "fm", syn: ["micronesia"], capital: "Palikir", capSyn: ["palikir"] },
-      { id: "520", name: "Nauru", continent: "Oceania", flag: "nr", syn: ["nauru"], capital: "Yaren", capSyn: ["yaren", "iarem", "nauru"] },
-      { id: "554", name: "Nova Zelândia", continent: "Oceania", flag: "nz", syn: ["nova zelandia", "new zealand"], capital: "Wellington", capSyn: ["wellington"] },
-      { id: "585", name: "Palau", continent: "Oceania", flag: "pw", syn: ["palau"], capital: "Ngerulmud", capSyn: ["ngerulmud", "melekeok", "koror"] },
-      { id: "598", name: "Papua Nova Guiné", continent: "Oceania", flag: "pg", syn: ["papua nova guine", "papua"], capital: "Port Moresby", capSyn: ["port moresby", "porto moresby"] },
-      { id: "882", name: "Samoa", continent: "Oceania", flag: "ws", syn: ["samoa"], capital: "Apia", capSyn: ["apia"] },
-      { id: "776", name: "Tonga", continent: "Oceania", flag: "to", syn: ["tonga"], capital: "Nuku'alofa", capSyn: ["nukualofa", "nuku alofa"] },
-      { id: "798", name: "Tuvalu", continent: "Oceania", flag: "tv", syn: ["tuvalu"], capital: "Funafuti", capSyn: ["funafuti"] },
-      { id: "548", name: "Vanuatu", continent: "Oceania", flag: "vu", syn: ["vanuatu"], capital: "Port Vila", capSyn: ["port vila", "porto vila"] }
+      { id: "036", name: "Austrália", continent: "Oceania", flag: "au", syn: ["australia"], capital: "Camberra", capSyn: ["camberra", "canberra"], city: "Sydney / Melbourne", person: "Hugh Jackman / Cate Blanchett" },
+      { id: "242", name: "Fiji", continent: "Oceania", flag: "fj", syn: ["fiji"], capital: "Suva", capSyn: ["suva"], city: "Nadi", person: "Vijay Singh (Golfista)" },
+      { id: "584", name: "Ilhas Marshall", continent: "Oceania", flag: "mh", syn: ["ilhas marshall", "marshall"], capital: "Majuro", capSyn: ["majuro"], city: "Ebeye", person: "Kathy Jetñil-Kijiner (Poetisa)" },
+      { id: "090", name: "Ilhas Salomão", continent: "Oceania", flag: "sb", syn: ["ilhas salomao", "salomao"], capital: "Honiara", capSyn: ["honiara"], city: "Guadalcanal / Gizo", person: "Peter Kenilorea" },
+      { id: "296", name: "Kiribati", continent: "Oceania", flag: "ki", syn: ["kiribati"], capital: "Tarawa", capSyn: ["tarawa", "taraua"], city: "Kiritimati", person: "David Katoatau (Halterofilista)" },
+      { id: "583", name: "Micronésia", continent: "Oceania", flag: "fm", syn: ["micronesia"], capital: "Palikir", capSyn: ["palikir"], city: "Weno / Chuuk", person: "Tosiwo Nakayama" },
+      { id: "520", name: "Nauru", continent: "Oceania", flag: "nr", syn: ["nauru"], capital: "Yaren", capSyn: ["yaren", "iarem", "nauru"], city: "Denigomodu", person: "Marcus Stephen (Halterofilista)" },
+      { id: "554", name: "Nova Zelândia", continent: "Oceania", flag: "nz", syn: ["nova zelandia", "new zealand"], capital: "Wellington", capSyn: ["wellington"], city: "Auckland / Queenstown", person: "Peter Jackson / Lorde / Edmund Hillary" },
+      { id: "585", name: "Palau", continent: "Oceania", flag: "pw", syn: ["palau"], capital: "Ngerulmud", capSyn: ["ngerulmud", "melekeok", "koror"], city: "Koror", person: "Haruo Remeliik" },
+      { id: "598", name: "Papua Nova Guiné", continent: "Oceania", flag: "pg", syn: ["papua nova guine", "papua"], capital: "Port Moresby", capSyn: ["port moresby", "porto moresby"], city: "Lae", person: "Michael Somare" },
+      { id: "882", name: "Samoa", continent: "Oceania", flag: "ws", syn: ["samoa"], capital: "Apia", capSyn: ["apia"], city: "Salelologa", person: "Albert Wendt (Escritor)" },
+      { id: "776", name: "Tonga", continent: "Oceania", flag: "to", syn: ["tonga"], capital: "Nuku'alofa", capSyn: ["nukualofa", "nuku alofa"], city: "Neiafu", person: "Pita Taufatofua (Atleta Olímpico)" },
+      { id: "798", name: "Tuvalu", continent: "Oceania", flag: "tv", syn: ["tuvalu"], capital: "Funafuti", capSyn: ["funafuti"], city: "Vaiaku", person: "Enele Sopoaga" },
+      { id: "548", name: "Vanuatu", continent: "Oceania", flag: "vu", syn: ["vanuatu"], capital: "Port Vila", capSyn: ["port vila", "porto vila"], city: "Luganville", person: "Walter Lini" }
     ];
 
     const TOTAL_COUNTRIES = COUNTRIES_DB.length;
 
-    // Lista global ordenada alfabeticamente para o Modo Ordem Alfabética
     const ALPHABETICAL_ORDER = COUNTRIES_DB
       .map((c, originalIndex) => ({ ...c, originalIndex }))
       .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
@@ -668,20 +827,36 @@
       "-98": { owner: "196", name: "Chipre do Norte", ownerName: "Chipre" },
     };
 
+    // CHAVES DE SALVAMENTO LOCAL
+    const STORAGE_STATE_KEY = 'voltaAoMundo_state_v2';
+    const STORAGE_SETTINGS_KEY = 'voltaAoMundo_settings_v2';
+
+    // CONFIGURAÇÕES DO JOGADOR
+    let gameSettings = {
+      showFlagsBeforeGuess: false,
+      showCapitalsInClassic: false,
+      showBordersOnMap: true,
+      allowHints: true,
+      maxHints: 5
+    };
+
     // ESTADO DO JOGO
-    let currentGameMode = 'classic'; // 'classic' | 'alphabetical' | 'hardcore'
+    let currentGameMode = 'classic'; // 'classic' | 'alphabetical' | 'hardcore' | 'flags'
     let isPlaying = false;
     let isGameOver = false;
     let selectedDurationMinutes = 15;
     let timeRemaining = 15 * 60;
     let timerInterval = null;
     let guessedCountries = new Set();
-    let currentAlphaStep = 0; // Índice atual na fila A-Z (0 a TOTAL_COUNTRIES - 1)
-    let pendingHardcoreCountryIdx = null; // Índice do país aguardando capital no Modo Hardcore
+    let currentAlphaStep = 0;
+    let pendingHardcoreCountryIdx = null;
+    let currentFlagTargetIdx = null;
+    let hintsRemaining = 5;
+    let pendingModeSwitch = null; // Armazena o novo modo enquanto exibe o resultado da partida anterior
     let isMuted = false;
     let countriesGeoGlobal = []; 
 
-    // DOM
+    // DOM Elements
     const gameActionBtn = document.getElementById('gameActionBtn');
     const countryInput = document.getElementById('countryInput');
     const typingFeedback = document.getElementById('typingFeedback');
@@ -705,8 +880,42 @@
     const mapTooltip = document.getElementById('mapTooltip');
     const resetZoomBtn = document.getElementById('resetZoomBtn');
     const gameOverModal = document.getElementById('gameOverModal');
+    const confirmModal = document.getElementById('confirmModal');
+    const settingsModal = document.getElementById('settingsModal');
+    const useHintBtn = document.getElementById('useHintBtn');
+    const hintBtnText = document.getElementById('hintBtnText');
+    const hintBanner = document.getElementById('hintBanner');
+    const hintTextContent = document.getElementById('hintTextContent');
+    const flagModeChallengeBox = document.getElementById('flagModeChallengeBox');
+    const currentFlagImage = document.getElementById('currentFlagImage');
+    const flagPlaceholderText = document.getElementById('flagPlaceholderText');
+    const flagPromptTitle = document.getElementById('flagPromptTitle');
+    const flagPromptSubtitle = document.getElementById('flagPromptSubtitle');
+    const skipFlagBtn = document.getElementById('skipFlagBtn');
+    const autoSaveBadge = document.getElementById('autoSaveBadge');
 
-    // Áudio
+    // MODAL DE CONFIRMAÇÃO NATIVO
+    let confirmCallback = null;
+    function openNativeConfirm(title, message, confirmLabel, onConfirm) {
+      document.getElementById('confirmModalTitle').innerText = title;
+      document.getElementById('confirmModalMessage').innerText = message;
+      document.getElementById('confirmAcceptBtn').innerText = confirmLabel || 'Confirmar';
+      confirmCallback = onConfirm;
+      confirmModal.classList.remove('hidden');
+    }
+
+    document.getElementById('confirmCancelBtn').addEventListener('click', () => {
+      confirmModal.classList.add('hidden');
+      confirmCallback = null;
+    });
+
+    document.getElementById('confirmAcceptBtn').addEventListener('click', () => {
+      confirmModal.classList.add('hidden');
+      if (typeof confirmCallback === 'function') confirmCallback();
+      confirmCallback = null;
+    });
+
+    // ÁUDIO
     let audioCtx = null;
     function playSound(type) {
       if (isMuted) return;
@@ -745,7 +954,267 @@
       return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "").trim();
     }
 
-    // Easter Egg - Palestina Animada
+    // PERSISTÊNCIA DE PROGRESSO E CONFIGURAÇÕES (LOCALSTORAGE)
+    function saveSettingsToStorage() {
+      try {
+        localStorage.setItem(STORAGE_SETTINGS_KEY, JSON.stringify(gameSettings));
+      } catch (e) {}
+    }
+
+    function loadSettingsFromStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_SETTINGS_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          gameSettings = { ...gameSettings, ...parsed };
+        }
+      } catch (e) {}
+      syncSettingsModalInputs();
+      applyVisualSettings();
+    }
+
+    function saveGameProgress() {
+      try {
+        if (!isPlaying) {
+          localStorage.removeItem(STORAGE_STATE_KEY);
+          return;
+        }
+        const state = {
+          currentGameMode,
+          isPlaying,
+          selectedDurationMinutes,
+          timeRemaining,
+          guessedCountries: Array.from(guessedCountries),
+          currentAlphaStep,
+          pendingHardcoreCountryIdx,
+          currentFlagTargetIdx,
+          hintsRemaining,
+          lastGuessedText: lastGuessedDisplay.innerText,
+          savedAt: Date.now()
+        };
+        localStorage.setItem(STORAGE_STATE_KEY, JSON.stringify(state));
+        autoSaveBadge.classList.remove('hidden');
+        autoSaveBadge.classList.add('flex');
+      } catch (e) {}
+    }
+
+    function clearSavedGameProgress() {
+      try {
+        localStorage.removeItem(STORAGE_STATE_KEY);
+        autoSaveBadge.classList.add('hidden');
+        autoSaveBadge.classList.remove('flex');
+      } catch (e) {}
+    }
+
+    window.addEventListener('beforeunload', () => {
+      if (isPlaying) saveGameProgress();
+    });
+
+    // CONFIGURAÇÕES DE DIFICULDADE
+    function syncSettingsModalInputs() {
+      document.getElementById('settingShowFlags').checked = gameSettings.showFlagsBeforeGuess;
+      document.getElementById('settingShowCapitals').checked = gameSettings.showCapitalsInClassic;
+      document.getElementById('settingShowBorders').checked = gameSettings.showBordersOnMap;
+      document.getElementById('settingAllowHints').checked = gameSettings.allowHints;
+      document.getElementById('settingMaxHints').value = String(gameSettings.maxHints);
+      document.getElementById('hintCountSelectorRow').style.display = gameSettings.allowHints ? 'flex' : 'none';
+    }
+
+    function applyVisualSettings() {
+      // Fronteiras no mapa
+      const mapSvg = document.getElementById('worldMapSvg');
+      if (mapSvg) {
+        mapSvg.classList.toggle('no-borders', !gameSettings.showBordersOnMap);
+      }
+
+      // Botão de Dicas
+      if (!gameSettings.allowHints) {
+        useHintBtn.classList.add('hidden');
+        hintBanner.classList.add('hidden');
+      } else {
+        useHintBtn.classList.remove('hidden');
+        updateHintButtonLabel();
+      }
+    }
+
+    function updateHintButtonLabel() {
+      if (!gameSettings.allowHints) return;
+      if (gameSettings.maxHints >= 999) {
+        hintBtnText.innerText = `Dica (∞)`;
+        useHintBtn.disabled = !isPlaying;
+      } else {
+        hintBtnText.innerText = `Dica (${hintsRemaining})`;
+        useHintBtn.disabled = !isPlaying || hintsRemaining <= 0;
+      }
+    }
+
+    document.getElementById('openSettingsBtn').addEventListener('click', () => {
+      syncSettingsModalInputs();
+      settingsModal.classList.remove('hidden');
+    });
+
+    document.getElementById('closeSettingsBtn').addEventListener('click', () => {
+      settingsModal.classList.add('hidden');
+    });
+
+    document.getElementById('settingAllowHints').addEventListener('change', (e) => {
+      document.getElementById('hintCountSelectorRow').style.display = e.target.checked ? 'flex' : 'none';
+    });
+
+    document.getElementById('saveSettingsBtn').addEventListener('click', () => {
+      const prevMax = gameSettings.maxHints;
+      gameSettings.showFlagsBeforeGuess = document.getElementById('settingShowFlags').checked;
+      gameSettings.showCapitalsInClassic = document.getElementById('settingShowCapitals').checked;
+      gameSettings.showBordersOnMap = document.getElementById('settingShowBorders').checked;
+      gameSettings.allowHints = document.getElementById('settingAllowHints').checked;
+      gameSettings.maxHints = parseInt(document.getElementById('settingMaxHints').value, 10);
+
+      if (!isPlaying || gameSettings.maxHints !== prevMax) {
+        hintsRemaining = gameSettings.maxHints;
+      }
+
+      saveSettingsToStorage();
+      applyVisualSettings();
+      refreshBoardVisualState();
+      settingsModal.classList.add('hidden');
+    });
+
+    // SISTEMA DE DICAS ALEATÓRIAS
+    function triggerRandomHint() {
+      if (!isPlaying || !gameSettings.allowHints) return;
+      if (gameSettings.maxHints < 999 && hintsRemaining <= 0) return;
+
+      // Determinar o país-alvo da dica
+      let targetIdx = null;
+      if (currentGameMode === 'alphabetical') {
+        if (currentAlphaStep < ALPHABETICAL_ORDER.length) {
+          targetIdx = ALPHABETICAL_ORDER[currentAlphaStep].originalIndex;
+        }
+      } else if (currentGameMode === 'flags') {
+        targetIdx = currentFlagTargetIdx;
+      } else if (currentGameMode === 'hardcore' && pendingHardcoreCountryIdx !== null) {
+        targetIdx = pendingHardcoreCountryIdx;
+      } else {
+        const remaining = [];
+        for (let i = 0; i < TOTAL_COUNTRIES; i++) {
+          if (!guessedCountries.has(i)) remaining.push(i);
+        }
+        if (remaining.length > 0) {
+          targetIdx = remaining[Math.floor(Math.random() * remaining.length)];
+        }
+      }
+
+      if (targetIdx === null || targetIdx === undefined) return;
+      const country = COUNTRIES_DB[targetIdx];
+
+      // Se estiver no Modo Hardcore aguardando a capital do país
+      if (currentGameMode === 'hardcore' && pendingHardcoreCountryIdx !== null) {
+        const capHintTypes = ['cap_letter', 'city', 'person'];
+        const chosen = capHintTypes[Math.floor(Math.random() * capHintTypes.length)];
+        const firstCapLetter = country.capital.charAt(0).toUpperCase();
+
+        if (chosen === 'cap_letter') {
+          hintTextContent.innerHTML = `A capital de <strong>${country.name}</strong> começa com a letra <strong>"${firstCapLetter}"</strong>.`;
+        } else if (chosen === 'city') {
+          hintTextContent.innerHTML = `Outra cidade/local importante de <strong>${country.name}</strong> é <strong>${country.city}</strong>. A capital começa com <strong>"${firstCapLetter}"</strong>.`;
+        } else {
+          hintTextContent.innerHTML = `Personalidade de <strong>${country.name}</strong>: <strong>${country.person}</strong>. A capital começa com <strong>"${firstCapLetter}"</strong>.`;
+        }
+      } else {
+        // Categorias de dica disponíveis para descobrir o país
+        const availableTypes = ['letter', 'capital', 'city', 'person'];
+        if (currentGameMode !== 'flags' && !gameSettings.showFlagsBeforeGuess) {
+          availableTypes.push('flag');
+        }
+
+        const chosenType = availableTypes[Math.floor(Math.random() * availableTypes.length)];
+        const continentNames = { Americas: 'Américas', Europa: 'Europa', Asia: 'Ásia', Africa: 'África', Oceania: 'Oceania' };
+        const contLabel = continentNames[country.continent] || country.continent;
+
+        if (chosenType === 'letter') {
+          const prefix = country.name.substring(0, 2).toUpperCase();
+          hintTextContent.innerHTML = `País localizado em <strong>${contLabel}</strong> que começa com <strong>"${country.name.charAt(0).toUpperCase()}"</strong> (Iniciais: <strong>${prefix}...</strong>).`;
+        } else if (chosenType === 'capital') {
+          hintTextContent.innerHTML = `País localizado em <strong>${contLabel}</strong> cuja capital é <strong>${country.capital}</strong>.`;
+        } else if (chosenType === 'city') {
+          hintTextContent.innerHTML = `Uma cidade ou local famoso deste país (${contLabel}) é <strong>${country.city}</strong>.`;
+        } else if (chosenType === 'person') {
+          hintTextContent.innerHTML = `Uma personalidade famosa ligada a este país (${contLabel}): <strong>${country.person}</strong>.`;
+        } else if (chosenType === 'flag') {
+          hintTextContent.innerHTML = `<span>Este país fica em <strong>${contLabel}</strong> e possui esta bandeira:</span> <img src="https://flagcdn.com/w80/${country.flag}.png" class="h-6 rounded shadow border border-zinc-700 inline-block" alt="Bandeira Dica">`;
+        }
+      }
+
+      if (gameSettings.maxHints < 999) {
+        hintsRemaining--;
+      }
+      updateHintButtonLabel();
+      hintBanner.classList.remove('hidden');
+      hintBanner.classList.add('flex');
+      autoRotateToCountry(country.id);
+      saveGameProgress();
+      countryInput.focus();
+    }
+
+    useHintBtn.addEventListener('click', triggerRandomHint);
+    document.getElementById('closeHintBtn').addEventListener('click', () => {
+      hintBanner.classList.add('hidden');
+      hintBanner.classList.remove('flex');
+    });
+
+    // MODO BANDEIRAS (SORTEIO E CONTROLE)
+    function pickNextFlagTarget() {
+      const remaining = [];
+      for (let i = 0; i < TOTAL_COUNTRIES; i++) {
+        if (!guessedCountries.has(i)) remaining.push(i);
+      }
+      if (remaining.length === 0) {
+        currentFlagTargetIdx = null;
+        return;
+      }
+      // Se houver mais de 1 restante, evita repetir a mesma ao clicar em "Trocar"
+      let candidates = remaining;
+      if (remaining.length > 1 && currentFlagTargetIdx !== null) {
+        candidates = remaining.filter(idx => idx !== currentFlagTargetIdx);
+      }
+      currentFlagTargetIdx = candidates[Math.floor(Math.random() * candidates.length)];
+      updateFlagChallengeUI();
+    }
+
+    function updateFlagChallengeUI() {
+      if (currentGameMode !== 'flags') {
+        flagModeChallengeBox.classList.add('hidden');
+        flagModeChallengeBox.classList.remove('flex');
+        return;
+      }
+      flagModeChallengeBox.classList.remove('hidden');
+      flagModeChallengeBox.classList.add('flex');
+
+      if (!isPlaying || currentFlagTargetIdx === null) {
+        currentFlagImage.classList.add('hidden');
+        flagPlaceholderText.classList.remove('hidden');
+        flagPromptTitle.innerText = isGameOver ? "Partida Finalizada!" : 'Clique em "Começar" para revelar a 1ª bandeira';
+        flagPromptSubtitle.innerText = "Você deverá digitar o país correspondente à bandeira sorteada.";
+        skipFlagBtn.disabled = true;
+      } else {
+        const country = COUNTRIES_DB[currentFlagTargetIdx];
+        currentFlagImage.src = `https://flagcdn.com/w160/${country.flag}.png`;
+        currentFlagImage.classList.remove('hidden');
+        flagPlaceholderText.classList.add('hidden');
+        flagPromptTitle.innerText = `De qual país é esta bandeira?`;
+        flagPromptSubtitle.innerText = `Restam ${TOTAL_COUNTRIES - guessedCountries.size} bandeiras para adivinhar.`;
+        skipFlagBtn.disabled = (TOTAL_COUNTRIES - guessedCountries.size) <= 1;
+      }
+    }
+
+    skipFlagBtn.addEventListener('click', () => {
+      if (!isPlaying || currentGameMode !== 'flags') return;
+      pickNextFlagTarget();
+      saveGameProgress();
+      countryInput.focus();
+    });
+
+    // EASTER EGG PALESTINA
     function showPalestineEasterEgg() {
       const planeWrapper = document.createElement('div');
       planeWrapper.className = 'airplane-wrapper';
@@ -805,7 +1274,7 @@
       }
     }
 
-    // RENDERIZAÇÃO DAS 5 COLUNAS LADO A LADO NO PC (CLÁSSICO E HARDCORE)
+    // RENDERIZAÇÃO DAS 5 COLUNAS DOS CONTINENTES
     function renderContinentTables() {
       continentsContainer.innerHTML = '';
       const continentsConfig = [
@@ -815,6 +1284,11 @@
         { key: 'Europa', title: 'Europa' },
         { key: 'Oceania', title: 'Oceania' }
       ];
+
+      // Verifica se as bandeiras devem aparecer antes do palpite (nunca no Modo Bandeiras)
+      const preShowFlags = gameSettings.showFlagsBeforeGuess && currentGameMode !== 'flags';
+      // Verifica se a capital deve aparecer antes do palpite (apenas no Modo Clássico)
+      const preShowCapitals = gameSettings.showCapitalsInClassic && currentGameMode === 'classic';
 
       continentsConfig.forEach(conf => {
         const list = COUNTRIES_DB
@@ -836,15 +1310,23 @@
             </h3>
           </div>
           <div class="flex flex-col gap-1.5">
-            ${list.map(item => `
-              <div id="cell-${item.originalIndex}" class="px-2.5 py-2 rounded-lg border border-zinc-800/80 bg-zinc-950/60 flex items-center justify-between gap-2 transition-all min-w-0">
-                <div class="flex flex-col min-w-0 flex-1">
-                  <span class="country-label text-[11px] font-semibold text-zinc-500 uppercase tracking-wider select-none truncate">• • •</span>
-                  <span class="capital-label text-[10px] text-zinc-600 font-medium truncate ${currentGameMode === 'hardcore' ? 'block' : 'hidden'}">Capital: • • •</span>
+            ${list.map(item => {
+              const showCapRow = currentGameMode === 'hardcore' || preShowCapitals;
+              const capText = preShowCapitals ? `📍 ${item.capital}` : `Capital: • • •`;
+              const flagClasses = preShowFlags 
+                ? 'country-flag w-6 opacity-80 scale-100 transition-all duration-500 origin-right rounded-sm shadow-sm shrink-0'
+                : 'country-flag w-0 opacity-0 scale-50 transition-all duration-500 origin-right rounded-sm shadow-sm shrink-0';
+
+              return `
+                <div id="cell-${item.originalIndex}" class="px-2.5 py-2 rounded-lg border border-zinc-800/80 bg-zinc-950/60 flex items-center justify-between gap-2 transition-all min-w-0">
+                  <div class="flex flex-col min-w-0 flex-1">
+                    <span class="country-label text-[11px] font-semibold text-zinc-500 uppercase tracking-wider select-none truncate">• • •</span>
+                    <span class="capital-label text-[10px] text-zinc-400 font-medium truncate ${showCapRow ? 'block' : 'hidden'}">${capText}</span>
+                  </div>
+                  <img src="https://flagcdn.com/w40/${item.flag}.png" class="${flagClasses}" alt="Bandeira">
                 </div>
-                <img src="https://flagcdn.com/w40/${item.flag}.png" class="country-flag w-0 opacity-0 scale-50 transition-all duration-500 origin-right rounded-sm shadow-sm shrink-0" alt="Bandeira">
-              </div>
-            `).join('')}
+              `;
+            }).join('')}
           </div>
         `;
         continentsContainer.appendChild(section);
@@ -855,6 +1337,7 @@
     function renderAlphabeticalScreen() {
       alphabeticalGrid.innerHTML = '';
       const itemsPerCol = Math.ceil(ALPHABETICAL_ORDER.length / 5);
+      const preShowFlags = gameSettings.showFlagsBeforeGuess && currentGameMode !== 'flags';
 
       for (let colIdx = 0; colIdx < 5; colIdx++) {
         const start = colIdx * itemsPerCol;
@@ -874,13 +1357,17 @@
           </div>
           ${slice.map((item, idx) => {
             const globalOrderIdx = start + idx;
+            const flagClasses = preShowFlags 
+              ? 'alpha-flag country-flag w-6 opacity-80 scale-100 transition-all duration-500 origin-right rounded-sm shadow-sm shrink-0'
+              : 'alpha-flag country-flag w-0 opacity-0 scale-50 transition-all duration-500 origin-right rounded-sm shadow-sm shrink-0';
+
             return `
               <div id="alpha-cell-${globalOrderIdx}" class="px-2.5 py-2 rounded-lg border border-zinc-800/70 bg-zinc-900/50 flex items-center justify-between gap-2 transition-all min-w-0">
                 <div class="flex items-center gap-2 min-w-0 flex-1">
                   <span class="text-[10px] font-mono font-bold text-zinc-500 shrink-0">#${String(globalOrderIdx + 1).padStart(3, '0')}</span>
                   <span class="alpha-label text-[11px] font-semibold text-zinc-500 uppercase tracking-wider select-none truncate">• • •</span>
                 </div>
-                <img src="https://flagcdn.com/w40/${item.flag}.png" class="alpha-flag country-flag w-0 opacity-0 scale-50 transition-all duration-500 origin-right rounded-sm shadow-sm shrink-0" alt="Bandeira">
+                <img src="https://flagcdn.com/w40/${item.flag}.png" class="${flagClasses}" alt="Bandeira">
               </div>
             `;
           }).join('')}
@@ -918,13 +1405,97 @@
       }
     }
 
+    // REAPLICA O ESTADO VISUAL DAS CÉLULAS E MAPA (USADO AO RESTAURAR SESSÃO OU MUDAR CONFIGURAÇÃO)
+    function refreshBoardVisualState() {
+      renderContinentTables();
+      renderAlphabeticalScreen();
+
+      document.querySelectorAll('.map-country').forEach(el => el.classList.remove('guessed', 'missed', 'pending'));
+
+      guessedCountries.forEach(idx => {
+        const country = COUNTRIES_DB[idx];
+        const cell = document.getElementById(`cell-${idx}`);
+        if (cell) {
+          cell.classList.remove('bg-zinc-950/60', 'border-zinc-800/80');
+          cell.classList.add('bg-emerald-950/30', 'border-emerald-900/50');
+          const lbl = cell.querySelector('.country-label');
+          if (lbl) {
+            lbl.innerText = country.name;
+            lbl.classList.remove('text-zinc-500');
+            lbl.classList.add('text-emerald-400', 'font-bold');
+          }
+          const capLbl = cell.querySelector('.capital-label');
+          if (capLbl && (currentGameMode === 'hardcore' || gameSettings.showCapitalsInClassic)) {
+            capLbl.innerText = `📍 ${country.capital}`;
+            capLbl.classList.remove('text-zinc-400');
+            capLbl.classList.add('text-emerald-300');
+          }
+          const flag = cell.querySelector('.country-flag');
+          if (flag) {
+            flag.classList.remove('w-0', 'opacity-0', 'scale-50', 'opacity-80');
+            flag.classList.add('w-6', 'opacity-100', 'scale-100');
+          }
+        }
+        updateMapCountry(idx, 'guessed');
+      });
+
+      // Atualiza células acertadas no modo Ordem Alfabética
+      ALPHABETICAL_ORDER.forEach((item, globalOrderIdx) => {
+        if (guessedCountries.has(item.originalIndex)) {
+          const alphaCell = document.getElementById(`alpha-cell-${globalOrderIdx}`);
+          if (alphaCell) {
+            alphaCell.classList.remove('bg-zinc-900/50', 'border-zinc-800/70', 'border-white', 'ring-1', 'ring-white/40', 'bg-zinc-800/80');
+            alphaCell.classList.add('bg-emerald-950/30', 'border-emerald-900/50');
+            const lbl = alphaCell.querySelector('.alpha-label');
+            if (lbl) {
+              lbl.innerText = item.name;
+              lbl.classList.remove('text-zinc-500', 'text-white');
+              lbl.classList.add('text-emerald-400', 'font-bold');
+            }
+            const flag = alphaCell.querySelector('.alpha-flag');
+            if (flag) {
+              flag.classList.remove('w-0', 'opacity-0', 'scale-50', 'opacity-80');
+              flag.classList.add('w-6', 'opacity-100', 'scale-100');
+            }
+          }
+        }
+      });
+
+      // Se houver país pendente no Hardcore
+      if (currentGameMode === 'hardcore' && pendingHardcoreCountryIdx !== null) {
+        const country = COUNTRIES_DB[pendingHardcoreCountryIdx];
+        const cell = document.getElementById(`cell-${pendingHardcoreCountryIdx}`);
+        if (cell) {
+          cell.classList.remove('bg-zinc-950/60', 'border-zinc-800/80');
+          cell.classList.add('bg-amber-950/30', 'border-amber-500/60');
+          const lbl = cell.querySelector('.country-label');
+          if (lbl) {
+            lbl.innerText = country.name;
+            lbl.classList.remove('text-zinc-500');
+            lbl.classList.add('text-amber-400', 'font-bold');
+          }
+          const capLbl = cell.querySelector('.capital-label');
+          if (capLbl) {
+            capLbl.innerText = `🎯 Digite a capital...`;
+            capLbl.classList.remove('text-zinc-400');
+            capLbl.classList.add('text-amber-300');
+          }
+        }
+        updateMapCountry(pendingHardcoreCountryIdx, 'pending');
+      }
+
+      highlightCurrentAlphaSlot();
+      updateFlagChallengeUI();
+      updateCounters();
+    }
+
     // ATUALIZAÇÃO VISUAL DOS MODOS
     function updateModeUI() {
       modeTabs.forEach(tab => {
         if (tab.dataset.mode === currentGameMode) {
-          tab.className = "mode-tab flex-1 lg:flex-initial px-4 py-2 rounded-lg text-xs font-bold bg-white text-black shadow-sm transition flex items-center justify-center gap-2";
+          tab.className = "mode-tab flex-1 sm:flex-initial px-3.5 py-2 rounded-lg text-xs font-bold bg-white text-black shadow-sm transition flex items-center justify-center gap-1.5";
         } else {
-          tab.className = "mode-tab flex-1 lg:flex-initial px-4 py-2 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition flex items-center justify-center gap-2";
+          tab.className = "mode-tab flex-1 sm:flex-initial px-3.5 py-2 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition flex items-center justify-center gap-1.5";
         }
       });
 
@@ -938,24 +1509,29 @@
       } else if (currentGameMode === 'alphabetical') {
         modeBadge.innerText = "Ordem Alfabética (A-Z)";
         modeBadge.className = "px-2.5 py-1 rounded-md bg-amber-400 text-black font-extrabold uppercase tracking-wider";
-        modeDescription.innerText = "Adivinhe os países rigorosamente na ordem alfabética, começando pelo primeiro da lista.";
-        modeExtraStatus.innerText = `Posição atual: #${currentAlphaStep + 1} / ${TOTAL_COUNTRIES}`;
+        modeDescription.innerText = "Adivinhe os países rigorosamente na ordem alfabética, começando pelo #001.";
+        modeExtraStatus.innerText = `Posição atual: #${String(currentAlphaStep + 1).padStart(3, '0')} / ${TOTAL_COUNTRIES}`;
         continentsContainer.classList.add('hidden');
         alphabeticalContainer.classList.remove('hidden');
       } else if (currentGameMode === 'hardcore') {
         modeBadge.innerText = "Modo Hardcore";
         modeBadge.className = "px-2.5 py-1 rounded-md bg-rose-600 text-white font-extrabold uppercase tracking-wider";
-        modeDescription.innerText = "Acerte um país e imediatamente digite a capital dele para validar o ponto e liberar o próximo país.";
+        modeDescription.innerText = "Acerte um país e imediatamente digite a capital dele para validar o ponto.";
         modeExtraStatus.innerText = pendingHardcoreCountryIdx !== null 
           ? `🔥 Aguardando capital de: ${COUNTRIES_DB[pendingHardcoreCountryIdx].name}`
           : "Etapa 1: Digite um país";
         continentsContainer.classList.remove('hidden');
         alphabeticalContainer.classList.add('hidden');
+      } else if (currentGameMode === 'flags') {
+        modeBadge.innerText = "Modo Bandeiras";
+        modeBadge.className = "px-2.5 py-1 rounded-md bg-emerald-400 text-black font-extrabold uppercase tracking-wider";
+        modeDescription.innerText = "Identifique o país correspondente à bandeira sorteada em destaque.";
+        modeExtraStatus.innerText = isPlaying ? `Restam ${TOTAL_COUNTRIES - guessedCountries.size} bandeiras` : "";
+        continentsContainer.classList.remove('hidden');
+        alphabeticalContainer.classList.add('hidden');
       }
 
-      renderContinentTables();
-      renderAlphabeticalScreen();
-      updateCounters();
+      refreshBoardVisualState();
     }
 
     // GLOBO 3D
@@ -1080,6 +1656,9 @@
               mapTooltip.innerText = "Arraste para girar / Clique para aproximar";
             })
             .on("click", (event, d) => clickedCountryZoom(event, d));
+
+          // Reaplica cores do mapa caso um jogo salvo tenha sido restaurado antes do fetch terminar
+          refreshBoardVisualState();
         })
         .catch(() => {});
     }
@@ -1197,18 +1776,43 @@
       return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
     }
 
+    function startTimerLoop() {
+      clearInterval(timerInterval);
+      if (selectedDurationMinutes > 0) {
+        timerLabel.innerText = "Tempo Restante";
+        timerDisplay.innerText = formatTime(timeRemaining);
+        timerInterval = setInterval(() => {
+          timeRemaining--;
+          timerDisplay.innerText = formatTime(timeRemaining);
+          saveGameProgress();
+          if (timeRemaining <= 0) endGame(false, "Tempo Esgotado!");
+        }, 1000);
+      } else {
+        timerLabel.innerText = "Tempo Decorrido";
+        timerDisplay.innerText = formatTime(timeRemaining);
+        timerInterval = setInterval(() => {
+          timeRemaining++;
+          timerDisplay.innerText = formatTime(timeRemaining);
+          saveGameProgress();
+        }, 1000);
+      }
+    }
+
     function startGame() {
       isPlaying = true;
       isGameOver = false;
+      pendingModeSwitch = null;
       guessedCountries.clear();
       currentAlphaStep = 0;
       pendingHardcoreCountryIdx = null;
+      currentFlagTargetIdx = null;
+      hintsRemaining = gameSettings.maxHints;
+      lastGuessedDisplay.innerText = "—";
 
-      renderContinentTables();
-      renderAlphabeticalScreen();
+      hintBanner.classList.add('hidden');
+      hintBanner.classList.remove('flex');
+
       resetGlobeVision();
-      
-      document.querySelectorAll('.map-country').forEach(el => el.classList.remove('guessed', 'missed', 'pending'));
       document.querySelectorAll('.stat-card').forEach(card => card.classList.remove('victory'));
       progressBar.classList.remove('bg-emerald-500');
       progressBar.classList.add('bg-zinc-300');
@@ -1222,13 +1826,19 @@
         const firstChar = ALPHABETICAL_ORDER[0].name.charAt(0).toUpperCase();
         countryInput.placeholder = `Digite o 1º país em ordem alfabética (Letra ${firstChar})...`;
         modeExtraStatus.innerText = `Posição atual: #001 / ${TOTAL_COUNTRIES}`;
-        highlightCurrentAlphaSlot();
       } else if (currentGameMode === 'hardcore') {
         countryInput.placeholder = 'Etapa 1: Digite o nome de um país...';
         modeExtraStatus.innerText = "Etapa 1: Digite um país";
+      } else if (currentGameMode === 'flags') {
+        pickNextFlagTarget();
+        countryInput.placeholder = 'Digite o país correspondente à bandeira acima...';
+        modeExtraStatus.innerText = `Restam ${TOTAL_COUNTRIES} bandeiras`;
       } else {
         countryInput.placeholder = 'Digite o nome de um país...';
       }
+
+      refreshBoardVisualState();
+      updateHintButtonLabel();
 
       countryInput.focus();
       typingFeedback.innerText = 'Digite';
@@ -1238,26 +1848,73 @@
       gameActionBtn.className = "px-4 py-2 rounded-lg font-bold text-sm bg-rose-600 hover:bg-rose-500 text-white shadow-md transition flex items-center gap-1.5";
       lucide.createIcons();
 
-      updateCounters();
+      timeRemaining = selectedDurationMinutes > 0 ? selectedDurationMinutes * 60 : 0;
+      startTimerLoop();
+      saveGameProgress();
+    }
 
-      clearInterval(timerInterval);
-      if (selectedDurationMinutes > 0) {
-        timeRemaining = selectedDurationMinutes * 60;
-        timerLabel.innerText = "Tempo Restante";
-        timerDisplay.innerText = formatTime(timeRemaining);
-        timerInterval = setInterval(() => {
-          timeRemaining--;
-          timerDisplay.innerText = formatTime(timeRemaining);
-          if (timeRemaining <= 0) endGame(false, "Tempo Esgotado!");
-        }, 1000);
-      } else {
-        timeRemaining = 0;
-        timerLabel.innerText = "Tempo Decorrido";
-        timerDisplay.innerText = formatTime(timeRemaining);
-        timerInterval = setInterval(() => {
-          timeRemaining++;
-          timerDisplay.innerText = formatTime(timeRemaining);
-        }, 1000);
+    // RESTAURAR JOGO SALVO AO REABRIR O NAVEGADOR
+    function tryRestoreSavedGame() {
+      try {
+        const raw = localStorage.getItem(STORAGE_STATE_KEY);
+        if (!raw) return false;
+        const saved = JSON.parse(raw);
+        if (!saved || !saved.isPlaying) return false;
+
+        currentGameMode = saved.currentGameMode || 'classic';
+        isPlaying = true;
+        isGameOver = false;
+        selectedDurationMinutes = saved.selectedDurationMinutes ?? 15;
+        timeRemaining = saved.timeRemaining ?? (selectedDurationMinutes * 60);
+        guessedCountries = new Set(saved.guessedCountries || []);
+        currentAlphaStep = saved.currentAlphaStep || 0;
+        pendingHardcoreCountryIdx = saved.pendingHardcoreCountryIdx ?? null;
+        currentFlagTargetIdx = saved.currentFlagTargetIdx ?? null;
+        hintsRemaining = saved.hintsRemaining ?? gameSettings.maxHints;
+        lastGuessedDisplay.innerText = saved.lastGuessedText || "—";
+
+        // Sincronizar botão de tempo
+        timeButtons.forEach(b => {
+          if (parseInt(b.dataset.time, 10) === selectedDurationMinutes) {
+            b.className = "time-btn px-2 py-1.5 rounded-md font-semibold text-black bg-white shadow-sm transition";
+          } else {
+            b.className = "time-btn px-2 py-1.5 rounded-md font-semibold text-zinc-400 hover:text-white transition";
+          }
+        });
+
+        countryInput.disabled = false;
+        countryInput.value = '';
+
+        if (currentGameMode === 'hardcore' && pendingHardcoreCountryIdx !== null) {
+          const pendingCountry = COUNTRIES_DB[pendingHardcoreCountryIdx];
+          countryInput.placeholder = `Qual é a capital de ${pendingCountry.name}?`;
+          countryInput.classList.remove('border-zinc-800', 'focus:border-zinc-500');
+          countryInput.classList.add('border-amber-500', 'focus:border-amber-400');
+        } else if (currentGameMode === 'alphabetical' && currentAlphaStep < ALPHABETICAL_ORDER.length) {
+          const nextChar = ALPHABETICAL_ORDER[currentAlphaStep].name.charAt(0).toUpperCase();
+          countryInput.placeholder = `Próximo: #${String(currentAlphaStep + 1).padStart(3, '0')} na ordem alfabética (Letra ${nextChar})...`;
+        } else if (currentGameMode === 'flags') {
+          if (currentFlagTargetIdx === null) pickNextFlagTarget();
+          countryInput.placeholder = 'Digite o país correspondente à bandeira acima...';
+        } else {
+          countryInput.placeholder = 'Digite o nome de um país...';
+        }
+
+        typingFeedback.innerText = 'Jogo Restaurado';
+        typingFeedback.className = 'absolute right-4 text-xs font-bold px-2.5 py-1 rounded bg-emerald-900/40 text-emerald-400 border border-emerald-500/30';
+
+        gameActionBtn.innerHTML = `<i data-lucide="flag" class="w-4 h-4 fill-white"></i> <span>Desistir</span>`;
+        gameActionBtn.className = "px-4 py-2 rounded-lg font-bold text-sm bg-rose-600 hover:bg-rose-500 text-white shadow-md transition flex items-center gap-1.5";
+
+        updateModeUI();
+        updateHintButtonLabel();
+        startTimerLoop();
+        autoSaveBadge.classList.remove('hidden');
+        autoSaveBadge.classList.add('flex');
+        lucide.createIcons();
+        return true;
+      } catch (e) {
+        return false;
       }
     }
 
@@ -1266,11 +1923,15 @@
       isGameOver = true;
       pendingHardcoreCountryIdx = null;
       clearInterval(timerInterval);
+      clearSavedGameProgress();
+
       countryInput.disabled = true;
       countryInput.value = '';
       countryInput.placeholder = 'Jogo finalizado!';
       countryInput.classList.remove('border-amber-500', 'focus:border-amber-400');
       countryInput.classList.add('border-zinc-800', 'focus:border-zinc-500');
+      updateHintButtonLabel();
+      updateFlagChallengeUI();
       
       gameActionBtn.innerHTML = `<i data-lucide="play" class="w-4 h-4 fill-black"></i> <span class="text-black">Novo Jogo</span>`;
       gameActionBtn.className = "px-4 py-2 rounded-lg font-bold text-sm bg-white hover:bg-zinc-200 text-black shadow-md transition flex items-center gap-1.5";
@@ -1292,9 +1953,9 @@
             }
 
             const capLbl = cell.querySelector('.capital-label');
-            if (capLbl && currentGameMode === 'hardcore') {
+            if (capLbl && (currentGameMode === 'hardcore' || gameSettings.showCapitalsInClassic)) {
               capLbl.innerText = `📍 ${c.capital}`;
-              capLbl.classList.remove('text-zinc-600', 'text-amber-300');
+              capLbl.classList.remove('text-zinc-400', 'text-amber-300');
               capLbl.classList.add('text-rose-300/80');
             }
 
@@ -1333,10 +1994,30 @@
         }
       });
 
+      const modeNames = {
+        classic: "Modo Clássico",
+        alphabetical: "Ordem Alfabética",
+        hardcore: "Modo Hardcore",
+        flags: "Modo Bandeiras"
+      };
+
       document.getElementById('modalTitle').innerText = victory ? "Parabéns, Você Venceu!" : reason;
-      document.getElementById('modalSubtitle').innerText = victory ? `Você completou todos os ${TOTAL_COUNTRIES} países!` : "Confira seu desempenho final no desafio:";
+      document.getElementById('modalSubtitle').innerText = pendingModeSwitch 
+        ? `Confira seu resultado no ${modeNames[currentGameMode]} antes de mudar para ${modeNames[pendingModeSwitch]}:`
+        : (victory ? `Você completou todos os ${TOTAL_COUNTRIES} países!` : "Confira seu desempenho final no desafio:");
       document.getElementById('modalScore').innerText = guessedCountries.size;
       document.getElementById('modalPercent').innerText = `${Math.round((guessedCountries.size / TOTAL_COUNTRIES) * 100)}%`;
+
+      const restartBtn = document.getElementById('modalRestartBtn');
+      const reviewBtn = document.getElementById('modalReviewBtn');
+      if (pendingModeSwitch) {
+        restartBtn.innerText = `Ir para ${modeNames[pendingModeSwitch]}`;
+        reviewBtn.innerText = `Ver Mapa Atual`;
+      } else {
+        restartBtn.innerText = `Jogar Novamente`;
+        reviewBtn.innerText = `Ver Respostas`;
+      }
+
       gameOverModal.classList.remove('hidden');
     }
 
@@ -1362,15 +2043,15 @@
         }
 
         const capLbl = cell.querySelector('.capital-label');
-        if (capLbl && currentGameMode === 'hardcore') {
+        if (capLbl && (currentGameMode === 'hardcore' || gameSettings.showCapitalsInClassic)) {
           capLbl.innerText = `📍 ${country.capital}`;
-          capLbl.classList.remove('text-zinc-600', 'text-amber-300');
+          capLbl.classList.remove('text-zinc-400', 'text-amber-300');
           capLbl.classList.add('text-emerald-300');
         }
 
         const flag = cell.querySelector('.country-flag');
         if (flag) {
-          flag.classList.remove('w-0', 'opacity-0', 'scale-50');
+          flag.classList.remove('w-0', 'opacity-0', 'scale-50', 'opacity-80');
           flag.classList.add('w-6', 'opacity-100', 'scale-100'); 
         }
       }
@@ -1382,9 +2063,10 @@
       countryInput.value = '';
       playSound('hit');
       updateCounters();
+      saveGameProgress();
     }
 
-    // LÓGICA DE DIGITAÇÃO PARA OS 3 MODOS DE JOGO
+    // LÓGICA DE DIGITAÇÃO PARA OS 4 MODOS DE JOGO
     countryInput.addEventListener('input', (e) => {
       if (!isPlaying) return;
       const rawVal = e.target.value;
@@ -1422,12 +2104,9 @@
       else if (currentGameMode === 'alphabetical') {
         if (currentAlphaStep >= ALPHABETICAL_ORDER.length) return;
         const targetItem = ALPHABETICAL_ORDER[currentAlphaStep];
-
-        // Verifica se digitou o país exato da vez na ordem alfabética
         const isTargetMatch = normalize(targetItem.name) === val || targetItem.syn.some(s => normalize(s) === val);
 
         if (isTargetMatch) {
-          // Marca na grade alfabética
           const alphaCell = document.getElementById(`alpha-cell-${currentAlphaStep}`);
           if (alphaCell) {
             alphaCell.classList.remove('bg-zinc-900/50', 'border-zinc-800/70', 'border-white', 'ring-1', 'ring-white/40', 'bg-zinc-800/80');
@@ -1440,7 +2119,7 @@
             }
             const flag = alphaCell.querySelector('.alpha-flag');
             if (flag) {
-              flag.classList.remove('w-0', 'opacity-0', 'scale-50');
+              flag.classList.remove('w-0', 'opacity-0', 'scale-50', 'opacity-80');
               flag.classList.add('w-6', 'opacity-100', 'scale-100');
             }
           }
@@ -1456,8 +2135,8 @@
             modeExtraStatus.innerText = `Posição atual: #${String(currentAlphaStep + 1).padStart(3, '0')} / ${TOTAL_COUNTRIES}`;
           }
           highlightCurrentAlphaSlot();
+          saveGameProgress();
         } else {
-          // Verifica se o jogador digitou outro país válido fora da ordem
           const otherMatch = COUNTRIES_DB.find(c => normalize(c.name) === val || c.syn.some(s => normalize(s) === val));
           if (otherMatch) {
             const firstChar = targetItem.name.charAt(0).toUpperCase();
@@ -1472,7 +2151,6 @@
       // MODO 3: HARDCORE (PAÍS + CAPITAL)
       // ==========================================
       else if (currentGameMode === 'hardcore') {
-        // ETAPA 1: Aguardando um País
         if (pendingHardcoreCountryIdx === null) {
           let foundIndex = -1;
           for (let i = 0; i < COUNTRIES_DB.length; i++) {
@@ -1488,7 +2166,6 @@
               typingFeedback.className = 'absolute right-4 text-xs font-bold px-2.5 py-1 rounded bg-zinc-800 text-zinc-300 border border-zinc-700';
               playSound('duplicate');
             } else {
-              // Trava no país e exige a capital!
               pendingHardcoreCountryIdx = foundIndex;
               const country = COUNTRIES_DB[foundIndex];
 
@@ -1505,7 +2182,7 @@
                 const capLbl = cell.querySelector('.capital-label');
                 if (capLbl) {
                   capLbl.innerText = `🎯 Digite a capital...`;
-                  capLbl.classList.remove('text-zinc-600');
+                  capLbl.classList.remove('text-zinc-400');
                   capLbl.classList.add('text-amber-300');
                 }
               }
@@ -1523,11 +2200,10 @@
               typingFeedback.innerText = `Agora a capital!`;
               typingFeedback.className = 'absolute right-4 text-xs font-bold px-2.5 py-1 rounded bg-amber-950/60 text-amber-400 border border-amber-500/40';
               playSound('step');
+              saveGameProgress();
             }
           }
-        }
-        // ETAPA 2: Aguardando a Capital do país travado
-        else {
+        } else {
           const pendingCountry = COUNTRIES_DB[pendingHardcoreCountryIdx];
           const isCapitalMatch = normalize(pendingCountry.capital) === val || pendingCountry.capSyn.some(s => normalize(s) === val);
 
@@ -1545,7 +2221,6 @@
 
             registerCountrySuccess(idxToComplete, `${pendingCountry.name} (${pendingCountry.capital})`);
           } else {
-            // Se tentar digitar outro país enquanto deve uma capital, avisa
             const otherCountry = COUNTRIES_DB.find((c, idx) => idx !== pendingHardcoreCountryIdx && (normalize(c.name) === val || c.syn.some(s => normalize(s) === val)));
             if (otherCountry) {
               typingFeedback.innerText = `Acerte a capital de ${pendingCountry.name}!`;
@@ -1555,33 +2230,67 @@
           }
         }
       }
+
+      // ==========================================
+      // MODO 4: MODO BANDEIRAS
+      // ==========================================
+      else if (currentGameMode === 'flags') {
+        if (currentFlagTargetIdx === null) return;
+        const targetCountry = COUNTRIES_DB[currentFlagTargetIdx];
+        const isFlagMatch = normalize(targetCountry.name) === val || targetCountry.syn.some(s => normalize(s) === val);
+
+        if (isFlagMatch) {
+          typingFeedback.innerText = 'Bandeira Correta!';
+          typingFeedback.className = 'absolute right-4 text-xs font-bold px-2.5 py-1 rounded bg-emerald-900/40 text-emerald-400 border border-emerald-500/30';
+          registerCountrySuccess(currentFlagTargetIdx);
+
+          if (guessedCountries.size < TOTAL_COUNTRIES) {
+            pickNextFlagTarget();
+            modeExtraStatus.innerText = `Restam ${TOTAL_COUNTRIES - guessedCountries.size} bandeiras`;
+            saveGameProgress();
+          }
+        } else {
+          const otherMatch = COUNTRIES_DB.find((c, idx) => idx !== currentFlagTargetIdx && (normalize(c.name) === val || c.syn.some(s => normalize(s) === val)));
+          if (otherMatch) {
+            typingFeedback.innerText = `Não é a bandeira de ${otherMatch.name}!`;
+            typingFeedback.className = 'absolute right-4 text-xs font-bold px-2.5 py-1 rounded bg-rose-950/60 text-rose-400 border border-rose-500/40';
+            playSound('duplicate');
+          }
+        }
+      }
     });
 
-    // TROCA DE ABAS DE MODO DE JOGO
+    // TROCA DE ABAS DE MODO DE JOGO (COM MODAL NATIVO E EXIBIÇÃO DE RESULTADO ANTES DE MUDAR)
     modeTabs.forEach(tab => {
       tab.addEventListener('click', () => {
         const targetMode = tab.dataset.mode;
         if (targetMode === currentGameMode) return;
 
+        const modeNames = {
+          classic: "Modo Clássico",
+          alphabetical: "Ordem Alfabética",
+          hardcore: "Modo Hardcore",
+          flags: "Modo Bandeiras"
+        };
+
         if (isPlaying) {
-          if (!confirm("Trocar de modo encerrará a sua partida atual. Deseja trocar de modo?")) return;
-          clearInterval(timerInterval);
-          isPlaying = false;
-          isGameOver = false;
-          guessedCountries.clear();
-          currentAlphaStep = 0;
-          pendingHardcoreCountryIdx = null;
-          countryInput.disabled = true;
-          countryInput.value = '';
-          countryInput.placeholder = "Clique em 'Começar' para iniciar...";
-          countryInput.classList.remove('border-amber-500', 'focus:border-amber-400');
-          countryInput.classList.add('border-zinc-800', 'focus:border-zinc-500');
-          gameActionBtn.innerHTML = `<i data-lucide="play" class="w-4 h-4 fill-white"></i> <span>Começar</span>`;
-          gameActionBtn.className = "px-4 py-2 rounded-lg font-bold text-sm bg-emerald-600 hover:bg-emerald-500 text-white shadow-md transition flex items-center gap-1.5";
-          document.querySelectorAll('.map-country').forEach(el => el.classList.remove('guessed', 'missed', 'pending'));
-          lucide.createIcons();
+          openNativeConfirm(
+            "Trocar de Modo de Jogo?",
+            `Sua partida atual será encerrada e seu resultado será exibido antes de mudar para o ${modeNames[targetMode]}.`,
+            "Ver Resultado e Trocar",
+            () => {
+              pendingModeSwitch = targetMode;
+              endGame(false, "Partida Encerrada");
+            }
+          );
+          return;
         }
 
+        isGameOver = false;
+        guessedCountries.clear();
+        currentAlphaStep = 0;
+        pendingHardcoreCountryIdx = null;
+        currentFlagTargetIdx = null;
         currentGameMode = targetMode;
         updateModeUI();
       });
@@ -1590,8 +2299,8 @@
     timeButtons.forEach(btn => {
       btn.addEventListener('click', () => {
         if (isPlaying) return;
-        timeButtons.forEach(b => b.className = "time-btn px-2.5 py-1.5 rounded-md font-semibold text-zinc-400 hover:text-white transition");
-        btn.className = "time-btn px-2.5 py-1.5 rounded-md font-semibold text-black bg-white shadow-sm transition";
+        timeButtons.forEach(b => b.className = "time-btn px-2 py-1.5 rounded-md font-semibold text-zinc-400 hover:text-white transition");
+        btn.className = "time-btn px-2 py-1.5 rounded-md font-semibold text-black bg-white shadow-sm transition";
 
         selectedDurationMinutes = parseInt(btn.dataset.time, 10);
         if (selectedDurationMinutes > 0) {
@@ -1611,12 +2320,23 @@
       lucide.createIcons();
     });
 
+    // BOTÃO DESISTIR COM MODAL NATIVO DO SITE
     gameActionBtn.addEventListener('click', () => {
-      if (!isPlaying) startGame();
-      else if (confirm("Deseja realmente desistir e revelar todas as respostas no mapa e nas tabelas?")) endGame(false, "Desistência");
+      if (!isPlaying) {
+        startGame();
+      } else {
+        openNativeConfirm(
+          "Desistir da Viagem?",
+          "Tem certeza que deseja encerrar a partida atual e revelar todas as respostas no mapa e nas listas?",
+          "Sim, Desistir",
+          () => {
+            endGame(false, "Desistência");
+          }
+        );
+      }
     });
 
-    // Compartilhar no WhatsApp
+    // COMPARTILHAR NO WHATSAPP
     document.getElementById('whatsappShareBtn').addEventListener('click', () => {
       const score = guessedCountries.size;
       const pctVal = (score / TOTAL_COUNTRIES) * 100;
@@ -1637,7 +2357,8 @@
       const modeNames = {
         classic: "Modo Clássico",
         alphabetical: "Modo Ordem Alfabética (A-Z)",
-        hardcore: "Modo Hardcore (País + Capital)"
+        hardcore: "Modo Hardcore (País + Capital)",
+        flags: "Modo Bandeiras"
       };
       
       const gameUrl = window.location.href;
@@ -1646,15 +2367,46 @@
       window.open(whatsappUrl, '_blank');
     });
 
-    document.getElementById('modalReviewBtn').addEventListener('click', () => gameOverModal.classList.add('hidden'));
+    // BOTÕES DO MODAL DE RESULTADO (FINALIZA A TRANSIÇÃO DE MODO SE HOUVER)
+    document.getElementById('modalReviewBtn').addEventListener('click', () => {
+      gameOverModal.classList.add('hidden');
+      if (pendingModeSwitch) {
+        const target = pendingModeSwitch;
+        pendingModeSwitch = null;
+        isGameOver = false;
+        guessedCountries.clear();
+        currentAlphaStep = 0;
+        pendingHardcoreCountryIdx = null;
+        currentFlagTargetIdx = null;
+        currentGameMode = target;
+        updateModeUI();
+      }
+    });
+
     document.getElementById('modalRestartBtn').addEventListener('click', () => {
       gameOverModal.classList.add('hidden');
-      startGame();
+      if (pendingModeSwitch) {
+        const target = pendingModeSwitch;
+        pendingModeSwitch = null;
+        isGameOver = false;
+        guessedCountries.clear();
+        currentAlphaStep = 0;
+        pendingHardcoreCountryIdx = null;
+        currentFlagTargetIdx = null;
+        currentGameMode = target;
+        updateModeUI();
+      } else {
+        startGame();
+      }
     });
 
     window.addEventListener('DOMContentLoaded', () => {
-      updateModeUI();
+      loadSettingsFromStorage();
       initWorldMap();
+      const restored = tryRestoreSavedGame();
+      if (!restored) {
+        updateModeUI();
+      }
       lucide.createIcons();
     });
   </script>
