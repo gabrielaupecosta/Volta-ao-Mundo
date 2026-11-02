@@ -938,4 +938,725 @@
       } else if (currentGameMode === 'alphabetical') {
         modeBadge.innerText = "Ordem Alfabética (A-Z)";
         modeBadge.className = "px-2.5 py-1 rounded-md bg-amber-400 text-black font-extrabold uppercase tracking-wider";
-        mode
+        modeDescription.innerText = "Adivinhe os países rigorosamente na ordem alfabética, começando pelo primeiro da lista.";
+        modeExtraStatus.innerText = `Posição atual: #${currentAlphaStep + 1} / ${TOTAL_COUNTRIES}`;
+        continentsContainer.classList.add('hidden');
+        alphabeticalContainer.classList.remove('hidden');
+      } else if (currentGameMode === 'hardcore') {
+        modeBadge.innerText = "Modo Hardcore";
+        modeBadge.className = "px-2.5 py-1 rounded-md bg-rose-600 text-white font-extrabold uppercase tracking-wider";
+        modeDescription.innerText = "Acerte um país e imediatamente digite a capital dele para validar o ponto e liberar o próximo país.";
+        modeExtraStatus.innerText = pendingHardcoreCountryIdx !== null 
+          ? `🔥 Aguardando capital de: ${COUNTRIES_DB[pendingHardcoreCountryIdx].name}`
+          : "Etapa 1: Digite um país";
+        continentsContainer.classList.remove('hidden');
+        alphabeticalContainer.classList.add('hidden');
+      }
+
+      renderContinentTables();
+      renderAlphabeticalScreen();
+      updateCounters();
+    }
+
+    // GLOBO 3D
+    let svgContainer, mapGroup, projection, svgPath;
+    const INITIAL_SCALE = 210;
+
+    function initWorldMap() {
+      svgContainer = d3.select("#worldMapSvg");
+      mapGroup = svgContainer.append("g");
+
+      projection = d3.geoOrthographic()
+        .scale(INITIAL_SCALE)
+        .translate([480, 220])
+        .clipAngle(90)
+        .precision(0.1);
+        
+      svgPath = d3.geoPath().projection(projection).pointRadius(4.5);
+
+      const ocean = mapGroup.append("circle")
+        .attr("cx", 480).attr("cy", 220)
+        .attr("r", INITIAL_SCALE)
+        .attr("class", "ocean");
+
+      let rotate0, coords0;
+      const dragBehavior = d3.drag()
+        .on('start', (event) => {
+           rotate0 = projection.rotate();
+           coords0 = [event.x, event.y];
+        })
+        .on('drag', (event) => {
+           const k = 90 / projection.scale();
+           const rotate = [
+               rotate0[0] + (event.x - coords0[0]) * k,
+               rotate0[1] - (event.y - coords0[1]) * k
+           ];
+           rotate[1] = Math.max(-90, Math.min(90, rotate[1]));
+           projection.rotate(rotate);
+           mapGroup.selectAll("path.map-country").attr("d", svgPath);
+           checkResetButtonVisibility();
+        });
+
+      svgContainer.call(dragBehavior);
+
+      document.getElementById('worldMapSvg').addEventListener('wheel', (event) => {
+        event.preventDefault();
+        const zoomFactor = event.deltaY < 0 ? 1.1 : 0.9;
+        const currentScale = projection.scale();
+        const newScale = Math.max(INITIAL_SCALE, Math.min(INITIAL_SCALE * 6, currentScale * zoomFactor));
+        
+        projection.scale(newScale);
+        ocean.attr("r", newScale);
+        mapGroup.selectAll("path.map-country").attr("d", svgPath);
+        checkResetButtonVisibility();
+      }, { passive: false });
+
+      fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
+        .then(res => res.json())
+        .then(world => {
+          const topoFeatures = topojson.feature(world, world.objects.countries).features
+            .filter(d => String(d.id).padStart(3, '0') !== '010');
+
+          topoFeatures.forEach(d => {
+             if (d.properties && d.properties.name) {
+                 if (d.properties.name === "Kosovo") d.id = "383";
+                 if (d.properties.name === "Northern Cyprus") d.id = "-98";
+                 if (d.properties.name === "Somaliland") d.id = "-99";
+                 if (d.properties.name === "W. Sahara") d.id = "732"; 
+             }
+          });
+
+          const existingIds = new Set(topoFeatures.map(d => String(d.id).padStart(3, '0')));
+          const microFeatures = MICRO_STATES_COORDS
+            .filter(m => !existingIds.has(m.id))
+            .map(m => ({
+              type: "Feature",
+              id: m.id,
+              geometry: { type: "Point", coordinates: m.coords }
+            }));
+
+          countriesGeoGlobal = [...topoFeatures, ...microFeatures];
+
+          mapGroup.selectAll(".map-country")
+            .data(countriesGeoGlobal)
+            .enter()
+            .append("path")
+            .attr("class", d => d.geometry.type === 'Point' ? 'map-country map-marker' : 'map-country')
+            .attr("d", svgPath)
+            .attr("id", d => `map-${String(d.id).padStart(3, '0')}`)
+            .attr("data-owner", d => {
+               const code = String(d.id).padStart(3, '0');
+               return TERRITORIES_DB[code] ? TERRITORIES_DB[code].owner : "";
+            })
+            .on("mouseover", (event, d) => {
+              const code = String(d.id).padStart(3, '0');
+              const foundCountry = COUNTRIES_DB.find(c => c.id === code);
+              const foundTerritory = TERRITORIES_DB[code];
+
+              if (foundCountry) {
+                const countryIdx = COUNTRIES_DB.indexOf(foundCountry);
+                if (guessedCountries.has(countryIdx) || isGameOver) {
+                  mapTooltip.innerText = currentGameMode === 'hardcore'
+                    ? `${foundCountry.name} (${foundCountry.capital})`
+                    : foundCountry.name;
+                } else if (pendingHardcoreCountryIdx === countryIdx) {
+                  mapTooltip.innerText = `${foundCountry.name} (Capital: ???)`;
+                } else {
+                  mapTooltip.innerText = "???";
+                }
+              } else if (foundTerritory) {
+                const ownerCountry = COUNTRIES_DB.find(c => c.id === foundTerritory.owner);
+                const ownerIdx = ownerCountry ? COUNTRIES_DB.indexOf(ownerCountry) : -1;
+                if ((ownerIdx !== -1 && guessedCountries.has(ownerIdx)) || isGameOver) {
+                  mapTooltip.innerText = `${foundTerritory.name} (${foundTerritory.ownerName})`;
+                } else {
+                  mapTooltip.innerText = "???";
+                }
+              } else {
+                mapTooltip.innerText = "???";
+              }
+            })
+            .on("mouseout", () => {
+              mapTooltip.innerText = "Arraste para girar / Clique para aproximar";
+            })
+            .on("click", (event, d) => clickedCountryZoom(event, d));
+        })
+        .catch(() => {});
+    }
+
+    function autoRotateToCountry(countryCode) {
+      if (countriesGeoGlobal.length === 0) return;
+      const feature = countriesGeoGlobal.find(f => String(f.id).padStart(3, '0') === countryCode);
+      if (!feature) return;
+
+      const centroid = feature.geometry.type === "Point" ? feature.geometry.coordinates : d3.geoCentroid(feature);
+      const targetRotate = [-centroid[0], -centroid[1]];
+
+      d3.transition().duration(800).tween("rotate", () => {
+        const r = d3.interpolate(projection.rotate(), targetRotate);
+        return (t) => {
+          projection.rotate(r(t));
+          mapGroup.selectAll("path.map-country").attr("d", svgPath);
+        };
+      }).on("end", checkResetButtonVisibility);
+    }
+
+    function clickedCountryZoom(event, d) {
+      event.stopPropagation();
+      const centroid = d.geometry.type === "Point" ? d.geometry.coordinates : d3.geoCentroid(d);
+      const targetRotate = [-centroid[0], -centroid[1]];
+      
+      d3.transition().duration(800).tween("rotateAndZoom", () => {
+        const r = d3.interpolate(projection.rotate(), targetRotate);
+        const s = d3.interpolate(projection.scale(), INITIAL_SCALE * 3.5);
+        return (t) => {
+          projection.rotate(r(t)).scale(s(t));
+          mapGroup.select(".ocean").attr("r", s(t));
+          mapGroup.selectAll("path.map-country").attr("d", svgPath);
+        };
+      }).on("end", checkResetButtonVisibility);
+    }
+
+    function resetGlobeVision() {
+      d3.transition().duration(800).tween("reset", () => {
+        const r = d3.interpolate(projection.rotate(), [0, 0]);
+        const s = d3.interpolate(projection.scale(), INITIAL_SCALE);
+        return (t) => {
+          projection.rotate(r(t)).scale(s(t));
+          mapGroup.select(".ocean").attr("r", s(t));
+          mapGroup.selectAll("path.map-country").attr("d", svgPath);
+        };
+      }).on("end", checkResetButtonVisibility);
+    }
+    resetZoomBtn.addEventListener('click', resetGlobeVision);
+
+    function checkResetButtonVisibility() {
+       if (projection.scale() > INITIAL_SCALE + 5 || Math.abs(projection.rotate()[0]) > 5 || Math.abs(projection.rotate()[1]) > 5) {
+         resetZoomBtn.classList.remove('opacity-0', 'pointer-events-none');
+       } else {
+         resetZoomBtn.classList.add('opacity-0', 'pointer-events-none');
+       }
+    }
+
+    function updateMapCountry(countryIndex, status) {
+      const country = COUNTRIES_DB[countryIndex];
+      if (!country || !country.id) return;
+      
+      const updateClass = (el) => {
+        if (el) {
+          el.classList.remove('guessed', 'missed', 'pending');
+          if (status === 'guessed') el.classList.add('guessed');
+          if (status === 'missed') el.classList.add('missed');
+          if (status === 'pending') el.classList.add('pending');
+        }
+      };
+
+      updateClass(document.getElementById(`map-${country.id}`));
+      document.querySelectorAll(`.map-country[data-owner="${country.id}"]`).forEach(tEl => {
+        updateClass(tEl);
+      });
+    }
+
+    function updateCounters() {
+      const counts = { all: 0, Americas: 0, Europa: 0, Asia: 0, Africa: 0, Oceania: 0 };
+      const totals = { Americas: 0, Europa: 0, Asia: 0, Africa: 0, Oceania: 0 };
+
+      COUNTRIES_DB.forEach(c => totals[c.continent]++);
+
+      guessedCountries.forEach(idx => {
+        const c = COUNTRIES_DB[idx];
+        counts.all++;
+        counts[c.continent]++;
+      });
+
+      document.getElementById('headerCount').innerText = `${TOTAL_COUNTRIES} Países`;
+      document.getElementById('totalScoreText').innerText = `/ ${TOTAL_COUNTRIES}`;
+      document.getElementById('modalTotalText').innerText = `/ ${TOTAL_COUNTRIES}`;
+
+      scoreDisplay.innerText = counts.all;
+      const pct = Math.round((counts.all / TOTAL_COUNTRIES) * 100);
+      percentDisplay.innerText = `${pct}%`;
+      progressBar.style.width = `${pct}%`;
+
+      ['Africa', 'Americas', 'Asia', 'Europa', 'Oceania'].forEach(key => {
+        const badge = document.getElementById(`badge-${key}`);
+        if (badge) badge.innerText = `${counts[key]}/${totals[key]}`;
+      });
+
+      if (counts.all === TOTAL_COUNTRIES && !isGameOver && isPlaying) {
+        document.querySelectorAll('.stat-card').forEach(card => card.classList.add('victory'));
+        progressBar.classList.remove('bg-zinc-300');
+        progressBar.classList.add('bg-emerald-500');
+        endGame(true, "Você Venceu!");
+      }
+    }
+
+    function formatTime(seconds) {
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function startGame() {
+      isPlaying = true;
+      isGameOver = false;
+      guessedCountries.clear();
+      currentAlphaStep = 0;
+      pendingHardcoreCountryIdx = null;
+
+      renderContinentTables();
+      renderAlphabeticalScreen();
+      resetGlobeVision();
+      
+      document.querySelectorAll('.map-country').forEach(el => el.classList.remove('guessed', 'missed', 'pending'));
+      document.querySelectorAll('.stat-card').forEach(card => card.classList.remove('victory'));
+      progressBar.classList.remove('bg-emerald-500');
+      progressBar.classList.add('bg-zinc-300');
+
+      countryInput.disabled = false;
+      countryInput.value = '';
+      countryInput.classList.remove('border-amber-500', 'focus:border-amber-400');
+      countryInput.classList.add('border-zinc-800', 'focus:border-zinc-500');
+
+      if (currentGameMode === 'alphabetical') {
+        const firstChar = ALPHABETICAL_ORDER[0].name.charAt(0).toUpperCase();
+        countryInput.placeholder = `Digite o 1º país em ordem alfabética (Letra ${firstChar})...`;
+        modeExtraStatus.innerText = `Posição atual: #001 / ${TOTAL_COUNTRIES}`;
+        highlightCurrentAlphaSlot();
+      } else if (currentGameMode === 'hardcore') {
+        countryInput.placeholder = 'Etapa 1: Digite o nome de um país...';
+        modeExtraStatus.innerText = "Etapa 1: Digite um país";
+      } else {
+        countryInput.placeholder = 'Digite o nome de um país...';
+      }
+
+      countryInput.focus();
+      typingFeedback.innerText = 'Digite';
+      typingFeedback.className = 'absolute right-4 text-xs font-bold px-2.5 py-1 rounded bg-zinc-800 text-zinc-400';
+
+      gameActionBtn.innerHTML = `<i data-lucide="flag" class="w-4 h-4 fill-white"></i> <span>Desistir</span>`;
+      gameActionBtn.className = "px-4 py-2 rounded-lg font-bold text-sm bg-rose-600 hover:bg-rose-500 text-white shadow-md transition flex items-center gap-1.5";
+      lucide.createIcons();
+
+      updateCounters();
+
+      clearInterval(timerInterval);
+      if (selectedDurationMinutes > 0) {
+        timeRemaining = selectedDurationMinutes * 60;
+        timerLabel.innerText = "Tempo Restante";
+        timerDisplay.innerText = formatTime(timeRemaining);
+        timerInterval = setInterval(() => {
+          timeRemaining--;
+          timerDisplay.innerText = formatTime(timeRemaining);
+          if (timeRemaining <= 0) endGame(false, "Tempo Esgotado!");
+        }, 1000);
+      } else {
+        timeRemaining = 0;
+        timerLabel.innerText = "Tempo Decorrido";
+        timerDisplay.innerText = formatTime(timeRemaining);
+        timerInterval = setInterval(() => {
+          timeRemaining++;
+          timerDisplay.innerText = formatTime(timeRemaining);
+        }, 1000);
+      }
+    }
+
+    function endGame(victory = false, reason = "Viagem Finalizada") {
+      isPlaying = false;
+      isGameOver = true;
+      pendingHardcoreCountryIdx = null;
+      clearInterval(timerInterval);
+      countryInput.disabled = true;
+      countryInput.value = '';
+      countryInput.placeholder = 'Jogo finalizado!';
+      countryInput.classList.remove('border-amber-500', 'focus:border-amber-400');
+      countryInput.classList.add('border-zinc-800', 'focus:border-zinc-500');
+      
+      gameActionBtn.innerHTML = `<i data-lucide="play" class="w-4 h-4 fill-black"></i> <span class="text-black">Novo Jogo</span>`;
+      gameActionBtn.className = "px-4 py-2 rounded-lg font-bold text-sm bg-white hover:bg-zinc-200 text-black shadow-md transition flex items-center gap-1.5";
+      lucide.createIcons();
+
+      // Revela respostas nas colunas de continentes
+      COUNTRIES_DB.forEach((c, idx) => {
+        const cell = document.getElementById(`cell-${idx}`);
+        if (!guessedCountries.has(idx)) {
+          if (cell) {
+            cell.classList.remove('bg-zinc-950/60', 'border-zinc-800/80', 'bg-amber-950/30', 'border-amber-500/60');
+            cell.classList.add('bg-rose-950/20', 'border-rose-900/50');
+            
+            const lbl = cell.querySelector('.country-label');
+            if (lbl) {
+              lbl.innerText = c.name;
+              lbl.classList.remove('text-zinc-500', 'text-amber-400');
+              lbl.classList.add('text-rose-400');
+            }
+
+            const capLbl = cell.querySelector('.capital-label');
+            if (capLbl && currentGameMode === 'hardcore') {
+              capLbl.innerText = `📍 ${c.capital}`;
+              capLbl.classList.remove('text-zinc-600', 'text-amber-300');
+              capLbl.classList.add('text-rose-300/80');
+            }
+
+            const flag = cell.querySelector('.country-flag');
+            if (flag) {
+              flag.classList.remove('w-0', 'opacity-0', 'scale-50');
+              flag.classList.add('w-6', 'opacity-50', 'scale-100', 'grayscale'); 
+            }
+          }
+          updateMapCountry(idx, 'missed');
+        } else {
+          updateMapCountry(idx, 'guessed');
+        }
+      });
+
+      // Revela respostas na tela de Ordem Alfabética
+      ALPHABETICAL_ORDER.forEach((item, globalOrderIdx) => {
+        const alphaCell = document.getElementById(`alpha-cell-${globalOrderIdx}`);
+        if (alphaCell) {
+          alphaCell.classList.remove('border-white', 'ring-1', 'ring-white/40', 'bg-zinc-800/80');
+          if (!guessedCountries.has(item.originalIndex)) {
+            alphaCell.classList.remove('bg-zinc-900/50', 'border-zinc-800/70');
+            alphaCell.classList.add('bg-rose-950/20', 'border-rose-900/50');
+            const lbl = alphaCell.querySelector('.alpha-label');
+            if (lbl) {
+              lbl.innerText = item.name;
+              lbl.classList.remove('text-zinc-500', 'text-white');
+              lbl.classList.add('text-rose-400');
+            }
+            const flag = alphaCell.querySelector('.alpha-flag');
+            if (flag) {
+              flag.classList.remove('w-0', 'opacity-0', 'scale-50');
+              flag.classList.add('w-6', 'opacity-50', 'scale-100', 'grayscale');
+            }
+          }
+        }
+      });
+
+      document.getElementById('modalTitle').innerText = victory ? "Parabéns, Você Venceu!" : reason;
+      document.getElementById('modalSubtitle').innerText = victory ? `Você completou todos os ${TOTAL_COUNTRIES} países!` : "Confira seu desempenho final no desafio:";
+      document.getElementById('modalScore').innerText = guessedCountries.size;
+      document.getElementById('modalPercent').innerText = `${Math.round((guessedCountries.size / TOTAL_COUNTRIES) * 100)}%`;
+      gameOverModal.classList.remove('hidden');
+    }
+
+    // MARCAR ACERTO COMPLETO DE UM PAÍS
+    function registerCountrySuccess(foundIndex, customLastText = null) {
+      guessedCountries.add(foundIndex);
+      const country = COUNTRIES_DB[foundIndex];
+
+      if (normalize(country.name) === "palestina") {
+        showPalestineEasterEgg();
+      }
+
+      const cell = document.getElementById(`cell-${foundIndex}`);
+      if (cell) {
+        cell.classList.remove('bg-zinc-950/60', 'border-zinc-800/80', 'bg-amber-950/30', 'border-amber-500/60');
+        cell.classList.add('bg-emerald-950/30', 'border-emerald-900/50');
+        
+        const lbl = cell.querySelector('.country-label');
+        if (lbl) {
+          lbl.innerText = country.name;
+          lbl.classList.remove('text-zinc-500', 'text-amber-400');
+          lbl.classList.add('text-emerald-400', 'font-bold');
+        }
+
+        const capLbl = cell.querySelector('.capital-label');
+        if (capLbl && currentGameMode === 'hardcore') {
+          capLbl.innerText = `📍 ${country.capital}`;
+          capLbl.classList.remove('text-zinc-600', 'text-amber-300');
+          capLbl.classList.add('text-emerald-300');
+        }
+
+        const flag = cell.querySelector('.country-flag');
+        if (flag) {
+          flag.classList.remove('w-0', 'opacity-0', 'scale-50');
+          flag.classList.add('w-6', 'opacity-100', 'scale-100'); 
+        }
+      }
+
+      updateMapCountry(foundIndex, 'guessed');
+      autoRotateToCountry(country.id);
+
+      lastGuessedDisplay.innerText = customLastText || country.name;
+      countryInput.value = '';
+      playSound('hit');
+      updateCounters();
+    }
+
+    // LÓGICA DE DIGITAÇÃO PARA OS 3 MODOS DE JOGO
+    countryInput.addEventListener('input', (e) => {
+      if (!isPlaying) return;
+      const rawVal = e.target.value;
+      const val = normalize(rawVal);
+      if (!val) return;
+
+      // ==========================================
+      // MODO 1: CLÁSSICO
+      // ==========================================
+      if (currentGameMode === 'classic') {
+        let foundIndex = -1;
+        for (let i = 0; i < COUNTRIES_DB.length; i++) {
+          const c = COUNTRIES_DB[i];
+          if (normalize(c.name) === val || c.syn.some(s => normalize(s) === val)) {
+            foundIndex = i; break;
+          }
+        }
+
+        if (foundIndex !== -1) {
+          if (guessedCountries.has(foundIndex)) {
+            typingFeedback.innerText = 'Já digitado!';
+            typingFeedback.className = 'absolute right-4 text-xs font-bold px-2.5 py-1 rounded bg-zinc-800 text-zinc-300 border border-zinc-700';
+            playSound('duplicate');
+          } else {
+            typingFeedback.innerText = '+1 País!';
+            typingFeedback.className = 'absolute right-4 text-xs font-bold px-2.5 py-1 rounded bg-emerald-900/40 text-emerald-400 border border-emerald-500/30';
+            registerCountrySuccess(foundIndex);
+          }
+        }
+      }
+
+      // ==========================================
+      // MODO 2: ORDEM ALFABÉTICA (A-Z)
+      // ==========================================
+      else if (currentGameMode === 'alphabetical') {
+        if (currentAlphaStep >= ALPHABETICAL_ORDER.length) return;
+        const targetItem = ALPHABETICAL_ORDER[currentAlphaStep];
+
+        // Verifica se digitou o país exato da vez na ordem alfabética
+        const isTargetMatch = normalize(targetItem.name) === val || targetItem.syn.some(s => normalize(s) === val);
+
+        if (isTargetMatch) {
+          // Marca na grade alfabética
+          const alphaCell = document.getElementById(`alpha-cell-${currentAlphaStep}`);
+          if (alphaCell) {
+            alphaCell.classList.remove('bg-zinc-900/50', 'border-zinc-800/70', 'border-white', 'ring-1', 'ring-white/40', 'bg-zinc-800/80');
+            alphaCell.classList.add('bg-emerald-950/30', 'border-emerald-900/50');
+            const lbl = alphaCell.querySelector('.alpha-label');
+            if (lbl) {
+              lbl.innerText = targetItem.name;
+              lbl.classList.remove('text-zinc-500', 'text-white');
+              lbl.classList.add('text-emerald-400', 'font-bold');
+            }
+            const flag = alphaCell.querySelector('.alpha-flag');
+            if (flag) {
+              flag.classList.remove('w-0', 'opacity-0', 'scale-50');
+              flag.classList.add('w-6', 'opacity-100', 'scale-100');
+            }
+          }
+
+          currentAlphaStep++;
+          typingFeedback.innerText = `Acerto #${currentAlphaStep}!`;
+          typingFeedback.className = 'absolute right-4 text-xs font-bold px-2.5 py-1 rounded bg-emerald-900/40 text-emerald-400 border border-emerald-500/30';
+          registerCountrySuccess(targetItem.originalIndex);
+
+          if (currentAlphaStep < ALPHABETICAL_ORDER.length) {
+            const nextChar = ALPHABETICAL_ORDER[currentAlphaStep].name.charAt(0).toUpperCase();
+            countryInput.placeholder = `Próximo: #${String(currentAlphaStep + 1).padStart(3, '0')} na ordem alfabética (Letra ${nextChar})...`;
+            modeExtraStatus.innerText = `Posição atual: #${String(currentAlphaStep + 1).padStart(3, '0')} / ${TOTAL_COUNTRIES}`;
+          }
+          highlightCurrentAlphaSlot();
+        } else {
+          // Verifica se o jogador digitou outro país válido fora da ordem
+          const otherMatch = COUNTRIES_DB.find(c => normalize(c.name) === val || c.syn.some(s => normalize(s) === val));
+          if (otherMatch) {
+            const firstChar = targetItem.name.charAt(0).toUpperCase();
+            typingFeedback.innerText = `Fora de ordem! Vez do #${currentAlphaStep + 1} (${firstChar})`;
+            typingFeedback.className = 'absolute right-4 text-xs font-bold px-2.5 py-1 rounded bg-amber-950/60 text-amber-400 border border-amber-500/40';
+            playSound('duplicate');
+          }
+        }
+      }
+
+      // ==========================================
+      // MODO 3: HARDCORE (PAÍS + CAPITAL)
+      // ==========================================
+      else if (currentGameMode === 'hardcore') {
+        // ETAPA 1: Aguardando um País
+        if (pendingHardcoreCountryIdx === null) {
+          let foundIndex = -1;
+          for (let i = 0; i < COUNTRIES_DB.length; i++) {
+            const c = COUNTRIES_DB[i];
+            if (normalize(c.name) === val || c.syn.some(s => normalize(s) === val)) {
+              foundIndex = i; break;
+            }
+          }
+
+          if (foundIndex !== -1) {
+            if (guessedCountries.has(foundIndex)) {
+              typingFeedback.innerText = 'País já concluído!';
+              typingFeedback.className = 'absolute right-4 text-xs font-bold px-2.5 py-1 rounded bg-zinc-800 text-zinc-300 border border-zinc-700';
+              playSound('duplicate');
+            } else {
+              // Trava no país e exige a capital!
+              pendingHardcoreCountryIdx = foundIndex;
+              const country = COUNTRIES_DB[foundIndex];
+
+              const cell = document.getElementById(`cell-${foundIndex}`);
+              if (cell) {
+                cell.classList.remove('bg-zinc-950/60', 'border-zinc-800/80');
+                cell.classList.add('bg-amber-950/30', 'border-amber-500/60');
+                const lbl = cell.querySelector('.country-label');
+                if (lbl) {
+                  lbl.innerText = country.name;
+                  lbl.classList.remove('text-zinc-500');
+                  lbl.classList.add('text-amber-400', 'font-bold');
+                }
+                const capLbl = cell.querySelector('.capital-label');
+                if (capLbl) {
+                  capLbl.innerText = `🎯 Digite a capital...`;
+                  capLbl.classList.remove('text-zinc-600');
+                  capLbl.classList.add('text-amber-300');
+                }
+              }
+
+              updateMapCountry(foundIndex, 'pending');
+              autoRotateToCountry(country.id);
+
+              countryInput.value = '';
+              countryInput.placeholder = `Qual é a capital de ${country.name}?`;
+              countryInput.classList.remove('border-zinc-800', 'focus:border-zinc-500');
+              countryInput.classList.add('border-amber-500', 'focus:border-amber-400');
+
+              modeExtraStatus.innerText = `🔥 Digite a capital de: ${country.name}`;
+              lastGuessedDisplay.innerText = `${country.name} (Capital?)`;
+              typingFeedback.innerText = `Agora a capital!`;
+              typingFeedback.className = 'absolute right-4 text-xs font-bold px-2.5 py-1 rounded bg-amber-950/60 text-amber-400 border border-amber-500/40';
+              playSound('step');
+            }
+          }
+        }
+        // ETAPA 2: Aguardando a Capital do país travado
+        else {
+          const pendingCountry = COUNTRIES_DB[pendingHardcoreCountryIdx];
+          const isCapitalMatch = normalize(pendingCountry.capital) === val || pendingCountry.capSyn.some(s => normalize(s) === val);
+
+          if (isCapitalMatch) {
+            const idxToComplete = pendingHardcoreCountryIdx;
+            pendingHardcoreCountryIdx = null;
+
+            countryInput.placeholder = 'Etapa 1: Digite o nome de um país...';
+            countryInput.classList.remove('border-amber-500', 'focus:border-amber-400');
+            countryInput.classList.add('border-zinc-800', 'focus:border-zinc-500');
+            modeExtraStatus.innerText = "Etapa 1: Digite um país";
+
+            typingFeedback.innerText = 'País + Capital!';
+            typingFeedback.className = 'absolute right-4 text-xs font-bold px-2.5 py-1 rounded bg-emerald-900/40 text-emerald-400 border border-emerald-500/30';
+
+            registerCountrySuccess(idxToComplete, `${pendingCountry.name} (${pendingCountry.capital})`);
+          } else {
+            // Se tentar digitar outro país enquanto deve uma capital, avisa
+            const otherCountry = COUNTRIES_DB.find((c, idx) => idx !== pendingHardcoreCountryIdx && (normalize(c.name) === val || c.syn.some(s => normalize(s) === val)));
+            if (otherCountry) {
+              typingFeedback.innerText = `Acerte a capital de ${pendingCountry.name}!`;
+              typingFeedback.className = 'absolute right-4 text-xs font-bold px-2.5 py-1 rounded bg-rose-950/60 text-rose-400 border border-rose-500/40';
+              playSound('duplicate');
+            }
+          }
+        }
+      }
+    });
+
+    // TROCA DE ABAS DE MODO DE JOGO
+    modeTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const targetMode = tab.dataset.mode;
+        if (targetMode === currentGameMode) return;
+
+        if (isPlaying) {
+          if (!confirm("Trocar de modo encerrará a sua partida atual. Deseja trocar de modo?")) return;
+          clearInterval(timerInterval);
+          isPlaying = false;
+          isGameOver = false;
+          guessedCountries.clear();
+          currentAlphaStep = 0;
+          pendingHardcoreCountryIdx = null;
+          countryInput.disabled = true;
+          countryInput.value = '';
+          countryInput.placeholder = "Clique em 'Começar' para iniciar...";
+          countryInput.classList.remove('border-amber-500', 'focus:border-amber-400');
+          countryInput.classList.add('border-zinc-800', 'focus:border-zinc-500');
+          gameActionBtn.innerHTML = `<i data-lucide="play" class="w-4 h-4 fill-white"></i> <span>Começar</span>`;
+          gameActionBtn.className = "px-4 py-2 rounded-lg font-bold text-sm bg-emerald-600 hover:bg-emerald-500 text-white shadow-md transition flex items-center gap-1.5";
+          document.querySelectorAll('.map-country').forEach(el => el.classList.remove('guessed', 'missed', 'pending'));
+          lucide.createIcons();
+        }
+
+        currentGameMode = targetMode;
+        updateModeUI();
+      });
+    });
+
+    timeButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (isPlaying) return;
+        timeButtons.forEach(b => b.className = "time-btn px-2.5 py-1.5 rounded-md font-semibold text-zinc-400 hover:text-white transition");
+        btn.className = "time-btn px-2.5 py-1.5 rounded-md font-semibold text-black bg-white shadow-sm transition";
+
+        selectedDurationMinutes = parseInt(btn.dataset.time, 10);
+        if (selectedDurationMinutes > 0) {
+          timerLabel.innerText = "Tempo";
+          timerDisplay.innerText = formatTime(selectedDurationMinutes * 60);
+        } else {
+          timerLabel.innerText = "Tempo";
+          timerDisplay.innerText = "00:00";
+        }
+      });
+    });
+
+    toggleAudioBtn.addEventListener('click', () => {
+      isMuted = !isMuted;
+      audioIcon.setAttribute('data-lucide', isMuted ? 'volume-x' : 'volume-2');
+      toggleAudioBtn.classList.toggle('text-rose-500', isMuted);
+      lucide.createIcons();
+    });
+
+    gameActionBtn.addEventListener('click', () => {
+      if (!isPlaying) startGame();
+      else if (confirm("Deseja realmente desistir e revelar todas as respostas no mapa e nas tabelas?")) endGame(false, "Desistência");
+    });
+
+    // Compartilhar no WhatsApp
+    document.getElementById('whatsappShareBtn').addEventListener('click', () => {
+      const score = guessedCountries.size;
+      const pctVal = (score / TOTAL_COUNTRIES) * 100;
+      const pctStr = pctVal.toFixed(2).replace('.', ','); 
+      
+      let emoji = "😭";
+      if (pctVal >= 10 && pctVal < 20) emoji = "😢";
+      else if (pctVal >= 20 && pctVal < 30) emoji = "🥲";
+      else if (pctVal >= 30 && pctVal < 40) emoji = "😕";
+      else if (pctVal >= 40 && pctVal < 50) emoji = "🙂";
+      else if (pctVal >= 50 && pctVal < 60) emoji = "😉";
+      else if (pctVal >= 60 && pctVal < 70) emoji = "😊";
+      else if (pctVal >= 70 && pctVal < 80) emoji = "😃";
+      else if (pctVal >= 80 && pctVal < 90) emoji = "🤩";
+      else if (pctVal >= 90 && pctVal < 100) emoji = "🤯";
+      else if (pctVal === 100) emoji = "👑🌍";
+
+      const modeNames = {
+        classic: "Modo Clássico",
+        alphabetical: "Modo Ordem Alfabética (A-Z)",
+        hardcore: "Modo Hardcore (País + Capital)"
+      };
+      
+      const gameUrl = window.location.href;
+      const text = `✈️🌍 *Que viagem incrível!*\n\nAcabei de jogar o *Volta ao Mundo* no *${modeNames[currentGameMode]}* e adivinhei *${score} de ${TOTAL_COUNTRIES}* países!\nIsso dá exatamente *${pctStr}%* do globo! ${emoji}\n\nSerá que você tem bagagem suficiente para bater meu recorde? 🧳\n\nJogue agora em: ${gameUrl}`;
+      const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+      window.open(whatsappUrl, '_blank');
+    });
+
+    document.getElementById('modalReviewBtn').addEventListener('click', () => gameOverModal.classList.add('hidden'));
+    document.getElementById('modalRestartBtn').addEventListener('click', () => {
+      gameOverModal.classList.add('hidden');
+      startGame();
+    });
+
+    window.addEventListener('DOMContentLoaded', () => {
+      updateModeUI();
+      initWorldMap();
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>
