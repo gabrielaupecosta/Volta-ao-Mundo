@@ -33,22 +33,33 @@
     ::-webkit-scrollbar-track { background: #09090b; }
     ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 9999px; }
     ::-webkit-scrollbar-thumb:hover { background: #52525b; }
+
+    /* Ocultar barra de rolagem no swipe mobile mantendo o deslize */
+    .mobile-swipe-container {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .mobile-swipe-container::-webkit-scrollbar {
+      display: none;
+    }
     
-    /* Estilo do Mapa 3D */
+    /* Estilo do Mapa 3D com Fronteiras de Alto Contraste */
     .map-country {
-      fill: #18181b; 
-      stroke: #27272a; 
-      stroke-width: 0.6px;
+      fill: #1c1e26; 
+      stroke: #64748b; 
+      stroke-width: 0.85px;
       transition: fill 0.25s ease, stroke 0.25s ease, opacity 0.25s ease;
       cursor: pointer;
     }
     .map-country:hover {
-      stroke: #a1a1aa; 
-      stroke-width: 1.5px;
+      fill: #272a36;
+      stroke: #e2e8f0; 
+      stroke-width: 1.6px;
     }
     /* Modo Sem Fronteiras */
     .no-borders .map-country:not(.guessed):not(.missed):not(.pending):not(.skipped) {
-      stroke: #18181b !important;
+      stroke: #1c1e26 !important;
       stroke-width: 0.3px !important;
     }
     .no-borders .map-marker:not(.guessed):not(.missed):not(.pending):not(.skipped) {
@@ -58,28 +69,37 @@
 
     .map-country.pending {
       fill: #f59e0b !important;
-      stroke: #d97706 !important;
+      stroke: #fde68a !important;
+      stroke-width: 1.1px;
     }
     .map-country.skipped {
       fill: #6366f1 !important;
-      stroke: #4f46e5 !important;
+      stroke: #c7d2fe !important;
+      stroke-width: 1px;
     }
     .map-country.guessed {
       fill: #10b981 !important; 
-      stroke: #059669 !important;
+      stroke: #047857 !important;
+      stroke-width: 0.95px;
+    }
+    .map-country.guessed:hover {
+      fill: #34d399 !important;
+      stroke: #ffffff !important;
+      stroke-width: 1.6px;
     }
     .map-country.missed {
       fill: #ef4444 !important; 
-      stroke: #b91c1c !important;
+      stroke: #991b1b !important;
+      stroke-width: 0.95px;
     }
     
     .map-marker {
-      fill: #18181b; 
-      stroke: #52525b;
+      fill: #27272a; 
+      stroke: #94a3b8;
       stroke-width: 1.5px;
     }
     .map-marker:hover {
-      fill: #a1a1aa;
+      fill: #cbd5e1;
       stroke: #ffffff;
     }
     .map-marker.pending {
@@ -99,10 +119,17 @@
       stroke: #ffffff !important;
     }
 
+    /* Água dos Mares e Lagos em Azul Escuro */
     .ocean {
-      fill: #000000; 
-      stroke: #18181b;
-      stroke-width: 1px;
+      fill: url(#oceanGradient); 
+      stroke: #1e3a5f;
+      stroke-width: 1.5px;
+    }
+    .map-lake {
+      fill: #08182e;
+      stroke: #1e3a5f;
+      stroke-width: 0.55px;
+      pointer-events: none;
     }
 
     .country-flag {
@@ -118,6 +145,44 @@
     .stat-card.victory {
       background-color: rgba(6, 78, 59, 0.35) !important; 
       border-color: rgba(16, 185, 129, 0.5) !important; 
+    }
+
+    /* Coluna de Continente Concluído */
+    .continent-completed {
+      border-color: rgba(16, 185, 129, 0.55) !important;
+      box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.2) !important;
+    }
+
+    /* Animação de Celebração de Continente Completo */
+    @keyframes continentPop {
+      0% { transform: translate(-50%, -30px) scale(0.8); opacity: 0; }
+      15% { transform: translate(-50%, 0) scale(1.04); opacity: 1; }
+      25% { transform: translate(-50%, 0) scale(1); opacity: 1; }
+      85% { transform: translate(-50%, 0) scale(1); opacity: 1; }
+      100% { transform: translate(-50%, -20px) scale(0.9); opacity: 0; }
+    }
+    .continent-toast {
+      position: fixed;
+      top: 90px;
+      left: 50%;
+      z-index: 9995;
+      animation: continentPop 4.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      pointer-events: none;
+    }
+
+    @keyframes confettiFall {
+      0% { transform: translateY(-10vh) translateX(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(105vh) translateX(var(--drift)) rotate(720deg); opacity: 0; }
+    }
+    .confetti-piece {
+      position: fixed;
+      top: -20px;
+      width: 10px;
+      height: 14px;
+      border-radius: 2px;
+      z-index: 9994;
+      pointer-events: none;
+      animation: confettiFall linear forwards;
     }
 
     /* EASTER EGG: AVIÃO COM FAIXA ONDULANTE E VOO CONTÍNUO */
@@ -188,6 +253,12 @@
 </head>
 <body class="bg-black text-zinc-100 min-h-screen flex flex-col font-sans selection:bg-white selection:text-black">
 
+  <!-- TOOLTIP FLUTUANTE DO MOUSE NO GLOBO (PC) -->
+  <div id="floatingMapTooltip" class="fixed pointer-events-none z-50 hidden bg-zinc-950/95 backdrop-blur-md border border-zinc-700 px-3 py-2 rounded-xl shadow-2xl items-center gap-2.5 text-xs font-bold text-white transition-opacity duration-150">
+    <img id="floatingTooltipFlag" src="" alt="" class="w-6 h-auto rounded-sm shadow-sm hidden">
+    <span id="floatingTooltipText"></span>
+  </div>
+
   <!-- HEADER -->
   <header class="border-b border-zinc-900 bg-black/90 backdrop-blur sticky top-0 z-40">
     <div class="max-w-[1440px] mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
@@ -227,9 +298,9 @@
       </nav>
 
       <!-- CONTROLES -->
-      <div class="flex items-center gap-2.5 order-2 xl:order-3">
+      <div class="flex items-center gap-2 sm:gap-2.5 order-2 xl:order-3">
         <!-- Botão de Configurações -->
-        <button id="openSettingsBtn" class="p-2 text-zinc-400 hover:text-white rounded-lg bg-zinc-900 border border-zinc-800 hover:border-zinc-700 transition flex items-center gap-1.5 text-xs font-semibold px-3" title="Configurações de Dificuldade">
+        <button id="openSettingsBtn" class="p-2 text-zinc-400 hover:text-white rounded-lg bg-zinc-900 border border-zinc-800 hover:border-zinc-700 transition flex items-center gap-1.5 text-xs font-semibold sm:px-3" title="Configurações de Dificuldade">
           <i data-lucide="sliders-horizontal" class="w-4 h-4"></i>
           <span class="hidden sm:inline">Configurar</span>
         </button>
@@ -246,7 +317,7 @@
           <button class="time-btn px-2 py-1.5 rounded-md font-semibold text-zinc-400 hover:text-white transition" data-time="0">Livre</button>
         </div>
 
-        <button id="gameActionBtn" class="px-4 py-2 rounded-lg font-bold text-sm bg-emerald-600 hover:bg-emerald-500 text-white shadow-md transition flex items-center gap-1.5">
+        <button id="gameActionBtn" class="px-3.5 sm:px-4 py-2 rounded-lg font-bold text-sm bg-emerald-600 hover:bg-emerald-500 text-white shadow-md transition flex items-center gap-1.5">
           <i data-lucide="play" class="w-4 h-4 fill-white"></i>
           <span>Começar</span>
         </button>
@@ -256,7 +327,7 @@
   </header>
 
   <!-- CONTEÚDO PRINCIPAL -->
-  <main class="flex-1 max-w-[1440px] mx-auto w-full px-4 sm:px-6 py-6 flex flex-col gap-5">
+  <main class="flex-1 max-w-[1440px] mx-auto w-full px-4 sm:px-6 py-5 flex flex-col gap-5">
 
     <!-- BANNER DE INSTRUÇÃO DO MODO ATIVO -->
     <div id="modeBanner" class="bg-zinc-900/90 border border-zinc-800 rounded-xl px-4 py-3 flex flex-wrap items-center justify-between gap-2 text-xs">
@@ -269,6 +340,34 @@
           <i data-lucide="check" class="w-3.5 h-3.5"></i> Progresso salvo
         </span>
         <div id="modeExtraStatus" class="font-bold text-zinc-400"></div>
+      </div>
+    </div>
+
+    <!-- SELETOR DE SUBMODO DA ORDEM ALFABÉTICA (TODOS OS PAÍSES vs POR CONTINENTE) -->
+    <div id="alphaSubModeBar" class="hidden bg-zinc-900 border border-zinc-800 rounded-xl p-3 flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+      <div class="flex items-center gap-2">
+        <i data-lucide="layers" class="w-4 h-4 text-amber-400 shrink-0"></i>
+        <span class="text-xs font-bold text-zinc-200">Tipo de Ordem Alfabética:</span>
+      </div>
+      <div class="flex bg-black p-1 rounded-lg border border-zinc-800 gap-1">
+        <button id="alphaSubGlobalBtn" class="alpha-sub-btn flex-1 sm:flex-initial px-3 py-1.5 rounded-md text-xs font-bold bg-white text-black transition">
+          Todos os Países (A–Z Geral)
+        </button>
+        <button id="alphaSubContinentBtn" class="alpha-sub-btn flex-1 sm:flex-initial px-3 py-1.5 rounded-md text-xs font-bold text-zinc-400 hover:text-white transition">
+          Por Continente (A–Z)
+        </button>
+      </div>
+    </div>
+
+    <!-- SELETOR DE CONTINENTE ATIVO (PARA ORDEM ALFABÉTICA POR CONTINENTE) -->
+    <div id="alphaContinentSelectorBar" class="hidden bg-zinc-900/70 border border-zinc-800 rounded-xl p-2.5 flex-wrap items-center justify-between gap-2">
+      <span class="text-xs font-semibold text-zinc-400 px-2">Continente em andamento (clique para alternar):</span>
+      <div class="flex flex-wrap gap-1.5" id="alphaContinentPills">
+        <button data-cont="Africa" class="alpha-cont-pill px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-400 text-black transition">África</button>
+        <button data-cont="Americas" class="alpha-cont-pill px-3 py-1.5 rounded-lg text-xs font-bold bg-zinc-800 text-zinc-300 hover:text-white transition">Américas</button>
+        <button data-cont="Asia" class="alpha-cont-pill px-3 py-1.5 rounded-lg text-xs font-bold bg-zinc-800 text-zinc-300 hover:text-white transition">Ásia</button>
+        <button data-cont="Europa" class="alpha-cont-pill px-3 py-1.5 rounded-lg text-xs font-bold bg-zinc-800 text-zinc-300 hover:text-white transition">Europa</button>
+        <button data-cont="Oceania" class="alpha-cont-pill px-3 py-1.5 rounded-lg text-xs font-bold bg-zinc-800 text-zinc-300 hover:text-white transition">Oceania</button>
       </div>
     </div>
 
@@ -342,7 +441,7 @@
       </button>
     </section>
 
-    <!-- PAINEL DE DICA ATIVA (FORMATAÇÃO APRIMORADA) -->
+    <!-- PAINEL DE DICA ATIVA -->
     <div id="hintBanner" class="hidden bg-zinc-900/95 border border-amber-500/40 rounded-xl px-4 py-3.5 items-center justify-between gap-4 shadow-lg">
       <div class="flex items-center gap-3.5 min-w-0">
         <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
@@ -364,7 +463,7 @@
     <!-- CAMPO DE DIGITAÇÃO + BOTÕES DE DICA E PULAR -->
     <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full">
       <div class="relative flex-1 flex items-center">
-        <div class="absolute left-6 flex items-center pointer-events-none">
+        <div class="absolute left-5 sm:left-6 flex items-center pointer-events-none">
           <i data-lucide="search" class="w-5 h-5 text-zinc-500"></i>
         </div>
         <input 
@@ -375,40 +474,51 @@
           autocorrect="off" 
           spellcheck="false"
           placeholder="Clique em 'Começar' para iniciar..." 
-          class="w-full pl-16 pr-36 py-3.5 bg-zinc-900 border-2 border-zinc-800 focus:border-zinc-500 rounded-xl text-base font-medium placeholder-zinc-500 text-white outline-none transition disabled:opacity-50 disabled:cursor-not-allowed shadow-inner"
+          class="w-full pl-14 sm:pl-16 pr-32 sm:pr-36 py-3.5 bg-zinc-900 border-2 border-zinc-800 focus:border-zinc-500 rounded-xl text-sm sm:text-base font-medium placeholder-zinc-500 text-white outline-none transition disabled:opacity-50 disabled:cursor-not-allowed shadow-inner"
         >
-        <span id="typingFeedback" class="absolute right-4 text-xs font-bold px-2.5 py-1 rounded bg-zinc-800 text-zinc-400">
+        <span id="typingFeedback" class="absolute right-3 sm:right-4 text-xs font-bold px-2.5 py-1 rounded bg-zinc-800 text-zinc-400">
           Aguardando
         </span>
       </div>
 
-      <!-- Botão de Pular País (Exclusivo do Modo Ordem Alfabética) -->
-      <button id="skipAlphaBtn" disabled class="hidden px-5 py-3.5 rounded-xl font-bold text-sm bg-zinc-900 hover:bg-zinc-800 text-indigo-400 border-2 border-zinc-800 hover:border-indigo-500/40 disabled:opacity-40 disabled:cursor-not-allowed transition items-center justify-center gap-2 shrink-0">
-        <i data-lucide="skip-forward" class="w-4 h-4"></i>
-        <span id="skipAlphaBtnText">Pular (5)</span>
-      </button>
+      <div class="flex items-center gap-2 shrink-0">
+        <!-- Botão de Pular País (Exclusivo do Modo Ordem Alfabética) -->
+        <button id="skipAlphaBtn" disabled class="hidden flex-1 sm:flex-initial px-4 sm:px-5 py-3.5 rounded-xl font-bold text-sm bg-zinc-900 hover:bg-zinc-800 text-indigo-400 border-2 border-zinc-800 hover:border-indigo-500/40 disabled:opacity-40 disabled:cursor-not-allowed transition items-center justify-center gap-2 shrink-0">
+          <i data-lucide="skip-forward" class="w-4 h-4"></i>
+          <span id="skipAlphaBtnText">Pular (5)</span>
+        </button>
 
-      <!-- Botão de Dica -->
-      <button id="useHintBtn" disabled class="px-5 py-3.5 rounded-xl font-bold text-sm bg-zinc-900 hover:bg-zinc-800 text-amber-400 border-2 border-zinc-800 hover:border-amber-500/40 disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center justify-center gap-2 shrink-0">
-        <i data-lucide="lightbulb" class="w-4 h-4"></i>
-        <span id="hintBtnText">Dica (5)</span>
-      </button>
+        <!-- Botão de Dica -->
+        <button id="useHintBtn" disabled class="flex-1 sm:flex-initial px-4 sm:px-5 py-3.5 rounded-xl font-bold text-sm bg-zinc-900 hover:bg-zinc-800 text-amber-400 border-2 border-zinc-800 hover:border-amber-500/40 disabled:opacity-40 disabled:cursor-not-allowed transition flex items-center justify-center gap-2 shrink-0">
+          <i data-lucide="lightbulb" class="w-4 h-4"></i>
+          <span id="hintBtnText">Dica (5)</span>
+        </button>
+      </div>
     </div>
 
     <!-- GLOBO 3D INTERATIVO -->
     <section id="globeSection" class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-5 relative overflow-hidden shadow-lg group">
-      <div class="flex items-center justify-between pb-3 mb-2 border-b border-zinc-800">
+      <div class="flex flex-wrap items-center justify-between gap-2 pb-3 mb-2 border-b border-zinc-800">
         <div class="flex items-center gap-2">
           <i data-lucide="globe-2" class="w-4 h-4 text-white"></i>
           <h2 class="text-sm font-bold uppercase tracking-wider text-zinc-300">Globo Terrestre Interativo</h2>
         </div>
-        <div id="mapTooltip" class="text-xs font-bold px-2.5 py-1 rounded bg-black/80 border border-zinc-700/50 text-white transition-all">
-          Arraste para girar / Clique para aproximar
+        <div id="mapTooltip" class="text-xs font-bold px-3 py-1 rounded-lg bg-black/80 border border-zinc-700/60 text-white transition-all flex items-center gap-2">
+          <span>Arraste para girar / Clique para aproximar</span>
         </div>
       </div>
       
       <div class="w-full overflow-hidden flex items-center justify-center relative rounded-xl" id="mapWrapper">
-        <svg id="worldMapSvg" viewBox="0 0 960 440" class="w-full h-auto max-h-[440px] cursor-grab active:cursor-grabbing"></svg>
+        <svg id="worldMapSvg" viewBox="0 0 960 440" class="w-full h-auto max-h-[440px] cursor-grab active:cursor-grabbing">
+          <defs>
+            <!-- Gradiente Azul Profundo para os Mares e Oceanos -->
+            <radialGradient id="oceanGradient" cx="40%" cy="35%" r="65%">
+              <stop offset="0%" stop-color="#0f294a" />
+              <stop offset="65%" stop-color="#08182e" />
+              <stop offset="100%" stop-color="#040c18" />
+            </radialGradient>
+          </defs>
+        </svg>
         
         <button id="resetZoomBtn" class="absolute bottom-4 right-4 bg-zinc-800/90 backdrop-blur text-white px-3 py-2 rounded-lg text-xs font-bold border border-zinc-700 hover:bg-white hover:text-black transition-all duration-300 opacity-0 pointer-events-none shadow-lg flex items-center gap-1.5 z-10">
           <i data-lucide="rotate-ccw" class="w-4 h-4"></i> Resetar Globo
@@ -416,12 +526,24 @@
       </div>
     </section>
 
-    <!-- 5 COLUNAS DOS CONTINENTES LADO A LADO NO PC (SEM SCROLLBAR) -->
-    <div id="continentsContainer" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3 pb-16 items-start">
+    <!-- ATALHO MOBILE PARA DESLIZAR ENTRE CONTINENTES -->
+    <div id="mobileContinentNav" class="flex lg:hidden items-center justify-between gap-1.5 overflow-x-auto pb-1 mobile-swipe-container">
+      <span class="text-[11px] font-bold text-zinc-400 shrink-0 mr-1 flex items-center gap-1">
+        <i data-lucide="move-horizontal" class="w-3.5 h-3.5"></i> Deslize:
+      </span>
+      <button data-scroll-cont="Africa" class="mobile-cont-jump px-3 py-1.5 rounded-lg text-xs font-bold bg-zinc-900 border border-zinc-800 text-zinc-300 shrink-0">África</button>
+      <button data-scroll-cont="Americas" class="mobile-cont-jump px-3 py-1.5 rounded-lg text-xs font-bold bg-zinc-900 border border-zinc-800 text-zinc-300 shrink-0">Américas</button>
+      <button data-scroll-cont="Asia" class="mobile-cont-jump px-3 py-1.5 rounded-lg text-xs font-bold bg-zinc-900 border border-zinc-800 text-zinc-300 shrink-0">Ásia</button>
+      <button data-scroll-cont="Europa" class="mobile-cont-jump px-3 py-1.5 rounded-lg text-xs font-bold bg-zinc-900 border border-zinc-800 text-zinc-300 shrink-0">Europa</button>
+      <button data-scroll-cont="Oceania" class="mobile-cont-jump px-3 py-1.5 rounded-lg text-xs font-bold bg-zinc-900 border border-zinc-800 text-zinc-300 shrink-0">Oceania</button>
+    </div>
+
+    <!-- 5 COLUNAS DOS CONTINENTES (SWIPE LATERAL NO CELULAR / 5 COLUNAS FIXAS NO PC) -->
+    <div id="continentsContainer" class="flex lg:grid lg:grid-cols-5 overflow-x-auto lg:overflow-visible snap-x snap-mandatory gap-3 pb-16 items-start mobile-swipe-container -mx-4 px-4 sm:mx-0 sm:px-0">
       <!-- Gerado dinamicamente via JS -->
     </div>
 
-    <!-- TELA DO MODO ORDEM ALFABÉTICA (A-Z) -->
+    <!-- TELA DO MODO ORDEM ALFABÉTICA GLOBAL (A-Z) -->
     <div id="alphabeticalContainer" class="hidden pb-16">
       <div class="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 sm:p-5 shadow-sm">
         <div class="flex flex-wrap items-center justify-between gap-2 pb-3 mb-4 border-b border-zinc-800">
@@ -433,7 +555,7 @@
             Inicie o jogo para começar pelo #001
           </span>
         </div>
-        <div id="alphabeticalGrid" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3 items-start">
+        <div id="alphabeticalGrid" class="flex lg:grid lg:grid-cols-5 overflow-x-auto lg:overflow-visible snap-x snap-mandatory gap-3 items-start mobile-swipe-container">
           <!-- 5 colunas sequenciais geradas via JS -->
         </div>
       </div>
@@ -622,7 +744,7 @@
 
   <!-- SCRIPT DO JOGO -->
   <script>
-    // BASE DE DADOS COMPLETA (197 PAÍSES COM CAPITAIS, CIDADES E PERSONALIDADES PARA DICAS)
+    // BASE DE DADOS COMPLETA (197 PAÍSES)
     const COUNTRIES_DB = [
       // AMÉRICAS (35)
       { id: "028", name: "Antígua e Barbuda", continent: "Americas", flag: "ag", syn: ["antigua e barbuda", "antigua barbuda", "antigua"], capital: "Saint John's", capSyn: ["saint johns", "st johns", "sao joao"], city: "English Harbour", person: "Viv Richards (Atleta de Críquete)" },
@@ -833,10 +955,28 @@
     ];
 
     const TOTAL_COUNTRIES = COUNTRIES_DB.length;
+    const CONTINENT_KEYS = ['Africa', 'Americas', 'Asia', 'Europa', 'Oceania'];
+    const CONTINENT_NAMES = {
+      Africa: 'África',
+      Americas: 'Américas',
+      Asia: 'Ásia',
+      Europa: 'Europa',
+      Oceania: 'Oceania'
+    };
 
+    // Ordem Alfabética Global
     const ALPHABETICAL_ORDER = COUNTRIES_DB
       .map((c, originalIndex) => ({ ...c, originalIndex }))
       .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
+
+    // Ordem Alfabética por Continente
+    const CONTINENT_ALPHA_ORDER = {};
+    CONTINENT_KEYS.forEach(key => {
+      CONTINENT_ALPHA_ORDER[key] = COUNTRIES_DB
+        .map((c, originalIndex) => ({ ...c, originalIndex }))
+        .filter(c => c.continent === key)
+        .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
+    });
 
     const MICRO_STATES_COORDS = [
       { id: "336", coords: [12.4534, 41.9029] },
@@ -893,8 +1033,8 @@
     };
 
     // CHAVES DE SALVAMENTO LOCAL
-    const STORAGE_STATE_KEY = 'voltaAoMundo_state_v3';
-    const STORAGE_SETTINGS_KEY = 'voltaAoMundo_settings_v3';
+    const STORAGE_STATE_KEY = 'voltaAoMundo_state_v4';
+    const STORAGE_SETTINGS_KEY = 'voltaAoMundo_settings_v4';
 
     // CONFIGURAÇÕES DO JOGADOR
     let gameSettings = {
@@ -914,13 +1054,17 @@
 
     // ESTADO DO JOGO
     let currentGameMode = 'classic'; // 'classic' | 'alphabetical' | 'hardcore' | 'flags'
+    let alphaSubMode = 'global'; // 'global' | 'continent'
+    let activeAlphaContinent = 'Africa';
+    let continentAlphaSteps = { Africa: 0, Americas: 0, Asia: 0, Europa: 0, Oceania: 0 };
     let isPlaying = false;
     let isGameOver = false;
     let selectedDurationMinutes = 15;
     let timeRemaining = 15 * 60;
     let timerInterval = null;
     let guessedCountries = new Set();
-    let skippedCountries = new Set(); // Países pulados no modo Ordem Alfabética
+    let skippedCountries = new Set();
+    let completedContinents = new Set();
     let currentAlphaStep = 0;
     let pendingHardcoreCountryIdx = null;
     let currentFlagTargetIdx = null;
@@ -928,6 +1072,7 @@
     let alphaSkipsRemaining = 5;
     let flagSwapsRemaining = 5;
     let pendingModeSwitch = null;
+    let pendingSubModeSwitch = null;
     let isMuted = false;
     let countriesGeoGlobal = []; 
 
@@ -949,10 +1094,19 @@
     const alphabeticalContainer = document.getElementById('alphabeticalContainer');
     const alphabeticalGrid = document.getElementById('alphabeticalGrid');
     const alphaNextHint = document.getElementById('alphaNextHint');
+    const alphaSubModeBar = document.getElementById('alphaSubModeBar');
+    const alphaSubGlobalBtn = document.getElementById('alphaSubGlobalBtn');
+    const alphaSubContinentBtn = document.getElementById('alphaSubContinentBtn');
+    const alphaContinentSelectorBar = document.getElementById('alphaContinentSelectorBar');
+    const alphaContinentPills = document.querySelectorAll('.alpha-cont-pill');
+    const mobileContinentNav = document.getElementById('mobileContinentNav');
     const modeBadge = document.getElementById('modeBadge');
     const modeDescription = document.getElementById('modeDescription');
     const modeExtraStatus = document.getElementById('modeExtraStatus');
     const mapTooltip = document.getElementById('mapTooltip');
+    const floatingMapTooltip = document.getElementById('floatingMapTooltip');
+    const floatingTooltipFlag = document.getElementById('floatingTooltipFlag');
+    const floatingTooltipText = document.getElementById('floatingTooltipText');
     const resetZoomBtn = document.getElementById('resetZoomBtn');
     const gameOverModal = document.getElementById('gameOverModal');
     const confirmModal = document.getElementById('confirmModal');
@@ -973,7 +1127,6 @@
     const skipFlagBtnText = document.getElementById('skipFlagBtnText');
     const autoSaveBadge = document.getElementById('autoSaveBadge');
 
-    // FUNÇÃO PARA OCULTAR O BANNER DE DICA
     function hideHintBanner() {
       hintBanner.classList.add('hidden');
       hintBanner.classList.remove('flex');
@@ -1007,30 +1160,50 @@
       try {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         if (audioCtx.state === 'suspended') audioCtx.resume();
+        const now = audioCtx.currentTime;
+
+        if (type === 'continent') {
+          // Acorde triunfal para conquista de continente
+          const freqs = [523.25, 659.25, 783.99, 1046.50];
+          freqs.forEach((f, idx) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(f, now + idx * 0.08);
+            gain.gain.setValueAtTime(0.11, now + idx * 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.45);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now + idx * 0.08);
+            osc.stop(now + idx * 0.08 + 0.45);
+          });
+          return;
+        }
+
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.connect(gain);
         gain.connect(audioCtx.destination);
         if (type === 'hit') {
           osc.type = 'triangle';
-          osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(659.25, audioCtx.currentTime + 0.1);
-          gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
-          osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+          osc.frequency.setValueAtTime(523.25, now);
+          osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.1);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+          osc.start(); osc.stop(now + 0.2);
         } else if (type === 'step') {
           osc.type = 'sine';
-          osc.frequency.setValueAtTime(440, audioCtx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(523.25, audioCtx.currentTime + 0.1);
-          gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
-          osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+          osc.frequency.setValueAtTime(440, now);
+          osc.frequency.exponentialRampToValueAtTime(523.25, now + 0.1);
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+          osc.start(); osc.stop(now + 0.15);
         } else if (type === 'duplicate') {
           osc.type = 'sine';
-          osc.frequency.setValueAtTime(220, audioCtx.currentTime);
-          gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
-          osc.start(); osc.stop(audioCtx.currentTime + 0.12);
+          osc.frequency.setValueAtTime(220, now);
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+          osc.start(); osc.stop(now + 0.12);
         }
       } catch (e) {}
     }
@@ -1039,7 +1212,42 @@
       return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, "").trim();
     }
 
-    // PERSISTÊNCIA DE PROGRESSO E CONFIGURAÇÕES (LOCALSTORAGE)
+    // ANIMAÇÃO DE CONTINENTE COMPLETO
+    function triggerContinentCelebration(contKey) {
+      const title = CONTINENT_NAMES[contKey] || contKey;
+      playSound('continent');
+
+      // Toast flutuante comemorativo
+      const toast = document.createElement('div');
+      toast.className = 'continent-toast bg-zinc-900/95 backdrop-blur-md border-2 border-emerald-500 px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4';
+      toast.innerHTML = `
+        <div class="w-12 h-12 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-2xl shrink-0">
+          🏆
+        </div>
+        <div>
+          <span class="text-[11px] font-extrabold uppercase tracking-widest text-emerald-400 block">Continente Conquistado!</span>
+          <h4 class="text-lg font-black text-white">Você completou 100% de ${title}!</h4>
+        </div>
+      `;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 4300);
+
+      // Explosão de confetes coloridos
+      const colors = ['#10b981', '#34d399', '#fbbf24', '#60a5fa', '#f472b6', '#ffffff'];
+      for (let i = 0; i < 48; i++) {
+        const conf = document.createElement('div');
+        conf.className = 'confetti-piece';
+        conf.style.left = (15 + Math.random() * 70) + 'vw';
+        conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        conf.style.setProperty('--drift', ((Math.random() - 0.5) * 200) + 'px');
+        conf.style.animationDuration = (2.2 + Math.random() * 2.2) + 's';
+        conf.style.animationDelay = (Math.random() * 0.4) + 's';
+        document.body.appendChild(conf);
+        setTimeout(() => conf.remove(), 5000);
+      }
+    }
+
+    // PERSISTÊNCIA DE PROGRESSO E CONFIGURAÇÕES
     function saveSettingsToStorage() {
       try {
         localStorage.setItem(STORAGE_SETTINGS_KEY, JSON.stringify(gameSettings));
@@ -1066,11 +1274,15 @@
         }
         const state = {
           currentGameMode,
+          alphaSubMode,
+          activeAlphaContinent,
+          continentAlphaSteps,
           isPlaying,
           selectedDurationMinutes,
           timeRemaining,
           guessedCountries: Array.from(guessedCountries),
           skippedCountries: Array.from(skippedCountries),
+          completedContinents: Array.from(completedContinents),
           currentAlphaStep,
           pendingHardcoreCountryIdx,
           currentFlagTargetIdx,
@@ -1098,7 +1310,7 @@
       if (isPlaying) saveGameProgress();
     });
 
-    // CONFIGURAÇÕES DE DIFICULDADE (OCULTA OPÇÕES QUE NÃO SE APLICAM AO MODO ATUAL)
+    // CONFIGURAÇÕES DE DIFICULDADE
     function syncSettingsModalInputs() {
       const modeNames = {
         classic: "Modo Clássico",
@@ -1108,32 +1320,27 @@
       };
       document.getElementById('settingsActiveModeBadge').innerText = modeNames[currentGameMode] || "Modo Clássico";
 
-      // Visibilidade contextual por modo de jogo
       document.getElementById('settingRowShowFlags').style.display = (currentGameMode === 'flags') ? 'none' : 'flex';
       document.getElementById('settingRowShowCapitals').style.display = (currentGameMode === 'classic') ? 'flex' : 'none';
       document.getElementById('settingRowAlphaSkips').style.display = (currentGameMode === 'alphabetical') ? 'flex' : 'none';
       document.getElementById('settingRowFlagSwaps').style.display = (currentGameMode === 'flags') ? 'flex' : 'none';
 
-      // Valores dos campos
       document.getElementById('settingShowFlags').checked = gameSettings.showFlagsBeforeGuess;
       document.getElementById('settingShowCapitals').checked = gameSettings.showCapitalsInClassic;
       document.getElementById('settingShowBorders').checked = gameSettings.showBordersOnMap;
 
-      // Dicas
       document.getElementById('settingAllowHints').checked = gameSettings.allowHints;
       document.getElementById('settingMaxHintsInput').value = gameSettings.maxHints;
       document.getElementById('settingHintsUnlimited').checked = gameSettings.hintsUnlimited;
       document.getElementById('settingMaxHintsInput').disabled = gameSettings.hintsUnlimited;
       document.getElementById('hintCountSelectorRow').style.display = gameSettings.allowHints ? 'flex' : 'none';
 
-      // Pulos na Ordem Alfabética
       document.getElementById('settingAllowAlphaSkips').checked = gameSettings.allowAlphaSkips;
       document.getElementById('settingMaxAlphaSkipsInput').value = gameSettings.maxAlphaSkips;
       document.getElementById('settingAlphaSkipsUnlimited').checked = gameSettings.alphaSkipsUnlimited;
       document.getElementById('settingMaxAlphaSkipsInput').disabled = gameSettings.alphaSkipsUnlimited;
       document.getElementById('alphaSkipCountRow').style.display = gameSettings.allowAlphaSkips ? 'flex' : 'none';
 
-      // Trocas no Modo Bandeiras
       document.getElementById('settingAllowFlagSwaps').checked = gameSettings.allowFlagSwaps;
       document.getElementById('settingMaxFlagSwapsInput').value = gameSettings.maxFlagSwaps;
       document.getElementById('settingFlagSwapsUnlimited').checked = gameSettings.flagSwapsUnlimited;
@@ -1157,8 +1364,15 @@
       updateActionButtonsLabels();
     }
 
+    function isAlphabeticalFinished() {
+      if (alphaSubMode === 'global') {
+        return currentAlphaStep >= ALPHABETICAL_ORDER.length;
+      } else {
+        return CONTINENT_KEYS.every(k => continentAlphaSteps[k] >= CONTINENT_ALPHA_ORDER[k].length);
+      }
+    }
+
     function updateActionButtonsLabels() {
-      // Botão de Dica
       if (gameSettings.allowHints) {
         if (gameSettings.hintsUnlimited) {
           hintBtnText.innerText = `Dica (∞)`;
@@ -1169,23 +1383,22 @@
         }
       }
 
-      // Botão de Pular (Modo Ordem Alfabética)
       if (currentGameMode === 'alphabetical' && gameSettings.allowAlphaSkips) {
         skipAlphaBtn.classList.remove('hidden');
         skipAlphaBtn.classList.add('flex');
+        const finished = isAlphabeticalFinished();
         if (gameSettings.alphaSkipsUnlimited) {
           skipAlphaBtnText.innerText = `Pular (∞)`;
-          skipAlphaBtn.disabled = !isPlaying || currentAlphaStep >= ALPHABETICAL_ORDER.length;
+          skipAlphaBtn.disabled = !isPlaying || finished;
         } else {
           skipAlphaBtnText.innerText = `Pular (${alphaSkipsRemaining})`;
-          skipAlphaBtn.disabled = !isPlaying || alphaSkipsRemaining <= 0 || currentAlphaStep >= ALPHABETICAL_ORDER.length;
+          skipAlphaBtn.disabled = !isPlaying || alphaSkipsRemaining <= 0 || finished;
         }
       } else {
         skipAlphaBtn.classList.add('hidden');
         skipAlphaBtn.classList.remove('flex');
       }
 
-      // Botão de Trocar Bandeira (Modo Bandeiras)
       if (currentGameMode === 'flags') {
         if (!gameSettings.allowFlagSwaps) {
           skipFlagBtn.classList.add('hidden');
@@ -1264,17 +1477,50 @@
       settingsModal.classList.add('hidden');
     });
 
-    // SISTEMA DE DICAS ALEATÓRIAS (FORMATAÇÃO CORRIGIDA E SUPORTE À CAPITAL NO MODO HARDCORE)
+    // OBTER PAÍS-ALVO ATUAL NA ORDEM ALFABÉTICA (GLOBAL OU POR CONTINENTE)
+    function getCurrentAlphaTargetItem() {
+      if (alphaSubMode === 'global') {
+        if (currentAlphaStep >= ALPHABETICAL_ORDER.length) return null;
+        return ALPHABETICAL_ORDER[currentAlphaStep];
+      } else {
+        const list = CONTINENT_ALPHA_ORDER[activeAlphaContinent];
+        const step = continentAlphaSteps[activeAlphaContinent];
+        if (!list || step >= list.length) return null;
+        return list[step];
+      }
+    }
+
+    // AVANÇAR PARA O PRÓXIMO CONTINENTE DISPONÍVEL QUANDO O ATUAL TERMINAR
+    function checkAndAdvanceAlphaContinent() {
+      if (alphaSubMode !== 'continent') return;
+      const curList = CONTINENT_ALPHA_ORDER[activeAlphaContinent];
+      if (continentAlphaSteps[activeAlphaContinent] < curList.length) return;
+
+      for (const k of CONTINENT_KEYS) {
+        if (continentAlphaSteps[k] < CONTINENT_ALPHA_ORDER[k].length) {
+          activeAlphaContinent = k;
+          scrollToContinentColumn(k);
+          break;
+        }
+      }
+    }
+
+    function scrollToContinentColumn(contKey) {
+      const col = document.querySelector(`#continentsContainer section[data-continent="${contKey}"]`);
+      if (col && window.innerWidth < 1024) {
+        col.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      }
+    }
+
+    // SISTEMA DE DICAS ALEATÓRIAS
     function triggerRandomHint() {
       if (!isPlaying || !gameSettings.allowHints) return;
       if (!gameSettings.hintsUnlimited && hintsRemaining <= 0) return;
 
-      // Determinar o país-alvo da dica
       let targetIdx = null;
       if (currentGameMode === 'alphabetical') {
-        if (currentAlphaStep < ALPHABETICAL_ORDER.length) {
-          targetIdx = ALPHABETICAL_ORDER[currentAlphaStep].originalIndex;
-        }
+        const targetItem = getCurrentAlphaTargetItem();
+        if (targetItem) targetIdx = targetItem.originalIndex;
       } else if (currentGameMode === 'flags') {
         targetIdx = currentFlagTargetIdx;
       } else if (currentGameMode === 'hardcore' && pendingHardcoreCountryIdx !== null) {
@@ -1292,7 +1538,6 @@
       if (targetIdx === null || targetIdx === undefined) return;
       const country = COUNTRIES_DB[targetIdx];
 
-      // CASO 1: Modo Hardcore na Etapa 2 (Adivinhando a Capital do país)
       if (currentGameMode === 'hardcore' && pendingHardcoreCountryIdx !== null) {
         const primaryCapital = country.capital.split('/')[0].trim();
         const cleanCapLetters = primaryCapital.replace(/[^a-zA-ZÀ-ÿ]/g, '');
@@ -1311,11 +1556,8 @@
         } else {
           hintTextContent.innerHTML = `Além de <strong class="text-white">${country.city}</strong>, a capital oficial de <strong class="text-white">${country.name}</strong> começa com <strong class="text-amber-300">"${firstLetter}"</strong> (${prefix}...).`;
         }
-      } 
-      // CASO 2: Dica para adivinhar o País
-      else {
+      } else {
         const availableTypes = ['letter', 'city', 'person'];
-        // Evita dar a capital se o nome da capital contiver o próprio nome do país (ex: Mônaco, Singapura, Cidade do México)
         const normCountry = normalize(country.name);
         const normCapital = normalize(country.capital);
         if (!normCapital.includes(normCountry) && !normCountry.includes(normCapital)) {
@@ -1326,8 +1568,7 @@
         }
 
         const chosenType = availableTypes[Math.floor(Math.random() * availableTypes.length)];
-        const continentNames = { Americas: 'Américas', Europa: 'Europa', Asia: 'Ásia', Africa: 'África', Oceania: 'Oceania' };
-        const contLabel = continentNames[country.continent] || country.continent;
+        const contLabel = CONTINENT_NAMES[country.continent] || country.continent;
 
         if (chosenType === 'letter') {
           const prefix = country.name.substring(0, 2).toUpperCase();
@@ -1362,59 +1603,71 @@
     useHintBtn.addEventListener('click', triggerRandomHint);
     document.getElementById('closeHintBtn').addEventListener('click', hideHintBanner);
 
-    // FUNÇÃO DE PULAR PAÍS NO MODO ORDEM ALFABÉTICA
+    // FUNÇÃO DE PULAR PAÍS NO MODO ORDEM ALFABÉTICA (GLOBAL E POR CONTINENTE)
     function skipCurrentAlphabeticalCountry() {
       if (!isPlaying || currentGameMode !== 'alphabetical') return;
       if (!gameSettings.allowAlphaSkips) return;
       if (!gameSettings.alphaSkipsUnlimited && alphaSkipsRemaining <= 0) return;
-      if (currentAlphaStep >= ALPHABETICAL_ORDER.length) return;
 
-      const targetItem = ALPHABETICAL_ORDER[currentAlphaStep];
+      const targetItem = getCurrentAlphaTargetItem();
+      if (!targetItem) return;
+
       skippedCountries.add(targetItem.originalIndex);
-
       if (!gameSettings.alphaSkipsUnlimited) {
         alphaSkipsRemaining--;
       }
 
-      // Esconde qualquer dica aberta anteriormente
       hideHintBanner();
 
-      // Atualiza célula na grade alfabética como revelada/pulada
-      const alphaCell = document.getElementById(`alpha-cell-${currentAlphaStep}`);
-      if (alphaCell) {
-        alphaCell.classList.remove('bg-zinc-900/50', 'border-zinc-800/70', 'border-white', 'ring-1', 'ring-white/40', 'bg-zinc-800/80');
-        alphaCell.classList.add('bg-indigo-950/30', 'border-indigo-500/50');
-        const lbl = alphaCell.querySelector('.alpha-label');
-        if (lbl) {
-          lbl.innerText = `${targetItem.name} (Pulou)`;
-          lbl.classList.remove('text-zinc-500', 'text-white');
-          lbl.classList.add('text-indigo-400', 'font-bold');
+      if (alphaSubMode === 'global') {
+        const alphaCell = document.getElementById(`alpha-cell-${currentAlphaStep}`);
+        if (alphaCell) {
+          alphaCell.classList.remove('bg-zinc-900/50', 'border-zinc-800/70', 'border-white', 'ring-1', 'ring-white/40', 'bg-zinc-800/80');
+          alphaCell.classList.add('bg-indigo-950/30', 'border-indigo-500/50');
+          const lbl = alphaCell.querySelector('.alpha-label');
+          if (lbl) {
+            lbl.innerText = `${targetItem.name} (Pulou)`;
+            lbl.classList.remove('text-zinc-500', 'text-white');
+            lbl.classList.add('text-indigo-400', 'font-bold');
+          }
+          const flag = alphaCell.querySelector('.alpha-flag');
+          if (flag) {
+            flag.classList.remove('w-0', 'opacity-0', 'scale-50', 'opacity-80');
+            flag.classList.add('w-6', 'opacity-100', 'scale-100');
+          }
         }
-        const flag = alphaCell.querySelector('.alpha-flag');
-        if (flag) {
-          flag.classList.remove('w-0', 'opacity-0', 'scale-50', 'opacity-80');
-          flag.classList.add('w-6', 'opacity-100', 'scale-100');
+        currentAlphaStep++;
+      } else {
+        const cell = document.getElementById(`cell-${targetItem.originalIndex}`);
+        if (cell) {
+          cell.classList.remove('bg-zinc-950/60', 'border-zinc-800/80', 'border-amber-400', 'ring-1', 'ring-amber-400/40', 'bg-zinc-800/80');
+          cell.classList.add('bg-indigo-950/30', 'border-indigo-500/50');
+          const lbl = cell.querySelector('.country-label');
+          if (lbl) {
+            lbl.innerText = `${targetItem.name} (Pulou)`;
+            lbl.classList.remove('text-zinc-500', 'text-amber-300');
+            lbl.classList.add('text-indigo-400', 'font-bold');
+          }
+          const flag = cell.querySelector('.country-flag');
+          if (flag) {
+            flag.classList.remove('w-0', 'opacity-0', 'scale-50', 'opacity-80');
+            flag.classList.add('w-6', 'opacity-100', 'scale-100');
+          }
         }
+        continentAlphaSteps[activeAlphaContinent]++;
+        checkAndAdvanceAlphaContinent();
       }
 
-      // Atualiza no mapa como revelado/pulado e gira o globo para mostrar onde fica
       updateMapCountry(targetItem.originalIndex, 'skipped');
       autoRotateToCountry(targetItem.id);
 
       lastGuessedDisplay.innerText = `Pulou: ${targetItem.name}`;
       typingFeedback.innerText = `Pulou: ${targetItem.name}`;
-      typingFeedback.className = 'absolute right-4 text-xs font-bold px-2.5 py-1 rounded bg-indigo-950/60 text-indigo-300 border border-indigo-500/40';
+      typingFeedback.className = 'absolute right-3 sm:right-4 text-xs font-bold px-2.5 py-1 rounded bg-indigo-950/60 text-indigo-300 border border-indigo-500/40';
       countryInput.value = '';
       playSound('step');
 
-      currentAlphaStep++;
-      if (currentAlphaStep < ALPHABETICAL_ORDER.length) {
-        const nextChar = ALPHABETICAL_ORDER[currentAlphaStep].name.charAt(0).toUpperCase();
-        countryInput.placeholder = `Próximo: #${String(currentAlphaStep + 1).padStart(3, '0')} na ordem alfabética (Letra ${nextChar})...`;
-        modeExtraStatus.innerText = `Posição atual: #${String(currentAlphaStep + 1).padStart(3, '0')} / ${TOTAL_COUNTRIES}`;
-      }
-
-      highlightCurrentAlphaSlot();
+      updateAlphaPromptsAndHighlights();
       updateActionButtonsLabels();
       updateCounters();
       saveGameProgress();
@@ -1423,7 +1676,7 @@
 
     skipAlphaBtn.addEventListener('click', skipCurrentAlphabeticalCountry);
 
-    // MODO BANDEIRAS (SORTEIO E CONTROLE DE TROCAS)
+    // MODO BANDEIRAS
     function pickNextFlagTarget() {
       const remaining = [];
       for (let i = 0; i < TOTAL_COUNTRIES; i++) {
@@ -1540,7 +1793,7 @@
       }
     }
 
-    // RENDERIZAÇÃO DAS 5 COLUNAS DOS CONTINENTES
+    // RENDERIZAÇÃO DAS 5 COLUNAS DOS CONTINENTES (SWIPE MOBILE E 5 COLUNAS PC)
     function renderContinentTables() {
       continentsContainer.innerHTML = '';
       const continentsConfig = [
@@ -1553,28 +1806,29 @@
 
       const preShowFlags = gameSettings.showFlagsBeforeGuess && currentGameMode !== 'flags';
       const preShowCapitals = gameSettings.showCapitalsInClassic && currentGameMode === 'classic';
+      const isAlphaByCont = (currentGameMode === 'alphabetical' && alphaSubMode === 'continent');
 
       continentsConfig.forEach(conf => {
-        const list = COUNTRIES_DB
-          .map((c, originalIndex) => ({ ...c, originalIndex }))
-          .filter(c => c.continent === conf.key)
-          .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
+        const list = CONTINENT_ALPHA_ORDER[conf.key];
 
         const section = document.createElement('section');
         section.dataset.continent = conf.key;
-        section.className = "bg-zinc-900 border border-zinc-800 rounded-xl p-3.5 shadow-sm w-full min-w-0 flex flex-col";
+        section.className = "bg-zinc-900 border border-zinc-800 rounded-xl p-3.5 shadow-sm min-w-[84vw] sm:min-w-[300px] lg:min-w-0 w-full snap-center shrink-0 flex flex-col transition-all duration-300";
 
         section.innerHTML = `
-          <div class="flex items-center justify-between pb-2.5 mb-2.5 border-b border-zinc-800">
+          <div class="flex items-center justify-between pb-2.5 mb-2.5 border-b border-zinc-800 cursor-pointer" data-cont-header="${conf.key}">
             <h3 class="text-xs font-extrabold uppercase tracking-wider text-white flex items-center justify-between w-full">
-              <span>${conf.title}</span>
+              <span class="flex items-center gap-1.5">
+                <span id="trophy-${conf.key}" class="hidden">🏆</span>
+                <span>${conf.title}</span>
+              </span>
               <span class="text-[11px] px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 font-bold border border-zinc-700" id="badge-${conf.key}">
                 0/${list.length}
               </span>
             </h3>
           </div>
           <div class="flex flex-col gap-1.5">
-            ${list.map(item => {
+            ${list.map((item, localIdx) => {
               const showCapRow = currentGameMode === 'hardcore' || preShowCapitals;
               const capText = preShowCapitals ? `📍 ${item.capital}` : `Capital: • • •`;
               const flagClasses = preShowFlags 
@@ -1584,7 +1838,10 @@
               return `
                 <div id="cell-${item.originalIndex}" class="px-2.5 py-2 rounded-lg border border-zinc-800/80 bg-zinc-950/60 flex items-center justify-between gap-2 transition-all min-w-0">
                   <div class="flex flex-col min-w-0 flex-1">
-                    <span class="country-label text-[11px] font-semibold text-zinc-500 uppercase tracking-wider select-none truncate">• • •</span>
+                    <div class="flex items-center gap-1.5 min-w-0">
+                      ${isAlphaByCont ? `<span class="text-[10px] font-mono font-bold text-zinc-500 shrink-0">#${String(localIdx + 1).padStart(2, '0')}</span>` : ''}
+                      <span class="country-label text-[11px] font-semibold text-zinc-500 uppercase tracking-wider select-none truncate">• • •</span>
+                    </div>
                     <span class="capital-label text-[10px] text-zinc-400 font-medium truncate ${showCapRow ? 'block' : 'hidden'}">${capText}</span>
                   </div>
                   <img src="https://flagcdn.com/w40/${item.flag}.png" class="${flagClasses}" alt="Bandeira">
@@ -1593,11 +1850,24 @@
             }).join('')}
           </div>
         `;
+
+        // No modo Ordem Alfabética por Continente, clicar no cabeçalho da coluna seleciona aquele continente
+        section.querySelector(`[data-cont-header="${conf.key}"]`).addEventListener('click', () => {
+          if (currentGameMode === 'alphabetical' && alphaSubMode === 'continent') {
+            if (continentAlphaSteps[conf.key] < CONTINENT_ALPHA_ORDER[conf.key].length) {
+              activeAlphaContinent = conf.key;
+              updateAlphaPromptsAndHighlights();
+              saveGameProgress();
+              if (isPlaying) countryInput.focus();
+            }
+          }
+        });
+
         continentsContainer.appendChild(section);
       });
     }
 
-    // RENDERIZAÇÃO DA TELA DO MODO ORDEM ALFABÉTICA (5 COLUNAS A-Z)
+    // RENDERIZAÇÃO DA TELA DO MODO ORDEM ALFABÉTICA GLOBAL (5 COLUNAS A-Z)
     function renderAlphabeticalScreen() {
       alphabeticalGrid.innerHTML = '';
       const itemsPerCol = Math.ceil(ALPHABETICAL_ORDER.length / 5);
@@ -1613,7 +1883,7 @@
         const lastLetter = slice[slice.length - 1].name.charAt(0).toUpperCase();
 
         const col = document.createElement('div');
-        col.className = "bg-zinc-950/50 border border-zinc-800/80 rounded-xl p-3 w-full min-w-0 flex flex-col gap-1.5";
+        col.className = "bg-zinc-950/50 border border-zinc-800/80 rounded-xl p-3 min-w-[84vw] sm:min-w-[300px] lg:min-w-0 w-full snap-center shrink-0 flex flex-col gap-1.5";
         col.innerHTML = `
           <div class="flex items-center justify-between pb-2 mb-1 border-b border-zinc-800 text-[11px] font-bold text-zinc-400 uppercase">
             <span>#${String(start + 1).padStart(3, '0')} a #${String(start + slice.length).padStart(3, '0')}</span>
@@ -1638,34 +1908,94 @@
         `;
         alphabeticalGrid.appendChild(col);
       }
-      highlightCurrentAlphaSlot();
+      updateAlphaPromptsAndHighlights();
     }
 
-    function highlightCurrentAlphaSlot() {
+    function updateAlphaPromptsAndHighlights() {
+      // Limpa destaques anteriores
       document.querySelectorAll('[id^="alpha-cell-"]').forEach(el => {
         el.classList.remove('border-white', 'ring-1', 'ring-white/40', 'bg-zinc-800/80');
+      });
+      document.querySelectorAll('[id^="cell-"]').forEach(el => {
+        el.classList.remove('border-amber-400', 'ring-1', 'ring-amber-400/40', 'bg-zinc-800/80');
       });
 
       if (currentGameMode !== 'alphabetical') return;
 
-      if (currentAlphaStep < ALPHABETICAL_ORDER.length) {
-        const target = ALPHABETICAL_ORDER[currentAlphaStep];
-        const firstChar = target.name.charAt(0).toUpperCase();
-        const activeCell = document.getElementById(`alpha-cell-${currentAlphaStep}`);
-        if (activeCell && isPlaying) {
-          activeCell.classList.add('border-white', 'ring-1', 'ring-white/40', 'bg-zinc-800/80');
-          const lbl = activeCell.querySelector('.alpha-label');
-          if (lbl) {
-            lbl.innerText = `Vez: Letra ${firstChar}...`;
-            lbl.classList.remove('text-zinc-500');
-            lbl.classList.add('text-white');
+      // Atualiza botões de submodo
+      if (alphaSubMode === 'global') {
+        alphaSubGlobalBtn.className = "alpha-sub-btn flex-1 sm:flex-initial px-3 py-1.5 rounded-md text-xs font-bold bg-white text-black transition";
+        alphaSubContinentBtn.className = "alpha-sub-btn flex-1 sm:flex-initial px-3 py-1.5 rounded-md text-xs font-bold text-zinc-400 hover:text-white transition";
+        alphaContinentSelectorBar.classList.add('hidden');
+        alphaContinentSelectorBar.classList.remove('flex');
+
+        if (currentAlphaStep < ALPHABETICAL_ORDER.length) {
+          const target = ALPHABETICAL_ORDER[currentAlphaStep];
+          const firstChar = target.name.charAt(0).toUpperCase();
+          const activeCell = document.getElementById(`alpha-cell-${currentAlphaStep}`);
+          if (activeCell && isPlaying) {
+            activeCell.classList.add('border-white', 'ring-1', 'ring-white/40', 'bg-zinc-800/80');
+            const lbl = activeCell.querySelector('.alpha-label');
+            if (lbl && !guessedCountries.has(target.originalIndex) && !skippedCountries.has(target.originalIndex)) {
+              lbl.innerText = `Vez: Letra ${firstChar}...`;
+              lbl.classList.remove('text-zinc-500');
+              lbl.classList.add('text-white');
+            }
+          }
+          alphaNextHint.innerText = isPlaying 
+            ? `Próximo da fila: #${String(currentAlphaStep + 1).padStart(3, '0')} de ${TOTAL_COUNTRIES} (Começa com "${firstChar}")`
+            : `Clique em "Começar" para adivinhar a partir do #001 (Letra ${firstChar})`;
+          modeExtraStatus.innerText = `Posição Global: #${String(currentAlphaStep + 1).padStart(3, '0')} / ${TOTAL_COUNTRIES}`;
+          if (isPlaying) {
+            countryInput.placeholder = `Próximo Global: #${String(currentAlphaStep + 1).padStart(3, '0')} (Letra ${firstChar})...`;
+          }
+        } else {
+          alphaNextHint.innerText = `Sequência Alfabética Concluída!`;
+        }
+      } else {
+        // Submodo Por Continente
+        alphaSubContinentBtn.className = "alpha-sub-btn flex-1 sm:flex-initial px-3 py-1.5 rounded-md text-xs font-bold bg-white text-black transition";
+        alphaSubGlobalBtn.className = "alpha-sub-btn flex-1 sm:flex-initial px-3 py-1.5 rounded-md text-xs font-bold text-zinc-400 hover:text-white transition";
+        alphaContinentSelectorBar.classList.remove('hidden');
+        alphaContinentSelectorBar.classList.add('flex');
+
+        // Atualiza pílulas dos continentes
+        alphaContinentPills.forEach(pill => {
+          const k = pill.dataset.cont;
+          const step = continentAlphaSteps[k];
+          const total = CONTINENT_ALPHA_ORDER[k].length;
+          const done = step >= total;
+          if (k === activeAlphaContinent) {
+            pill.className = "alpha-cont-pill px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-400 text-black shadow transition";
+          } else if (done) {
+            pill.className = "alpha-cont-pill px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-950/60 text-emerald-400 border border-emerald-600/40 transition";
+          } else {
+            pill.className = "alpha-cont-pill px-3 py-1.5 rounded-lg text-xs font-bold bg-zinc-800 text-zinc-300 hover:text-white transition";
+          }
+          pill.innerText = `${CONTINENT_NAMES[k]} (${step}/${total})`;
+        });
+
+        const target = getCurrentAlphaTargetItem();
+        if (target) {
+          const step = continentAlphaSteps[activeAlphaContinent] + 1;
+          const total = CONTINENT_ALPHA_ORDER[activeAlphaContinent].length;
+          const firstChar = target.name.charAt(0).toUpperCase();
+          const contTitle = CONTINENT_NAMES[activeAlphaContinent];
+          const activeCell = document.getElementById(`cell-${target.originalIndex}`);
+          if (activeCell && isPlaying) {
+            activeCell.classList.add('border-amber-400', 'ring-1', 'ring-amber-400/40', 'bg-zinc-800/80');
+            const lbl = activeCell.querySelector('.country-label');
+            if (lbl && !guessedCountries.has(target.originalIndex) && !skippedCountries.has(target.originalIndex)) {
+              lbl.innerText = `Vez: Letra ${firstChar}...`;
+              lbl.classList.remove('text-zinc-500');
+              lbl.classList.add('text-amber-300');
+            }
+          }
+          modeExtraStatus.innerText = `${contTitle}: #${String(step).padStart(2, '0')}/${total} (Letra ${firstChar})`;
+          if (isPlaying) {
+            countryInput.placeholder = `${contTitle} (#${step}/${total}): país com a letra "${firstChar}"...`;
           }
         }
-        alphaNextHint.innerText = isPlaying 
-          ? `Próximo da fila: #${String(currentAlphaStep + 1).padStart(3, '0')} de ${TOTAL_COUNTRIES} (Começa com "${firstChar}")`
-          : `Clique em "Começar" para adivinhar a partir do #001 (Letra ${firstChar})`;
-      } else {
-        alphaNextHint.innerText = `Sequência Alfabética Concluída!`;
       }
     }
 
@@ -1685,7 +2015,7 @@
           const lbl = cell.querySelector('.country-label');
           if (lbl) {
             lbl.innerText = country.name;
-            lbl.classList.remove('text-zinc-500');
+            lbl.classList.remove('text-zinc-500', 'text-amber-300');
             lbl.classList.add('text-emerald-400', 'font-bold');
           }
           const capLbl = cell.querySelector('.capital-label');
@@ -1704,10 +2034,27 @@
       });
 
       skippedCountries.forEach(idx => {
+        const country = COUNTRIES_DB[idx];
+        const cell = document.getElementById(`cell-${idx}`);
+        if (cell) {
+          cell.classList.remove('bg-zinc-950/60', 'border-zinc-800/80');
+          cell.classList.add('bg-indigo-950/30', 'border-indigo-500/50');
+          const lbl = cell.querySelector('.country-label');
+          if (lbl) {
+            lbl.innerText = `${country.name} (Pulou)`;
+            lbl.classList.remove('text-zinc-500', 'text-amber-300');
+            lbl.classList.add('text-indigo-400', 'font-bold');
+          }
+          const flag = cell.querySelector('.country-flag');
+          if (flag) {
+            flag.classList.remove('w-0', 'opacity-0', 'scale-50', 'opacity-80');
+            flag.classList.add('w-6', 'opacity-100', 'scale-100');
+          }
+        }
         updateMapCountry(idx, 'skipped');
       });
 
-      // Atualiza células acertadas ou puladas no modo Ordem Alfabética
+      // Atualiza células acertadas ou puladas no modo Ordem Alfabética Global
       ALPHABETICAL_ORDER.forEach((item, globalOrderIdx) => {
         const alphaCell = document.getElementById(`alpha-cell-${globalOrderIdx}`);
         if (!alphaCell) return;
@@ -1743,7 +2090,6 @@
         }
       });
 
-      // Se houver país pendente no Hardcore
       if (currentGameMode === 'hardcore' && pendingHardcoreCountryIdx !== null) {
         const country = COUNTRIES_DB[pendingHardcoreCountryIdx];
         const cell = document.getElementById(`cell-${pendingHardcoreCountryIdx}`);
@@ -1766,7 +2112,7 @@
         updateMapCountry(pendingHardcoreCountryIdx, 'pending');
       }
 
-      highlightCurrentAlphaSlot();
+      updateAlphaPromptsAndHighlights();
       updateFlagChallengeUI();
       updateActionButtonsLabels();
       updateCounters();
@@ -1789,15 +2135,31 @@
         modeBadge.className = "px-2.5 py-1 rounded-md bg-white text-black font-extrabold uppercase tracking-wider";
         modeDescription.innerText = "Adivinhe todos os países do mundo em qualquer ordem nas 5 colunas abaixo.";
         modeExtraStatus.innerText = "";
+        alphaSubModeBar.classList.add('hidden');
+        alphaSubModeBar.classList.remove('flex');
+        alphaContinentSelectorBar.classList.add('hidden');
+        alphaContinentSelectorBar.classList.remove('flex');
         continentsContainer.classList.remove('hidden');
+        mobileContinentNav.classList.remove('hidden');
         alphabeticalContainer.classList.add('hidden');
       } else if (currentGameMode === 'alphabetical') {
         modeBadge.innerText = "Ordem Alfabética (A-Z)";
         modeBadge.className = "px-2.5 py-1 rounded-md bg-amber-400 text-black font-extrabold uppercase tracking-wider";
-        modeDescription.innerText = "Adivinhe os países rigorosamente na ordem alfabética, começando pelo #001.";
-        modeExtraStatus.innerText = `Posição atual: #${String(Math.min(currentAlphaStep + 1, TOTAL_COUNTRIES)).padStart(3, '0')} / ${TOTAL_COUNTRIES}`;
-        continentsContainer.classList.add('hidden');
-        alphabeticalContainer.classList.remove('hidden');
+        modeDescription.innerText = alphaSubMode === 'global'
+          ? "Adivinhe os países rigorosamente na ordem alfabética global (#001 a #197)."
+          : "Adivinhe os países em ordem alfabética dentro de cada continente.";
+        alphaSubModeBar.classList.remove('hidden');
+        alphaSubModeBar.classList.add('flex');
+
+        if (alphaSubMode === 'global') {
+          continentsContainer.classList.add('hidden');
+          mobileContinentNav.classList.add('hidden');
+          alphabeticalContainer.classList.remove('hidden');
+        } else {
+          continentsContainer.classList.remove('hidden');
+          mobileContinentNav.classList.remove('hidden');
+          alphabeticalContainer.classList.add('hidden');
+        }
       } else if (currentGameMode === 'hardcore') {
         modeBadge.innerText = "Modo Hardcore";
         modeBadge.className = "px-2.5 py-1 rounded-md bg-rose-600 text-white font-extrabold uppercase tracking-wider";
@@ -1805,23 +2167,78 @@
         modeExtraStatus.innerText = pendingHardcoreCountryIdx !== null 
           ? `🔥 Aguardando capital de: ${COUNTRIES_DB[pendingHardcoreCountryIdx].name}`
           : "Etapa 1: Digite um país";
+        alphaSubModeBar.classList.add('hidden');
+        alphaSubModeBar.classList.remove('flex');
+        alphaContinentSelectorBar.classList.add('hidden');
+        alphaContinentSelectorBar.classList.remove('flex');
         continentsContainer.classList.remove('hidden');
+        mobileContinentNav.classList.remove('hidden');
         alphabeticalContainer.classList.add('hidden');
       } else if (currentGameMode === 'flags') {
         modeBadge.innerText = "Modo Bandeiras";
         modeBadge.className = "px-2.5 py-1 rounded-md bg-emerald-400 text-black font-extrabold uppercase tracking-wider";
         modeDescription.innerText = "Identifique o país correspondente à bandeira sorteada em destaque.";
         modeExtraStatus.innerText = isPlaying ? `Restam ${TOTAL_COUNTRIES - guessedCountries.size} bandeiras` : "";
+        alphaSubModeBar.classList.add('hidden');
+        alphaSubModeBar.classList.remove('flex');
+        alphaContinentSelectorBar.classList.add('hidden');
+        alphaContinentSelectorBar.classList.remove('flex');
         continentsContainer.classList.remove('hidden');
+        mobileContinentNav.classList.remove('hidden');
         alphabeticalContainer.classList.add('hidden');
       }
 
       refreshBoardVisualState();
     }
 
-    // GLOBO 3D
+    // GLOBO 3D COM MARES E LAGOS EM AZUL ESCURO + TOOLTIP COM BANDEIRA
     let svgContainer, mapGroup, projection, svgPath;
     const INITIAL_SCALE = 210;
+
+    function showMapHoverTooltip(event, text, flagIso = null) {
+      // Atualiza o indicador fixo da barra do mapa
+      if (flagIso) {
+        mapTooltip.innerHTML = `<img src="https://flagcdn.com/w40/${flagIso}.png" class="w-5 h-auto rounded-sm shadow-sm inline-block" alt=""> <span>${text}</span>`;
+      } else {
+        mapTooltip.innerHTML = `<span>${text}</span>`;
+      }
+
+      // Em computadores (telas com mouse), exibe o tooltip flutuante ao lado do cursor
+      if (window.innerWidth >= 1024) {
+        floatingMapTooltip.classList.remove('hidden');
+        floatingMapTooltip.classList.add('flex');
+        floatingTooltipText.innerText = text;
+        if (flagIso) {
+          floatingTooltipFlag.src = `https://flagcdn.com/w40/${flagIso}.png`;
+          floatingTooltipFlag.classList.remove('hidden');
+        } else {
+          floatingTooltipFlag.classList.add('hidden');
+        }
+        positionFloatingTooltip(event);
+      }
+    }
+
+    function positionFloatingTooltip(event) {
+      if (floatingMapTooltip.classList.contains('hidden')) return;
+      const offset = 16;
+      let x = event.clientX + offset;
+      let y = event.clientY + offset;
+      if (x + 220 > window.innerWidth) x = event.clientX - 200;
+      if (y + 60 > window.innerHeight) y = event.clientY - 50;
+      floatingMapTooltip.style.left = `${x}px`;
+      floatingMapTooltip.style.top = `${y}px`;
+    }
+
+    function hideMapHoverTooltip() {
+      mapTooltip.innerHTML = `<span>Arraste para girar / Clique para aproximar</span>`;
+      floatingMapTooltip.classList.add('hidden');
+      floatingMapTooltip.classList.remove('flex');
+    }
+
+    function redrawGlobePaths() {
+      mapGroup.selectAll("path.map-country").attr("d", svgPath);
+      mapGroup.selectAll("path.map-lake").attr("d", svgPath);
+    }
 
     function initWorldMap() {
       svgContainer = d3.select("#worldMapSvg");
@@ -1845,6 +2262,7 @@
         .on('start', (event) => {
            rotate0 = projection.rotate();
            coords0 = [event.x, event.y];
+           floatingMapTooltip.classList.add('hidden');
         })
         .on('drag', (event) => {
            const k = 90 / projection.scale();
@@ -1854,7 +2272,7 @@
            ];
            rotate[1] = Math.max(-90, Math.min(90, rotate[1]));
            projection.rotate(rotate);
-           mapGroup.selectAll("path.map-country").attr("d", svgPath);
+           redrawGlobePaths();
            checkResetButtonVisibility();
         });
 
@@ -1868,7 +2286,7 @@
         
         projection.scale(newScale);
         ocean.attr("r", newScale);
-        mapGroup.selectAll("path.map-country").attr("d", svgPath);
+        redrawGlobePaths();
         checkResetButtonVisibility();
       }, { passive: false });
 
@@ -1917,30 +2335,47 @@
               if (foundCountry) {
                 const countryIdx = COUNTRIES_DB.indexOf(foundCountry);
                 if (guessedCountries.has(countryIdx) || skippedCountries.has(countryIdx) || isGameOver) {
-                  mapTooltip.innerText = currentGameMode === 'hardcore'
+                  const label = currentGameMode === 'hardcore'
                     ? `${foundCountry.name} (${foundCountry.capital})`
                     : foundCountry.name;
+                  showMapHoverTooltip(event, label, foundCountry.flag);
                 } else if (pendingHardcoreCountryIdx === countryIdx) {
-                  mapTooltip.innerText = `${foundCountry.name} (Capital: ???)`;
+                  showMapHoverTooltip(event, `${foundCountry.name} (Capital: ???)`, foundCountry.flag);
                 } else {
-                  mapTooltip.innerText = "???";
+                  showMapHoverTooltip(event, "???", null);
                 }
               } else if (foundTerritory) {
                 const ownerCountry = COUNTRIES_DB.find(c => c.id === foundTerritory.owner);
                 const ownerIdx = ownerCountry ? COUNTRIES_DB.indexOf(ownerCountry) : -1;
                 if ((ownerIdx !== -1 && (guessedCountries.has(ownerIdx) || skippedCountries.has(ownerIdx))) || isGameOver) {
-                  mapTooltip.innerText = `${foundTerritory.name} (${foundTerritory.ownerName})`;
+                  showMapHoverTooltip(event, `${foundTerritory.name} (${foundTerritory.ownerName})`, ownerCountry ? ownerCountry.flag : null);
                 } else {
-                  mapTooltip.innerText = "???";
+                  showMapHoverTooltip(event, "???", null);
                 }
               } else {
-                mapTooltip.innerText = "???";
+                showMapHoverTooltip(event, "???", null);
               }
             })
+            .on("mousemove", (event) => {
+              positionFloatingTooltip(event);
+            })
             .on("mouseout", () => {
-              mapTooltip.innerText = "Arraste para girar / Clique para aproximar";
+              hideMapHoverTooltip();
             })
             .on("click", (event, d) => clickedCountryZoom(event, d));
+
+          // Carrega os Grandes Lagos Mundiais para pintá-los de azul escuro igual ao oceano
+          fetch('https://cdn.jsdelivr.net/gh/nvkelso/natural-earth-vector@master/geojson/ne_110m_lakes.geojson')
+            .then(r => r.json())
+            .then(lakesData => {
+              mapGroup.selectAll(".map-lake")
+                .data(lakesData.features)
+                .enter()
+                .append("path")
+                .attr("class", "map-lake")
+                .attr("d", svgPath);
+            })
+            .catch(() => {});
 
           refreshBoardVisualState();
         })
@@ -1959,7 +2394,7 @@
         const r = d3.interpolate(projection.rotate(), targetRotate);
         return (t) => {
           projection.rotate(r(t));
-          mapGroup.selectAll("path.map-country").attr("d", svgPath);
+          redrawGlobePaths();
         };
       }).on("end", checkResetButtonVisibility);
     }
@@ -1975,7 +2410,7 @@
         return (t) => {
           projection.rotate(r(t)).scale(s(t));
           mapGroup.select(".ocean").attr("r", s(t));
-          mapGroup.selectAll("path.map-country").attr("d", svgPath);
+          redrawGlobePaths();
         };
       }).on("end", checkResetButtonVisibility);
     }
@@ -1987,7 +2422,7 @@
         return (t) => {
           projection.rotate(r(t)).scale(s(t));
           mapGroup.select(".ocean").attr("r", s(t));
-          mapGroup.selectAll("path.map-country").attr("d", svgPath);
+          redrawGlobePaths();
         };
       }).on("end", checkResetButtonVisibility);
     }
@@ -2042,14 +2477,38 @@
       percentDisplay.innerText = `${pct}%`;
       progressBar.style.width = `${pct}%`;
 
-      ['Africa', 'Americas', 'Asia', 'Europa', 'Oceania'].forEach(key => {
+      CONTINENT_KEYS.forEach(key => {
         const badge = document.getElementById(`badge-${key}`);
-        if (badge) badge.innerText = `${counts[key]}/${totals[key]}`;
+        const trophy = document.getElementById(`trophy-${key}`);
+        const colSec = document.querySelector(`#continentsContainer section[data-continent="${key}"]`);
+        const isComp = counts[key] === totals[key];
+
+        if (badge) {
+          badge.innerText = isComp ? `${counts[key]}/${totals[key]} ✓` : `${counts[key]}/${totals[key]}`;
+          if (isComp) {
+            badge.className = "text-[11px] px-2 py-0.5 rounded-full bg-emerald-500 text-black font-extrabold border border-emerald-400";
+          } else {
+            badge.className = "text-[11px] px-2 py-0.5 rounded-full bg-zinc-800 text-zinc-300 font-bold border border-zinc-700";
+          }
+        }
+        if (trophy) {
+          trophy.classList.toggle('hidden', !isComp);
+        }
+        if (colSec) {
+          colSec.classList.toggle('continent-completed', isComp);
+        }
+
+        // Dispara a celebração quando o continente acaba de ser completado durante a partida
+        if (isComp && !completedContinents.has(key)) {
+          completedContinents.add(key);
+          if (isPlaying) {
+            triggerContinentCelebration(key);
+          }
+        }
       });
 
-      // Condição de término da partida (todos acertados, ou no Modo Ordem Alfabética quando a fila chega ao fim)
       const allProcessed = (currentGameMode === 'alphabetical')
-        ? (currentAlphaStep >= TOTAL_COUNTRIES)
+        ? isAlphabeticalFinished()
         : (counts.all === TOTAL_COUNTRIES);
 
       if (allProcessed && !isGameOver && isPlaying) {
@@ -2096,9 +2555,13 @@
       isPlaying = true;
       isGameOver = false;
       pendingModeSwitch = null;
+      pendingSubModeSwitch = null;
       guessedCountries.clear();
       skippedCountries.clear();
+      completedContinents.clear();
       currentAlphaStep = 0;
+      activeAlphaContinent = 'Africa';
+      continentAlphaSteps = { Africa: 0, Americas: 0, Asia: 0, Europa: 0, Oceania: 0 };
       pendingHardcoreCountryIdx = null;
       currentFlagTargetIdx = null;
       hintsRemaining = gameSettings.maxHints;
@@ -2118,9 +2581,7 @@
       countryInput.classList.add('border-zinc-800', 'focus:border-zinc-500');
 
       if (currentGameMode === 'alphabetical') {
-        const firstChar = ALPHABETICAL_ORDER[0].name.charAt(0).toUpperCase();
-        countryInput.placeholder = `Digite o 1º país em ordem alfabética (Letra ${firstChar})...`;
-        modeExtraStatus.innerText = `Posição atual: #001 / ${TOTAL_COUNTRIES}`;
+        updateAlphaPromptsAndHighlights();
       } else if (currentGameMode === 'hardcore') {
         countryInput.placeholder = 'Etapa 1: Digite o nome de um país...';
         modeExtraStatus.innerText = "Etapa 1: Digite um país";
@@ -2137,10 +2598,10 @@
 
       countryInput.focus();
       typingFeedback.innerText = 'Digite';
-      typingFeedback.className = 'absolute right-4 text-xs font-bold px-2.5 py-1 rounded bg-zinc-800 text-zinc-400';
+      typingFeedback.className = 'absolute right-3 sm:right-4 text-xs font-bold px-2.5 py-1 rounded bg-zinc-800 text-zinc-400';
 
       gameActionBtn.innerHTML = `<i data-lucide="flag" class="w-4 h-4 fill-white"></i> <span>Desistir</span>`;
-      gameActionBtn.className = "px-4 py-2 rounded-lg font-bold text-sm bg-rose-600 hover:bg-rose-500 text-white shadow-md transition flex items-center gap-1.5";
+      gameActionBtn.className = "px-3.5 sm:px-4 py-2 rounded-lg font-bold text-sm bg-rose-600 hover:bg-rose-500 text-white shadow-md transition flex items-center gap-1.5";
       lucide.createIcons();
 
       timeRemaining = selectedDurationMinutes > 0 ? selectedDurationMinutes * 60 : 0;
@@ -2157,12 +2618,16 @@
         if (!saved || !saved.isPlaying) return false;
 
         currentGameMode = saved.currentGameMode || 'classic';
+        alphaSubMode = saved.alphaSubMode || 'global';
+        activeAlphaContinent = saved.activeAlphaContinent || 'Africa';
+        continentAlphaSteps = saved.continentAlphaSteps || { Africa: 0, Americas: 0, Asia: 0, Europa: 0, Oceania: 0 };
         isPlaying = true;
         isGameOver = false;
         selectedDurationMinutes = saved.selectedDurationMinutes ?? 15;
         timeRemaining = saved.timeRemaining ?? (selectedDurationMinutes * 60);
         guessedCountries = new Set(saved.guessedCountries || []);
         skippedCountries = new Set(saved.skippedCountries || []);
+        completedContinents = new Set(saved.completedContinents || []);
         currentAlphaStep = saved.currentAlphaStep || 0;
         pendingHardcoreCountryIdx = saved.pendingHardcoreCountryIdx ?? null;
         currentFlagTargetIdx = saved.currentFlagTargetIdx ?? null;
@@ -2187,9 +2652,6 @@
           countryInput.placeholder = `Qual é a capital de ${pendingCountry.name}?`;
           countryInput.classList.remove('border-zinc-800', 'focus:border-zinc-500');
           countryInput.classList.add('border-amber-500', 'focus:border-amber-400');
-        } else if (currentGameMode === 'alphabetical' && currentAlphaStep < ALPHABETICAL_ORDER.length) {
-          const nextChar = ALPHABETICAL_ORDER[currentAlphaStep].name.charAt(0).toUpperCase();
-          countryInput.placeholder = `Próximo: #${String(currentAlphaStep + 1).padStart(3, '0')} na ordem alfabética (Letra ${nextChar})...`;
         } else if (currentGameMode === 'flags') {
           if (currentFlagTargetIdx === null) pickNextFlagTarget();
           countryInput.placeholder = 'Digite o país correspondente à bandeira acima...';
@@ -2198,10 +2660,10 @@
         }
 
         typingFeedback.innerText = 'Jogo Restaurado';
-        typingFeedback.className = 'absolute right-4 text-xs font-bold px-2.5 py-1 rounded bg-emerald-900/40 text-emerald-400 border border-emerald-500/30';
+        typingFeedback.className = 'absolute right-3 sm:right-4 text-xs font-bold px-2.5 py-1 rounded bg-emerald-900/40 text-emerald-400 border border-emerald-500/30';
 
         gameActionBtn.innerHTML = `<i data-lucide="flag" class="w-4 h-4 fill-white"></i> <span>Desistir</span>`;
-        gameActionBtn.className = "px-4 py-2 rounded-lg font-bold text-sm bg-rose-600 hover:bg-rose-500 text-white shadow-md transition flex items-center gap-1.5";
+        gameActionBtn.className = "px-3.5 sm:px-4 py-2 rounded-lg font-bold text-sm bg-rose-600 hover:bg-rose-500 text-white shadow-md transition flex items-center gap-1.5";
 
         updateModeUI();
         updateActionButtonsLabels();
@@ -2232,21 +2694,20 @@
       updateFlagChallengeUI();
       
       gameActionBtn.innerHTML = `<i data-lucide="play" class="w-4 h-4 fill-black"></i> <span class="text-black">Novo Jogo</span>`;
-      gameActionBtn.className = "px-4 py-2 rounded-lg font-bold text-sm bg-white hover:bg-zinc-200 text-black shadow-md transition flex items-center gap-1.5";
+      gameActionBtn.className = "px-3.5 sm:px-4 py-2 rounded-lg font-bold text-sm bg-white hover:bg-zinc-200 text-black shadow-md transition flex items-center gap-1.5";
       lucide.createIcons();
 
-      // Revela respostas nas colunas de continentes
       COUNTRIES_DB.forEach((c, idx) => {
         const cell = document.getElementById(`cell-${idx}`);
-        if (!guessedCountries.has(idx)) {
+        if (!guessedCountries.has(idx) && !skippedCountries.has(idx)) {
           if (cell) {
-            cell.classList.remove('bg-zinc-950/60', 'border-zinc-800/80', 'bg-amber-950/30', 'border-amber-500/60');
+            cell.classList.remove('bg-zinc-950/60', 'border-zinc-800/80', 'bg-amber-950/30', 'border-amber-500/60', 'border-amber-400', 'ring-1', 'ring-amber-400/40', 'bg-zinc-800/80');
             cell.classList.add('bg-rose-950/20', 'border-rose-900/50');
             
             const lbl = cell.querySelector('.country-label');
             if (lbl) {
               lbl.innerText = c.name;
-              lbl.classList.remove('text-zinc-500', 'text-amber-400');
+              lbl.classList.remove('text-zinc-500', 'text-amber-400', 'text-amber-300');
               lbl.classList.add('text-rose-400');
             }
 
@@ -2263,13 +2724,14 @@
               flag.classList.add('w-6', 'opacity-50', 'scale-100', 'grayscale'); 
             }
           }
-          updateMapCountry(idx, skippedCountries.has(idx) ? 'skipped' : 'missed');
+          updateMapCountry(idx, 'missed');
+        } else if (skippedCountries.has(idx)) {
+          updateMapCountry(idx, 'skipped');
         } else {
           updateMapCountry(idx, 'guessed');
         }
       });
 
-      // Revela respostas na tela de Ordem Alfabética
       ALPHABETICAL_ORDER.forEach((item, globalOrderIdx) => {
         const alphaCell = document.getElementById(`alpha-cell-${globalOrderIdx}`);
         if (alphaCell) {
@@ -2319,12 +2781,11 @@
       gameOverModal.classList.remove('hidden');
     }
 
-    // MARCAR ACERTO COMPLETO DE UM PAÍS (E OCULTAR DICA AUTOMATICAMENTE)
+    // MARCAR ACERTO COMPLETO DE UM PAÍS
     function registerCountrySuccess(foundIndex, customLastText = null) {
       guessedCountries.add(foundIndex);
       const country = COUNTRIES_DB[foundIndex];
 
-      // Oculta automaticamente qualquer dica que estivesse aberta
       hideHintBanner();
 
       if (normalize(country.name) === "palestina") {
@@ -2333,13 +2794,13 @@
 
       const cell = document.getElementById(`cell-${foundIndex}`);
       if (cell) {
-        cell.classList.remove('bg-zinc-950/60', 'border-zinc-800/80', 'bg-amber-950/30', 'border-amber-500/60');
+        cell.classList.remove('bg-zinc-950/60', 'border-zinc-800/80', 'bg-amber-950/30', 'border-amber-500/60', 'border-amber-400', 'ring-1', 'ring-amber-400/40', 'bg-zinc-800/80');
         cell.classList.add('bg-emerald-950/30', 'border-emerald-900/50');
         
         const lbl = cell.querySelector('.country-label');
         if (lbl) {
           lbl.innerText = country.name;
-          lbl.classList.remove('text-zinc-500', 'text-amber-400');
+          lbl.classList.remove('text-zinc-500', 'text-amber-400', 'text-amber-300');
           lbl.classList.add('text-emerald-400', 'font-bold');
         }
 
@@ -2374,9 +2835,7 @@
       const val = normalize(rawVal);
       if (!val) return;
 
-      // ==========================================
       // MODO 1: CLÁSSICO
-      // ==========================================
       if (currentGameMode === 'classic') {
         let foundIndex = -1;
         for (let i = 0; i < COUNTRIES_DB.length; i++) {
@@ -2389,69 +2848,66 @@
         if (foundIndex !== -1) {
           if (guessedCountries.has(foundIndex)) {
             typingFeedback.innerText = 'Já digitado!';
-            typingFeedback.className = 'absolute right-4 text-xs font-bold px-2.5 py-1 rounded bg-zinc-800 text-zinc-300 border border-zinc-700';
+            typingFeedback.className = 'absolute right-3 sm:right-4 text-xs font-bold px-2.5 py-1 rounded bg-zinc-800 text-zinc-300 border border-zinc-700';
             playSound('duplicate');
           } else {
             typingFeedback.innerText = '+1 País!';
-            typingFeedback.className = 'absolute right-4 text-xs font-bold px-2.5 py-1 rounded bg-emerald-900/40 text-emerald-400 border border-emerald-500/30';
+            typingFeedback.className = 'absolute right-3 sm:right-4 text-xs font-bold px-2.5 py-1 rounded bg-emerald-900/40 text-emerald-400 border border-emerald-500/30';
             registerCountrySuccess(foundIndex);
           }
         }
       }
 
-      // ==========================================
-      // MODO 2: ORDEM ALFABÉTICA (A-Z)
-      // ==========================================
+      // MODO 2: ORDEM ALFABÉTICA (GLOBAL OU POR CONTINENTE)
       else if (currentGameMode === 'alphabetical') {
-        if (currentAlphaStep >= ALPHABETICAL_ORDER.length) return;
-        const targetItem = ALPHABETICAL_ORDER[currentAlphaStep];
+        const targetItem = getCurrentAlphaTargetItem();
+        if (!targetItem) return;
+
         const isTargetMatch = normalize(targetItem.name) === val || targetItem.syn.some(s => normalize(s) === val);
 
         if (isTargetMatch) {
-          const alphaCell = document.getElementById(`alpha-cell-${currentAlphaStep}`);
-          if (alphaCell) {
-            alphaCell.classList.remove('bg-zinc-900/50', 'border-zinc-800/70', 'border-white', 'ring-1', 'ring-white/40', 'bg-zinc-800/80');
-            alphaCell.classList.add('bg-emerald-950/30', 'border-emerald-900/50');
-            const lbl = alphaCell.querySelector('.alpha-label');
-            if (lbl) {
-              lbl.innerText = targetItem.name;
-              lbl.classList.remove('text-zinc-500', 'text-white');
-              lbl.classList.add('text-emerald-400', 'font-bold');
+          if (alphaSubMode === 'global') {
+            const alphaCell = document.getElementById(`alpha-cell-${currentAlphaStep}`);
+            if (alphaCell) {
+              alphaCell.classList.remove('bg-zinc-900/50', 'border-zinc-800/70', 'border-white', 'ring-1', 'ring-white/40', 'bg-zinc-800/80');
+              alphaCell.classList.add('bg-emerald-950/30', 'border-emerald-900/50');
+              const lbl = alphaCell.querySelector('.alpha-label');
+              if (lbl) {
+                lbl.innerText = targetItem.name;
+                lbl.classList.remove('text-zinc-500', 'text-white');
+                lbl.classList.add('text-emerald-400', 'font-bold');
+              }
+              const flag = alphaCell.querySelector('.alpha-flag');
+              if (flag) {
+                flag.classList.remove('w-0', 'opacity-0', 'scale-50', 'opacity-80');
+                flag.classList.add('w-6', 'opacity-100', 'scale-100');
+              }
             }
-            const flag = alphaCell.querySelector('.alpha-flag');
-            if (flag) {
-              flag.classList.remove('w-0', 'opacity-0', 'scale-50', 'opacity-80');
-              flag.classList.add('w-6', 'opacity-100', 'scale-100');
-            }
+            currentAlphaStep++;
+            typingFeedback.innerText = `Acerto #${currentAlphaStep}!`;
+          } else {
+            continentAlphaSteps[activeAlphaContinent]++;
+            typingFeedback.innerText = `+1 ${CONTINENT_NAMES[activeAlphaContinent]}!`;
+            checkAndAdvanceAlphaContinent();
           }
 
-          currentAlphaStep++;
-          typingFeedback.innerText = `Acerto #${currentAlphaStep}!`;
-          typingFeedback.className = 'absolute right-4 text-xs font-bold px-2.5 py-1 rounded bg-emerald-900/40 text-emerald-400 border border-emerald-500/30';
+          typingFeedback.className = 'absolute right-3 sm:right-4 text-xs font-bold px-2.5 py-1 rounded bg-emerald-900/40 text-emerald-400 border border-emerald-500/30';
           registerCountrySuccess(targetItem.originalIndex);
-
-          if (currentAlphaStep < ALPHABETICAL_ORDER.length) {
-            const nextChar = ALPHABETICAL_ORDER[currentAlphaStep].name.charAt(0).toUpperCase();
-            countryInput.placeholder = `Próximo: #${String(currentAlphaStep + 1).padStart(3, '0')} na ordem alfabética (Letra ${nextChar})...`;
-            modeExtraStatus.innerText = `Posição atual: #${String(currentAlphaStep + 1).padStart(3, '0')} / ${TOTAL_COUNTRIES}`;
-          }
-          highlightCurrentAlphaSlot();
+          updateAlphaPromptsAndHighlights();
           updateActionButtonsLabels();
           saveGameProgress();
         } else {
           const otherMatch = COUNTRIES_DB.find(c => normalize(c.name) === val || c.syn.some(s => normalize(s) === val));
           if (otherMatch) {
             const firstChar = targetItem.name.charAt(0).toUpperCase();
-            typingFeedback.innerText = `Fora de ordem! Vez do #${currentAlphaStep + 1} (${firstChar})`;
-            typingFeedback.className = 'absolute right-4 text-xs font-bold px-2.5 py-1 rounded bg-amber-950/60 text-amber-400 border border-amber-500/40';
+            typingFeedback.innerText = `Vez da letra "${firstChar}"!`;
+            typingFeedback.className = 'absolute right-3 sm:right-4 text-xs font-bold px-2.5 py-1 rounded bg-amber-950/60 text-amber-400 border border-amber-500/40';
             playSound('duplicate');
           }
         }
       }
 
-      // ==========================================
       // MODO 3: HARDCORE (PAÍS + CAPITAL)
-      // ==========================================
       else if (currentGameMode === 'hardcore') {
         if (pendingHardcoreCountryIdx === null) {
           let foundIndex = -1;
@@ -2465,13 +2921,12 @@
           if (foundIndex !== -1) {
             if (guessedCountries.has(foundIndex)) {
               typingFeedback.innerText = 'País já concluído!';
-              typingFeedback.className = 'absolute right-4 text-xs font-bold px-2.5 py-1 rounded bg-zinc-800 text-zinc-300 border border-zinc-700';
+              typingFeedback.className = 'absolute right-3 sm:right-4 text-xs font-bold px-2.5 py-1 rounded bg-zinc-800 text-zinc-300 border border-zinc-700';
               playSound('duplicate');
             } else {
               pendingHardcoreCountryIdx = foundIndex;
               const country = COUNTRIES_DB[foundIndex];
 
-              // Esconde qualquer dica sobre o país ao avançar para a etapa da capital
               hideHintBanner();
 
               const cell = document.getElementById(`cell-${foundIndex}`);
@@ -2503,7 +2958,7 @@
               modeExtraStatus.innerText = `🔥 Digite a capital de: ${country.name}`;
               lastGuessedDisplay.innerText = `${country.name} (Capital?)`;
               typingFeedback.innerText = `Agora a capital!`;
-              typingFeedback.className = 'absolute right-4 text-xs font-bold px-2.5 py-1 rounded bg-amber-950/60 text-amber-400 border border-amber-500/40';
+              typingFeedback.className = 'absolute right-3 sm:right-4 text-xs font-bold px-2.5 py-1 rounded bg-amber-950/60 text-amber-400 border border-amber-500/40';
               playSound('step');
               saveGameProgress();
             }
@@ -2522,23 +2977,21 @@
             modeExtraStatus.innerText = "Etapa 1: Digite um país";
 
             typingFeedback.innerText = 'País + Capital!';
-            typingFeedback.className = 'absolute right-4 text-xs font-bold px-2.5 py-1 rounded bg-emerald-900/40 text-emerald-400 border border-emerald-500/30';
+            typingFeedback.className = 'absolute right-3 sm:right-4 text-xs font-bold px-2.5 py-1 rounded bg-emerald-900/40 text-emerald-400 border border-emerald-500/30';
 
             registerCountrySuccess(idxToComplete, `${pendingCountry.name} (${pendingCountry.capital})`);
           } else {
             const otherCountry = COUNTRIES_DB.find((c, idx) => idx !== pendingHardcoreCountryIdx && (normalize(c.name) === val || c.syn.some(s => normalize(s) === val)));
             if (otherCountry) {
               typingFeedback.innerText = `Acerte a capital de ${pendingCountry.name}!`;
-              typingFeedback.className = 'absolute right-4 text-xs font-bold px-2.5 py-1 rounded bg-rose-950/60 text-rose-400 border border-rose-500/40';
+              typingFeedback.className = 'absolute right-3 sm:right-4 text-xs font-bold px-2.5 py-1 rounded bg-rose-950/60 text-rose-400 border border-rose-500/40';
               playSound('duplicate');
             }
           }
         }
       }
 
-      // ==========================================
       // MODO 4: MODO BANDEIRAS
-      // ==========================================
       else if (currentGameMode === 'flags') {
         if (currentFlagTargetIdx === null) return;
         const targetCountry = COUNTRIES_DB[currentFlagTargetIdx];
@@ -2546,7 +2999,7 @@
 
         if (isFlagMatch) {
           typingFeedback.innerText = 'Bandeira Correta!';
-          typingFeedback.className = 'absolute right-4 text-xs font-bold px-2.5 py-1 rounded bg-emerald-900/40 text-emerald-400 border border-emerald-500/30';
+          typingFeedback.className = 'absolute right-3 sm:right-4 text-xs font-bold px-2.5 py-1 rounded bg-emerald-900/40 text-emerald-400 border border-emerald-500/30';
           registerCountrySuccess(currentFlagTargetIdx);
 
           if (guessedCountries.size < TOTAL_COUNTRIES) {
@@ -2558,11 +3011,63 @@
           const otherMatch = COUNTRIES_DB.find((c, idx) => idx !== currentFlagTargetIdx && (normalize(c.name) === val || c.syn.some(s => normalize(s) === val)));
           if (otherMatch) {
             typingFeedback.innerText = `Não é a bandeira de ${otherMatch.name}!`;
-            typingFeedback.className = 'absolute right-4 text-xs font-bold px-2.5 py-1 rounded bg-rose-950/60 text-rose-400 border border-rose-500/40';
+            typingFeedback.className = 'absolute right-3 sm:right-4 text-xs font-bold px-2.5 py-1 rounded bg-rose-950/60 text-rose-400 border border-rose-500/40';
             playSound('duplicate');
           }
         }
       }
+    });
+
+    // ALTERNAR SUBMODO DA ORDEM ALFABÉTICA (TODOS OS PAÍSES vs POR CONTINENTE)
+    function switchAlphaSubMode(targetSub) {
+      if (alphaSubMode === targetSub) return;
+      if (isPlaying) {
+        openNativeConfirm(
+          "Trocar Formato da Ordem Alfabética?",
+          "Sua partida atual será encerrada e seu resultado será exibido antes de mudar o formato.",
+          "Ver Resultado e Trocar",
+          () => {
+            pendingSubModeSwitch = targetSub;
+            endGame(false, "Partida Encerrada");
+          }
+        );
+        return;
+      }
+      alphaSubMode = targetSub;
+      isGameOver = false;
+      guessedCountries.clear();
+      skippedCountries.clear();
+      completedContinents.clear();
+      currentAlphaStep = 0;
+      activeAlphaContinent = 'Africa';
+      continentAlphaSteps = { Africa: 0, Americas: 0, Asia: 0, Europa: 0, Oceania: 0 };
+      updateModeUI();
+    }
+
+    alphaSubGlobalBtn.addEventListener('click', () => switchAlphaSubMode('global'));
+    alphaSubContinentBtn.addEventListener('click', () => switchAlphaSubMode('continent'));
+
+    // SELECIONAR CONTINENTE ATIVO NA ORDEM ALFABÉTICA POR CONTINENTE
+    alphaContinentPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        const cont = pill.dataset.cont;
+        if (continentAlphaSteps[cont] < CONTINENT_ALPHA_ORDER[cont].length) {
+          activeAlphaContinent = cont;
+          scrollToContinentColumn(cont);
+          updateAlphaPromptsAndHighlights();
+          saveGameProgress();
+          if (isPlaying) countryInput.focus();
+        }
+      });
+    });
+
+    // ATALHO DE DESLIZE MOBILE PARA CONTINENTES
+    document.querySelectorAll('.mobile-cont-jump').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const cont = btn.dataset.scrollCont;
+        const col = document.querySelector(`#continentsContainer section[data-continent="${cont}"]`);
+        if (col) col.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      });
     });
 
     // TROCA DE ABAS DE MODO DE JOGO
@@ -2594,7 +3099,9 @@
         isGameOver = false;
         guessedCountries.clear();
         skippedCountries.clear();
+        completedContinents.clear();
         currentAlphaStep = 0;
+        continentAlphaSteps = { Africa: 0, Americas: 0, Asia: 0, Europa: 0, Oceania: 0 };
         pendingHardcoreCountryIdx = null;
         currentFlagTargetIdx = null;
         currentGameMode = targetMode;
@@ -2662,7 +3169,7 @@
 
       const modeNames = {
         classic: "Modo Clássico",
-        alphabetical: "Modo Ordem Alfabética (A-Z)",
+        alphabetical: alphaSubMode === 'global' ? "Modo Ordem Alfabética (A-Z Global)" : "Modo Ordem Alfabética (Por Continente)",
         hardcore: "Modo Hardcore (País + Capital)",
         flags: "Modo Bandeiras"
       };
@@ -2673,36 +3180,39 @@
       window.open(whatsappUrl, '_blank');
     });
 
-    // BOTÕES DO MODAL DE RESULTADO
+    // FINALIZAR TRANSIÇÃO DE MODO OU SUBMODO APÓS FECHAR O MODAL DE RESULTADO
+    function applyPendingModeTransitions() {
+      if (pendingModeSwitch) {
+        currentGameMode = pendingModeSwitch;
+        pendingModeSwitch = null;
+      }
+      if (pendingSubModeSwitch) {
+        alphaSubMode = pendingSubModeSwitch;
+        pendingSubModeSwitch = null;
+      }
+      isGameOver = false;
+      guessedCountries.clear();
+      skippedCountries.clear();
+      completedContinents.clear();
+      currentAlphaStep = 0;
+      activeAlphaContinent = 'Africa';
+      continentAlphaSteps = { Africa: 0, Americas: 0, Asia: 0, Europa: 0, Oceania: 0 };
+      pendingHardcoreCountryIdx = null;
+      currentFlagTargetIdx = null;
+      updateModeUI();
+    }
+
     document.getElementById('modalReviewBtn').addEventListener('click', () => {
       gameOverModal.classList.add('hidden');
-      if (pendingModeSwitch) {
-        const target = pendingModeSwitch;
-        pendingModeSwitch = null;
-        isGameOver = false;
-        guessedCountries.clear();
-        skippedCountries.clear();
-        currentAlphaStep = 0;
-        pendingHardcoreCountryIdx = null;
-        currentFlagTargetIdx = null;
-        currentGameMode = target;
-        updateModeUI();
+      if (pendingModeSwitch || pendingSubModeSwitch) {
+        applyPendingModeTransitions();
       }
     });
 
     document.getElementById('modalRestartBtn').addEventListener('click', () => {
       gameOverModal.classList.add('hidden');
-      if (pendingModeSwitch) {
-        const target = pendingModeSwitch;
-        pendingModeSwitch = null;
-        isGameOver = false;
-        guessedCountries.clear();
-        skippedCountries.clear();
-        currentAlphaStep = 0;
-        pendingHardcoreCountryIdx = null;
-        currentFlagTargetIdx = null;
-        currentGameMode = target;
-        updateModeUI();
+      if (pendingModeSwitch || pendingSubModeSwitch) {
+        applyPendingModeTransitions();
       } else {
         startGame();
       }
